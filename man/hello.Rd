@@ -15,7 +15,7 @@ It says hello to whoever you want, by default world.
 \examples{
 #'
 \dontrun{
-library(EmptyPackage)
+library(OmopStudyBuilder)
 hello()
 }
 }
