@@ -40,10 +40,10 @@ info(logger, "Study cohorts instantiated")
 
 # Run analyses ----
 info(logger, "Run study analyses")
-source(here("Cohorts", "cohort_characteristics.R"))
-source(here("Cohorts", "cohort_survival.R"))
-source(here("Cohorts", "drug_utilisation.R"))
-source(here("Cohorts", "incidence_prevalence.R"))
+source(here("analyses", "cohort_characteristics.R"))
+source(here("analyses", "cohort_survival.R"))
+source(here("analyses", "drug_utilisation.R"))
+source(here("analyses", "incidence_prevalence.R"))
 info(logger, "Analyses finished")
 
 # Finish ----
