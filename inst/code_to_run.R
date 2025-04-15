@@ -1,23 +1,22 @@
 # renv::activate()
 # renv::restore()
 
-library(CDMConnector)
-library(DBI)
 library(log4r)
+library(DBI)
 library(dplyr)
 library(here)
-library(OmopSketch)
+library(CDMConnector)
 library(omopgenerics)
-library(CohortConstructor)
-library(PhenotypeR)
-library(CohortCharacteristics)
-library(PatientProfiles)
-library(visOmopResults)
-library(stringr)
+library(OmopSketch)
 library(CodelistGenerator)
+library(CohortConstructor)
+library(PatientProfiles)
+library(CohortCharacteristics)
+library(DrugUtilisation)
+library(IncidencePrevalence)
+library(CohortSurvival)
 library(odbc)
 library(RPostgres)
-library(readr)
 
 # database metadata and connection details
 # The name/ acronym for the database
@@ -35,28 +34,25 @@ dbName <- "..."
 db <- dbConnect(...)
 
 # The name of the schema that contains the OMOP CDM with patient-level data
-cdmSchema <- "..."
+cdm_schema <- "..."
 
 # A prefix for all permanent tables in the database
-writePrefix <- "..."
+write_prefix <- "..."
 
 # The name of the schema where results tables will be created
-writeSchema <- "..."
+write_schema <- "..."
 
 # minimum counts that can be displayed according to data governance
-minCellCount <- 5
+min_cell_count <- 5
 
 # Create cdm object ----
 cdm <- cdmFromCon(
   con = db,
-  cdmSchema = cdmSchema,
-  writeSchema = writeSchema,
-  writePrefix = writePrefix,
-  cdmName = dbName
+  cdmSchema = cdm_schema,
+  writeSchema = write_schema,
+  writePrefix = write_prefix,
+  cdmName = db_name
 )
 
 # Run the study
-source(here("RunStudy.R"))
-
-# after the study is run you should have a zip folder in your output folder to share
-cli::cli_alert_success("Study finished")
+source(here("run_study.R"))

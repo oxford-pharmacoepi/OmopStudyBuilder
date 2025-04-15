@@ -37,3 +37,7 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+# Result files
+inst/results/*.txt
+inst/results/*.csv
