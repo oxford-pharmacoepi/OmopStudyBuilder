@@ -2,19 +2,21 @@
 % Please edit documentation in R/createStudy.R
 \name{createStudy}
 \alias{createStudy}
-\title{Create an empty study}
+\title{Creates initial directory for an OMOP CDM network study}
 \usage{
-createStudy(directory, title = "my_study")
+createStudy(directory, diagnostics = TRUE, study = TRUE)
 }
 \arguments{
 \item{directory}{Path to an existing but empty directory which we will be
 the root directory for our study}
 
-\item{title}{Study title}
+\item{diagnostics}{If TRUE, directories for diagnositcs will be created}
+
+\item{study}{If TRUE, directories for the study will be created.}
 }
 \value{
-Adds study readme to the
+Project directory will be created
 }
 \description{
-Create an empty study
+Creates initial directory for an OMOP CDM network study
 }

@@ -1,3 +1,10 @@
+#' Summarise dependencies in renv lock file
+#'
+#' @param dir Path to folder containing R project with renv.lock file
+#'
+#' @returns Summary of state of dependencies
+#' @export
+#'
 summariseStudyDependencies  <- function(dir){
 
   if(!file.exists(here::here(dir, "renv.lock"))){
@@ -96,7 +103,7 @@ packages <- names(lock$Packages) |>
 
 packages <- packages |>
   dplyr::left_join(
-    utils::available.packages() |>
+    utils::available.packages(repos = "https://cran.rstudio.com/") |>
       dplyr::as_tibble() |>
       dplyr::select("pkg" = "Package",
              "cran_version" = "Version"),
@@ -104,10 +111,10 @@ packages <- packages |>
   )
 
 discordantPackages <- packages |>
-  dplyr::filter(renv_version != cran_version) |>
-  dplyr::mutate(compare = paste0(pkg, " ", renv_version,
+  dplyr::filter(.data$renv_version != .data$cran_version) |>
+  dplyr::mutate(compare = paste0(.data$pkg, " ", .data$renv_version,
                        " (renv) vs ",
-                       cran_version,
+                       .data$cran_version,
                        " (cran)"))
 
 if(nrow(discordantPackages) > 0){
