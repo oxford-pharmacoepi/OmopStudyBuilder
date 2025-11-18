@@ -16,17 +16,17 @@ summariseStudyDependencies  <- function(dir, type = "analysis"){
     return(invisible(NULL))
   }
 
-  reportDependencies(dir, type = type)
+  reportDependencies(dir)
 
   lock <- renv::lockfile_read(here::here(dir, "renv.lock"))
-  reportLockPkgs(lock)
+  reportLockPkgs(lock, type)
   checkPkgSource(lock)
   checkLatestVersion(lock)
 
   return(invisible())
 }
 
-reportDependencies <- function(dir, type){
+reportDependencies <- function(dir){
   cli::cat_line()
   cli::cli_h2("Dependencies used in code")
 
@@ -39,41 +39,49 @@ reportDependencies <- function(dir, type){
   cli::cli_inform(c("In total, {length(directDependencies)} packages are used in the code.",
                     i = "{directDependenciesChr}"))
 
-  if(type == "analysis"){
-  warnJavaPkgs <- c("SqlRender", "CirceR")
-  if(any(warnJavaPkgs %in% directDependencies)){
-    cli::cat_line()
-    cli::cli_inform(c("Can {.code {intersect(warnJavaPkgs, directDependencies)}} be removed?",
-                      i = "Use requires JAVA installation."))
-
-  }
-
-  warnVisPkgs <- c("ggplot2", "gt")
-  if(any(warnVisPkgs %in% directDependencies)){
-    cli::cat_line()
-    cli::cli_inform(c("Can {.code {intersect(warnVisPkgs, directDependencies)}} be removed?",
-                      i = "Reporting packages should not need to be installed by a data partner to run analysis code."))
-  }
-
-  }
-
   return(invisible())
 
 }
 
-reportLockPkgs <- function(lock){
+reportLockPkgs <- function(lock, type){
   cli::cat_line()
   cli::cli_h2("Packages in renv lock file")
 
   lockPkgs <- names(lock$Packages) |>
-    sort() |>
+    sort()
+  lockPkgsVer <- lockPkgs |>
     purrr::map_chr(~ {
       wokrkingPkg <- .x
       paste0(wokrkingPkg, " (", lock$Packages[[wokrkingPkg]]$Version, ")")
     })
-  lockPkgsChr <- paste0(lockPkgs, collapse = "; ")
+  lockPkgsChr <- paste0(lockPkgsVer, collapse = "; ")
   cli::cli_inform(c("The renv.lock file contains {length(lockPkgs)} packages",
                     i = "{lockPkgsChr}"))
+
+  if(type == "analysis"){
+    warnJavaPkgs <- c("SqlRender", "CirceR")
+    if(any(warnJavaPkgs %in% lockPkgs)){
+      cli::cat_line()
+      cli::cli_inform(c("Can {.code {intersect(warnJavaPkgs, lockPkgs)}} be removed?",
+                        i = "Use requires JAVA installation."))
+
+    }
+
+    warnRVerPkgs <- c("MASS", "Matrix")
+    if(any(warnRVerPkgs %in% lockPkgs)){
+      cli::cat_line()
+      cli::cli_inform(c("Can {.code {intersect(warnRVerPkgs, lockPkgs)}} be removed?",
+                        i = "Packages tied to a specific version of R and can be challenging for data partners to restore."))
+    }
+
+    warnVisPkgs <- c("ggplot2", "gt")
+    if(any(warnVisPkgs %in% lockPkgs)){
+      cli::cat_line()
+      cli::cli_inform(c("Can {.code {intersect(warnVisPkgs, lockPkgs)}} be removed?",
+                        i = "Reporting packages should not need to be installed by a data partner to run analysis code."))
+    }
+
+  }
 
   return(invisible())
 
