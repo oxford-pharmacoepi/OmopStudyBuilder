@@ -1,17 +1,22 @@
 #' Summarise dependencies in renv lock file
 #'
 #' @param dir Path to folder containing R project with renv.lock file
+#' @param type Whether R project is for analysis code or study reporting.
 #'
 #' @returns Summary of state of dependencies
 #' @export
 #'
-summariseStudyDependencies  <- function(dir){
+summariseStudyDependencies  <- function(dir, type = "analysis"){
+
+  omopgenerics::assertChoice(type, choices = c("analysis", "reporting"))
 
   if(!file.exists(here::here(dir, "renv.lock"))){
-    cli::cli_abort("renv.lock file not found in {dir}")
+    cli::cli_warn(c("renv.lock file not found in {dir}",
+                    i = "A renv file should be added to ensure reproducibility"))
+    return(invisible(NULL))
   }
 
-  reportDependencies(dir)
+  reportDependencies(dir, type = type)
 
   lock <- renv::lockfile_read(here::here(dir, "renv.lock"))
   reportLockPkgs(lock)
@@ -21,7 +26,7 @@ summariseStudyDependencies  <- function(dir){
   return(invisible())
 }
 
-reportDependencies <- function(dir){
+reportDependencies <- function(dir, type){
   cli::cat_line()
   cli::cli_h2("Dependencies used in code")
 
@@ -33,6 +38,24 @@ reportDependencies <- function(dir){
 
   cli::cli_inform(c("In total, {length(directDependencies)} packages are used in the code.",
                     i = "{directDependenciesChr}"))
+
+  if(type == "analysis"){
+  warnJavaPkgs <- c("SqlRender", "CirceR")
+  if(any(warnJavaPkgs %in% directDependencies)){
+    cli::cat_line()
+    cli::cli_inform(c("Can {.code {intersect(warnJavaPkgs, directDependencies)}} be removed?",
+                      i = "Use requires JAVA installation."))
+
+  }
+
+  warnVisPkgs <- c("ggplot2", "gt")
+  if(any(warnVisPkgs %in% directDependencies)){
+    cli::cat_line()
+    cli::cli_inform(c("Can {.code {intersect(warnVisPkgs, directDependencies)}} be removed?",
+                      i = "Reporting packages should not need to be installed by a data partner to run analysis code."))
+  }
+
+  }
 
   return(invisible())
 

@@ -4,8 +4,8 @@ test_that("summarise renv", {
   dir.create(path = temp_dir, recursive = TRUE)
   createStudy(directory = temp_dir)
 
-  # no renv yet, so should error
-  expect_error(summariseStudyDependencies(here::here(temp_dir, "diagnostics_code")))
+  # no renv yet
+  expect_warning(summariseStudyDependencies(here::here(temp_dir, "diagnostics_code")))
 
   renv::init(here::here(temp_dir, "diagnostics_code"),
              restart = FALSE,

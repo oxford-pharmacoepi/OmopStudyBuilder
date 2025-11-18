@@ -15,7 +15,9 @@ Imports:
     dplyr,
     purrr,
     omopgenerics,
-    rlang
+    rlang,
+    scales,
+    stringr
 Suggests: 
     testthat, 
     here,

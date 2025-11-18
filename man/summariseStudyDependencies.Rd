@@ -4,10 +4,12 @@
 \alias{summariseStudyDependencies}
 \title{Summarise dependencies in renv lock file}
 \usage{
-summariseStudyDependencies(dir)
+summariseStudyDependencies(dir, type = "analysis")
 }
 \arguments{
 \item{dir}{Path to folder containing R project with renv.lock file}
+
+\item{type}{Whether R project is for analysis code or study reporting.}
 }
 \value{
 Summary of state of dependencies
