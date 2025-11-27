@@ -23,3 +23,7 @@ code that is unique to your study.
 The package is highly opinionated and designed to align with the OxInfer
 study code checklist
 <https://oxford-pharmacoepi.github.io/Oxinfer/onboarding/code_review.html>
+
+# Installation
+
+Instructions to install the package.
