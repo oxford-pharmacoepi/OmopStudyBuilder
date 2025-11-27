@@ -25,3 +25,8 @@ knitr::opts_chunk$set(
 The goal of OmopStudyBuilder is to help you prepare study for network studies using the OMOP CDM. The package takes care of setting up a R project for your study with the default structure and generic code that would be used for most network studies. This then leaves you to add the code that is unique to your study.
 
 The package is highly opinionated and designed to align with the OxInfer study code checklist https://oxford-pharmacoepi.github.io/Oxinfer/onboarding/code_review.html  
+
+
+# Installation
+
+Instructions to install the package.
