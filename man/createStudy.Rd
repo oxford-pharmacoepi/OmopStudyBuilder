@@ -7,8 +7,8 @@
 createStudy(directory, diagnostics = TRUE, study = TRUE)
 }
 \arguments{
-\item{directory}{Path to an existing but empty directory which we will be
-the root directory for our study}
+\item{directory}{Path to a directory that will be used as the root folder for
+the study. If it does not exist, it will be created. It must be empty.}
 
 \item{diagnostics}{If TRUE, directories for diagnositcs will be created}
 

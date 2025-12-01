@@ -1,19 +1,23 @@
 test_that("directory set up", {
 
-  # we require user to provide an empty, existing folder
+  # user can provide a directory that exists (and is empty) or does not yet exist
   temp_dir <- here::here(tempdir(), omopgenerics::uniqueTableName())
   dir.create(path = temp_dir, recursive = TRUE)
   expect_no_error(createStudy(directory = temp_dir))
   expect_true("README.md" %in% list.files(temp_dir))
 
-  # expected errors
+  # if directory does not exist, it should be created and used
   temp_dir <- here::here(tempdir(), omopgenerics::uniqueTableName())
-  # error if directory does not exist
-  expect_error(createStudy(directory = temp_dir))
+  expect_false(dir.exists(temp_dir))
+  expect_no_error(createStudy(directory = temp_dir))
+  expect_true(dir.exists(temp_dir))
+  expect_true("README.md" %in% list.files(temp_dir))
+
   # error if directory exists and contains files
-  dir.create(path = temp_dir, recursive = TRUE)
-  writeLines("some text", file.path(temp_dir,"notes.txt"))
-  expect_error(createStudy(directory = temp_dir))
+  temp_dir_non_empty <- here::here(tempdir(), omopgenerics::uniqueTableName())
+  dir.create(path = temp_dir_non_empty, recursive = TRUE)
+  writeLines("some text", file.path(temp_dir_non_empty, "notes.txt"))
+  expect_error(createStudy(directory = temp_dir_non_empty))
 
   # only diagnostics directories
   temp_dir_diag <- here::here(tempdir(), omopgenerics::uniqueTableName())
