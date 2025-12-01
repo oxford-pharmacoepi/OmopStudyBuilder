@@ -54,11 +54,11 @@ example below creates `"SampleStudy"` in the current working directory:
 
 ``` r
 OmopStudyBuilder::createStudy(here::here("SampleStudy"))
-#> ✔ ./OmopStudyBuilder/SampleStudy prepared as root folder for study.
-#> ✔ ./OmopStudyBuilder/SampleStudy/diagnostics_code prepared for study diagnostics code
-#> ✔ ./OmopStudyBuilder/SampleStudy/diagnostics_shiny prepared for diagnostics shiny app
-#> ✔ ./OmopStudyBuilder/SampleStudy/study_code prepared for study study code
-#> ✔ ./OmopStudyBuilder/SampleStudy/study_shiny prepared for study shiny app
+#> ✔ ,/SampleStudy prepared as root folder for study.
+#> ✔ ./SampleStudy/diagnostics_code prepared for study diagnostics code
+#> ✔ ./SampleStudy/diagnostics_shiny prepared for diagnostics shiny app
+#> ✔ ./SampleStudy/study_code prepared for study study code
+#> ✔ ./SampleStudy/study_shiny prepared for study shiny app
 ```
 
 After creating the project, open the study directory and use the
@@ -73,5 +73,11 @@ This will generate an `renv.lock` file, which OmopStudyBuilder uses to
 analyse the study dependencies:
 
 ``` r
-OmopStudyBuilder::summariseStudyDependencies(here::here("SampleStudy"))
+OmopStudyBuilder::reviewStudyDependencies(here::here("SampleStudy"))
+```
+
+To get a summary of the study code and its dependencies, you can use:
+
+``` r
+OmopStudyBuilder::reviewStudyCode(here::here("SampleStudy"))
 ```

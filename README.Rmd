@@ -63,6 +63,10 @@ renv::init()
 This will generate an `renv.lock` file, which OmopStudyBuilder uses to analyse the study dependencies:
 
 ```{r, eval = FALSE}
-OmopStudyBuilder::summariseStudyDependencies(here::here("SampleStudy"))
+OmopStudyBuilder::reviewStudyDependencies(here::here("SampleStudy"))
+```
 
+To get a summary of the study code and its dependencies, you can use:
+```{r, eval = FALSE}
+OmopStudyBuilder::reviewStudyCode(here::here("SampleStudy"))
 ```

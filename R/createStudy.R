@@ -18,7 +18,7 @@ createStudy <- function(directory,
   omopgenerics::assertLogical(study, length = 1)
 
 
-  # add readme
+  # Add README file
   invisible(file.copy(from = system.file("README.md", package = "OmopStudyBuilder"),
             to = directory))
 

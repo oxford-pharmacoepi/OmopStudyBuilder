@@ -6,7 +6,7 @@
 #' @returns
 #' @export
 #'
-summariseStudyCode <- function(dir){
+reviewStudyCode <- function(dir){
 
   summariseRFiles(dir)
   summariseJsonFiles(dir)
