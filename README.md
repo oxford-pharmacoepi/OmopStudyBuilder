@@ -19,8 +19,12 @@ The goal of **OmopStudyBuilder** is to help you prepare a study for
 network studies using the OMOP Common Data Model (CDM). The package sets
 up an R project for your study with a default folder structure and
 template code typically required for network studies. This allows you to
-focus on implementing the parts of the analysis that are specific to
-your study design.
+focus on the parts of the analysis that are specific to your study
+design.
+
+In addition to project setup, the package also provides utilities for
+reviewing study code and its dependencies, helping ensure
+reproducibility, consistency, and alignment with best practices.
 
 The package is highly opinionated and designed to align with the OxInfer
 study code checklist. For further details, please refer to the formal
@@ -49,12 +53,12 @@ Next, we create a new study project. You can provide any study name; the
 example below creates `"SampleStudy"` in the current working directory:
 
 ``` r
-OmopStudyBuilder::createStudy("./SampleStudy")
-#> ✔ ./SampleStudy prepared as root folder for study.
-#> ✔ ./SampleStudy/diagnostics_code prepared for study diagnostics code
-#> ✔ ./SampleStudy/diagnostics_shiny prepared for diagnostics shiny app
-#> ✔ ./SampleStudy/study_code prepared for study study code
-#> ✔ ./SampleStudy/study_shiny prepared for study shiny app
+OmopStudyBuilder::createStudy(here::here("SampleStudy"))
+#> ✔ /Users/foluwa/Desktop/NDORMS/projects/OmopStudyBuilder/SampleStudy prepared as root folder for study.
+#> ✔ /Users/foluwa/Desktop/NDORMS/projects/OmopStudyBuilder/SampleStudy/diagnostics_code prepared for study diagnostics code
+#> ✔ /Users/foluwa/Desktop/NDORMS/projects/OmopStudyBuilder/SampleStudy/diagnostics_shiny prepared for diagnostics shiny app
+#> ✔ /Users/foluwa/Desktop/NDORMS/projects/OmopStudyBuilder/SampleStudy/study_code prepared for study study code
+#> ✔ /Users/foluwa/Desktop/NDORMS/projects/OmopStudyBuilder/SampleStudy/study_shiny prepared for study shiny app
 ```
 
 After creating the project, open the study directory and use the
@@ -69,5 +73,5 @@ This will generate an `renv.lock` file, which OmopStudyBuilder uses to
 analyse the study dependencies:
 
 ``` r
-OmopStudyBuilder::summariseStudyDependencies("./SampleStudy/study_code")
+OmopStudyBuilder::summariseStudyDependencies(here::here("SampleStudy"))
 ```

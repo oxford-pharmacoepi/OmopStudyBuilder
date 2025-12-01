@@ -24,7 +24,9 @@ knitr::opts_chunk$set(
 
 <!-- badges: end -->
 
-The goal of **OmopStudyBuilder** is to help you prepare a study for network studies using the OMOP Common Data Model (CDM). The package sets up an R project for your study with a default folder structure and template code typically required for network studies. This allows you to focus on implementing the parts of the analysis that are specific to your study design.
+The goal of **OmopStudyBuilder** is to help you prepare a study for network studies using the OMOP Common Data Model (CDM). The package sets up an R project for your study with a default folder structure and template code typically required for network studies. This allows you to focus on the parts of the analysis that are specific to your study design.
+
+In addition to project setup, the package also provides utilities for reviewing study code and its dependencies, helping ensure reproducibility, consistency, and alignment with best practices.
 
 The package is highly opinionated and designed to align with the OxInfer study code checklist. For further details, please refer to the formal documentation at:
 [https://oxford-pharmacoepi.github.io/Oxinfer/onboarding/code_review.html](https://oxford-pharmacoepi.github.io/Oxinfer/onboarding/code_review.html)
@@ -49,7 +51,7 @@ library(OmopStudyBuilder)
 Next, we create a new study project. You can provide any study name; the example below creates `"SampleStudy"` in the current working directory:
 
 ```{r, eval = TRUE}
-OmopStudyBuilder::createStudy("./SampleStudy")
+OmopStudyBuilder::createStudy(here::here("SampleStudy"))
 ```
 
 After creating the project, open the study directory and use the [`renv`](https://rstudio.github.io/renv/) package to initialise a reproducible environment:
@@ -61,5 +63,6 @@ renv::init()
 This will generate an `renv.lock` file, which OmopStudyBuilder uses to analyse the study dependencies:
 
 ```{r, eval = FALSE}
-OmopStudyBuilder::summariseStudyDependencies("./SampleStudy/study_code")
+OmopStudyBuilder::summariseStudyDependencies(here::here("SampleStudy"))
+
 ```
