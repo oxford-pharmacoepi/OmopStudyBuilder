@@ -54,11 +54,11 @@ example below creates `"SampleStudy"` in the current working directory:
 
 ``` r
 OmopStudyBuilder::createStudy(here::here("SampleStudy"))
-#> ✔ /Users/foluwa/Desktop/NDORMS/projects/OmopStudyBuilder/SampleStudy prepared as root folder for study.
-#> ✔ /Users/foluwa/Desktop/NDORMS/projects/OmopStudyBuilder/SampleStudy/diagnostics_code prepared for study diagnostics code
-#> ✔ /Users/foluwa/Desktop/NDORMS/projects/OmopStudyBuilder/SampleStudy/diagnostics_shiny prepared for diagnostics shiny app
-#> ✔ /Users/foluwa/Desktop/NDORMS/projects/OmopStudyBuilder/SampleStudy/study_code prepared for study study code
-#> ✔ /Users/foluwa/Desktop/NDORMS/projects/OmopStudyBuilder/SampleStudy/study_shiny prepared for study shiny app
+#> ✔ ./OmopStudyBuilder/SampleStudy prepared as root folder for study.
+#> ✔ ./OmopStudyBuilder/SampleStudy/diagnostics_code prepared for study diagnostics code
+#> ✔ ./OmopStudyBuilder/SampleStudy/diagnostics_shiny prepared for diagnostics shiny app
+#> ✔ ./OmopStudyBuilder/SampleStudy/study_code prepared for study study code
+#> ✔ ./OmopStudyBuilder/SampleStudy/study_shiny prepared for study shiny app
 ```
 
 After creating the project, open the study directory and use the
