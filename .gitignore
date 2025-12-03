@@ -41,3 +41,7 @@ vignettes/*.pdf
 # Result files
 inst/results/*.txt
 inst/results/*.csv
+
+# renv
+renv.lock
+renv/

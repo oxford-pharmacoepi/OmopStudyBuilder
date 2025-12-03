@@ -6,7 +6,7 @@
 #' @returns Summary of state of dependencies
 #' @export
 #'
-summariseStudyDependencies  <- function(dir, type = "analysis"){
+reviewStudyDependencies  <- function(dir, type = "analysis"){
 
   omopgenerics::assertChoice(type, choices = c("analysis", "reporting"))
 

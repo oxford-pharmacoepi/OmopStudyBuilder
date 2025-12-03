@@ -11,40 +11,49 @@
 #' @examples
 createStudy <- function(directory,
                         diagnostics = TRUE,
-                        study = TRUE){
-
+                        study = TRUE) {
   validateRootDirectory(directory)
   omopgenerics::assertLogical(diagnostics, length = 1)
   omopgenerics::assertLogical(study, length = 1)
 
 
-  # add readme
-  invisible(file.copy(from = system.file("README.md", package = "OmopStudyBuilder"),
-            to = directory))
+  # Add README file
+  invisible(file.copy(
+    from = system.file("README.md", package = "OmopStudyBuilder"),
+    to = directory
+  ))
 
   cli::cli_alert_success("{.strong {directory}} prepared as root folder for study.")
 
-  if(isTRUE(diagnostics)){
-  directoryDiagnosticsCode <- file.path(directory, "diagnostics_code")
-  copyDirectory(from = system.file("diagnostics_code", package = "OmopStudyBuilder"),
-                 to = directoryDiagnosticsCode)
-  cli::cli_alert_success("{.strong {directoryDiagnosticsCode}} prepared for study diagnostics code")
+  if (isTRUE(diagnostics)) {
+    directoryDiagnosticsCode <- file.path(directory, "diagnostics_code")
+    copyDirectory(
+      from = system.file("diagnostics_code", package = "OmopStudyBuilder"),
+      to = directoryDiagnosticsCode
+    )
+    cli::cli_alert_success("{.strong {directoryDiagnosticsCode}} prepared for study diagnostics code")
 
-  directoryDiagnosticsShiny <- file.path(directory, "diagnostics_shiny")
-  copyDirectory(from = system.file("diagnostics_shiny", package = "OmopStudyBuilder"),
-                to = directoryDiagnosticsShiny)
-  cli::cli_alert_success("{.strong {directoryDiagnosticsShiny}} prepared for diagnostics shiny app")
+    directoryDiagnosticsShiny <- file.path(directory, "diagnostics_shiny")
+    copyDirectory(
+      from = system.file("diagnostics_shiny", package = "OmopStudyBuilder"),
+      to = directoryDiagnosticsShiny
+    )
+    cli::cli_alert_success("{.strong {directoryDiagnosticsShiny}} prepared for diagnostics shiny app")
   }
 
-  if(isTRUE(study)){
+  if (isTRUE(study)) {
     directoryStudyCode <- file.path(directory, "study_code")
-    copyDirectory(from = system.file("study_code", package = "OmopStudyBuilder"),
-                  to = directoryStudyCode)
+    copyDirectory(
+      from = system.file("study_code", package = "OmopStudyBuilder"),
+      to = directoryStudyCode
+    )
     cli::cli_alert_success("{.strong {directoryStudyCode}} prepared for study study code")
 
     directoryStudyShiny <- file.path(directory, "study_shiny")
-    copyDirectory(from = system.file("study_shiny", package = "OmopStudyBuilder"),
-                  to = directoryStudyShiny)
+    copyDirectory(
+      from = system.file("study_shiny", package = "OmopStudyBuilder"),
+      to = directoryStudyShiny
+    )
     cli::cli_alert_success("{.strong {directoryStudyShiny}} prepared for study shiny app")
   }
 
@@ -54,7 +63,6 @@ createStudy <- function(directory,
 
 
 copyDirectory <- function(from, to) {
-
   # files to copy
   oldFiles <- list.files(path = from, full.names = TRUE, recursive = TRUE)
 
@@ -73,10 +81,9 @@ validateRootDirectory <- function(dir) {
   if (!dir.exists(dir)) {
     cli::cli_abort(c("Provided directory {.pkg {dir}} does not exist."))
   }
-  if(length(list.files(dir, recursive = TRUE)) > 0){
+  if (length(list.files(dir, recursive = TRUE)) > 0) {
     cli::cli_abort(c("Provided directory {.pkg {dir}} is not empty."))
   }
 
   return(invisible())
 }
-

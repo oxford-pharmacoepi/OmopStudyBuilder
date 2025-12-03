@@ -5,13 +5,13 @@ test_that("summarise renv", {
   createStudy(directory = temp_dir)
 
   # no renv yet
-  expect_warning(summariseStudyDependencies(here::here(temp_dir, "diagnostics_code")))
+  expect_warning(reviewStudyDependencies(here::here(temp_dir, "diagnostics_code")))
 
   renv::init(here::here(temp_dir, "diagnostics_code"),
              restart = FALSE,
              load = FALSE)
   expect_no_error(
-    summariseStudyDependencies(here::here(temp_dir, "diagnostics_code"))
+    reviewStudyDependencies(here::here(temp_dir, "diagnostics_code"))
   )
 
 })
