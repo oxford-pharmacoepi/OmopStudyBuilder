@@ -1,14 +1,30 @@
 #' Creates initial directory for an OMOP CDM network study
 #'
-#' @param directory Path to a directory that will be used as the root folder for
-#' the study. If it does not exist, it will be created. It must be empty.
-#' @param diagnostics If TRUE, directories for diagnositcs will be created
-#' @param study If TRUE, directories for the study will be created.
+#' @param directory Path to a directory that will be used as the root folder
+#' for the study. If it does not exist, it will be created. The directory
+#' must be empty if it already exists.
+#'
+#' @param diagnostics A single TRUE or FALSE value.
+#'   If TRUE (the default), the function creates the `diagnostics_code/`
+#'   and `diagnostics_shiny/` folders using the package templates.
+#'   If FALSE, these diagnostics folders are not created.
+#'
+#' @param study A single TRUE or FALSE value.
+#'   If TRUE (the default), the function creates the `study_code/`
+#'   and `study_shiny/` folders using the package templates.
+#'   If FALSE, these study folders are not created.
 #'
 #' @returns Project directory will be created
 #' @export
 #'
 #' @examples
+#' # Create a study called "SampleStudy" in the current project
+#' study_root <- here::here("SampleStudy")
+#' createStudy(study_root)
+#' list.files(study_root)
+#'
+#' # Clean up after running the example
+#' unlink(study_root, recursive = TRUE)
 createStudy <- function(directory,
                         diagnostics = TRUE,
                         study = TRUE) {
