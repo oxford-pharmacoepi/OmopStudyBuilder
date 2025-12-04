@@ -7,16 +7,31 @@
 createStudy(directory, diagnostics = TRUE, study = TRUE)
 }
 \arguments{
-\item{directory}{Path to an existing but empty directory which we will be
-the root directory for our study}
+\item{directory}{Path to a directory that will be used as the root folder
+for the study. If it does not exist, it will be created. The directory
+must be empty if it already exists.}
 
-\item{diagnostics}{If TRUE, directories for diagnositcs will be created}
+\item{diagnostics}{A single TRUE or FALSE value.
+If TRUE (the default), the function creates the `diagnostics_code/`
+and `diagnostics_shiny/` folders using the package templates.
+If FALSE, these diagnostics folders are not created.}
 
-\item{study}{If TRUE, directories for the study will be created.}
+\item{study}{A single TRUE or FALSE value.
+If TRUE (the default), the function creates the `study_code/`
+and `study_shiny/` folders using the package templates.
+If FALSE, these study folders are not created.}
 }
 \value{
 Project directory will be created
 }
 \description{
 Creates initial directory for an OMOP CDM network study
+}
+\examples{
+# Create a study called "SampleStudy" in a temporary directory
+study_root <- file.path(tempdir(), "SampleStudy")
+createStudy(study_root)
+
+# Inspect the top-level contents
+list.files(study_root)
 }

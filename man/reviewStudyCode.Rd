@@ -2,13 +2,17 @@
 % Please edit documentation in R/reviewStudyCode.R
 \name{reviewStudyCode}
 \alias{reviewStudyCode}
-\title{Summarise study code}
+\title{Review study code}
 \usage{
 reviewStudyCode(dir)
 }
 \arguments{
-\item{dir}{Directory}
+\item{dir}{Path to the directory containing the study code to review.}
+}
+\value{
+Invisibly returns `NULL`. Called for its side effects of printing
+summaries of R, JSON, CSV, and Excel files in the directory.
 }
 \description{
-Summarise study code
+Review study code
 }

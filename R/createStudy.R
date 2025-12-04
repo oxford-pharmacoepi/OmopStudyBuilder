@@ -1,14 +1,29 @@
 #' Creates initial directory for an OMOP CDM network study
 #'
-#' @param directory Path to an existing but empty directory which we will be
-#' the root directory for our study
-#' @param diagnostics If TRUE, directories for diagnositcs will be created
-#' @param study If TRUE, directories for the study will be created.
+#' @param directory Path to a directory that will be used as the root folder
+#' for the study. If it does not exist, it will be created. The directory
+#' must be empty if it already exists.
+#'
+#' @param diagnostics A single TRUE or FALSE value.
+#'   If TRUE (the default), the function creates the `diagnostics_code/`
+#'   and `diagnostics_shiny/` folders using the package templates.
+#'   If FALSE, these diagnostics folders are not created.
+#'
+#' @param study A single TRUE or FALSE value.
+#'   If TRUE (the default), the function creates the `study_code/`
+#'   and `study_shiny/` folders using the package templates.
+#'   If FALSE, these study folders are not created.
 #'
 #' @returns Project directory will be created
 #' @export
 #'
 #' @examples
+#' # Create a study called "SampleStudy" in a temporary directory
+#' study_root <- file.path(tempdir(), "SampleStudy")
+#' createStudy(study_root)
+#'
+#' # Inspect the top-level contents
+#' list.files(study_root)
 createStudy <- function(directory,
                         diagnostics = TRUE,
                         study = TRUE) {
@@ -77,13 +92,18 @@ copyDirectory <- function(from, to) {
 }
 
 validateRootDirectory <- function(dir) {
-  # root directory must exist and be empty
+  # root directory must be empty and create it if it does not exist
   if (!dir.exists(dir)) {
-    cli::cli_abort(c("Provided directory {.pkg {dir}} does not exist."))
+    dirCreated <- dir.create(dir, recursive = TRUE, showWarnings = FALSE)
+    if (!dirCreated) {
+      cli::cli_abort(c("Provided directory {.pkg {dir}} does not exist and could not be created."))
+    }
   }
+
   if (length(list.files(dir, recursive = TRUE)) > 0) {
     cli::cli_abort(c("Provided directory {.pkg {dir}} is not empty."))
   }
 
   return(invisible())
 }
+

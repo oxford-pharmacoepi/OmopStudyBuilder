@@ -45,3 +45,6 @@ inst/results/*.csv
 # renv
 renv.lock
 renv/
+inst/doc
+/doc/
+/Meta/

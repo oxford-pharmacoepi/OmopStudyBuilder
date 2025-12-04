@@ -1,9 +1,10 @@
 
-#' Summarise study code
+#' Review study code
 #'
-#' @param dir Directory
+#' @param dir Path to the directory containing the study code to review.
 #'
-#' @returns
+#' @returns Invisibly returns `NULL`. Called for its side effects of printing
+#' summaries of R, JSON, CSV, and Excel files in the directory.
 #' @export
 #'
 reviewStudyCode <- function(dir){

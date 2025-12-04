@@ -19,6 +19,9 @@ Imports:
     scales,
     stringr
 Suggests: 
-    testthat, 
+    testthat,
     here,
-    renv
+    renv,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
