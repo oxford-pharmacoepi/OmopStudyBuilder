@@ -18,13 +18,12 @@
 #' @export
 #'
 #' @examples
-#' # Create a study called "SampleStudy" in the current project
-#' study_root <- here::here("SampleStudy")
+#' # Create a study called "SampleStudy" in a temporary directory
+#' study_root <- file.path(tempdir(), "SampleStudy")
 #' createStudy(study_root)
-#' list.files(study_root)
 #'
-#' # Clean up after running the example
-#' unlink(study_root, recursive = TRUE)
+#' # Inspect the top-level contents
+#' list.files(study_root)
 createStudy <- function(directory,
                         diagnostics = TRUE,
                         study = TRUE) {

@@ -1,8 +1,9 @@
 test_that("directory set up", {
 
-  # user can provide a directory that exists (and is empty) or does not yet exist
+  # user can provide a directory that already exists (and is empty)
   temp_dir <- here::here(tempdir(), omopgenerics::uniqueTableName())
   dir.create(path = temp_dir, recursive = TRUE)
+  expect_true(dir.exists(temp_dir))
   expect_no_error(createStudy(directory = temp_dir))
   expect_true("README.md" %in% list.files(temp_dir))
 
@@ -22,9 +23,11 @@ test_that("directory set up", {
   # only diagnostics directories
   temp_dir_diag <- here::here(tempdir(), omopgenerics::uniqueTableName())
   dir.create(path = temp_dir_diag, recursive = TRUE)
-  expect_no_error(createStudy(directory = temp_dir_diag,
-                              diagnostics = TRUE,
-                              study = FALSE))
+  expect_no_error(createStudy(
+    directory   = temp_dir_diag,
+    diagnostics = TRUE,
+    study       = FALSE
+  ))
   expect_true("README.md" %in% list.files(temp_dir_diag))
   expect_true("diagnostics_code" %in% list.files(temp_dir_diag))
   expect_true("diagnostics_shiny" %in% list.files(temp_dir_diag))
@@ -34,9 +37,11 @@ test_that("directory set up", {
   # only study directories
   temp_dir_study <- here::here(tempdir(), omopgenerics::uniqueTableName())
   dir.create(path = temp_dir_study, recursive = TRUE)
-  expect_no_error(createStudy(directory = temp_dir_study,
-                              diagnostics = FALSE,
-                              study = TRUE))
+  expect_no_error(createStudy(
+    directory   = temp_dir_study,
+    diagnostics = FALSE,
+    study       = TRUE
+  ))
   expect_true("README.md" %in% list.files(temp_dir_study))
   expect_false("diagnostics_code" %in% list.files(temp_dir_study))
   expect_false("diagnostics_shiny" %in% list.files(temp_dir_study))
