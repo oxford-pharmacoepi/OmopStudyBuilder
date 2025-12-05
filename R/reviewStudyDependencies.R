@@ -74,7 +74,7 @@ reportLockPkgs <- function(lock, type){
                         i = "Packages tied to a specific version of R and can be challenging for data partners to restore."))
     }
 
-    warnVisPkgs <- c("ggplot2", "gt")
+    warnVisPkgs <- c("ggplot2", "gt", "flextable", "datatbale", "reactable", "tinytable", "plotly")
     if(any(warnVisPkgs %in% lockPkgs)){
       cli::cat_line()
       cli::cli_inform(c("Can {.code {intersect(warnVisPkgs, lockPkgs)}} be removed?",
