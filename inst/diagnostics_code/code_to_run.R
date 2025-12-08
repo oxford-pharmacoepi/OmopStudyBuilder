@@ -5,7 +5,6 @@
 
 library(CDMConnector)
 library(DBI)
-library(log4r)
 library(dplyr)
 library(here)
 library(OmopSketch)
