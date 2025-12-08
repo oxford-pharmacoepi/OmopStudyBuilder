@@ -1,18 +1,16 @@
 # create logger ----
-resultsFolder <- here("Results")
-if(!dir.exists(resultsFolder)){
-  dir.create(resultsFolder)
+results_folder <- here("Results")
+if (!dir.exists(results_folder)) {
+  dir.create(results_folder)
 }
-loggerName <- gsub(":| |-", "", paste0("log_", Sys.Date(),".txt"))
-logger <- create.logger()
-logfile(logger) <- here(resultsFolder, loggerName)
-level(logger) <- "INFO"
-info(logger, "LOG CREATED")
+
+createLogFile(logFile = tempfile(pattern = "log_{date}_{time}"))
+logMessage("LOG CREATED")
 
 # run ----
 result <- list()
-source(here("Cohorts","InstantiateCohorts.R"))
-info(logger, "- Running PhenotypeDiagnostics")
+source(here("Cohorts", "InstantiateCohorts.R"))
+logMessage("- Running PhenotypeDiagnostics")
 diagnostics <- phenotypeDiagnostics(cdm$study_cohorts,
                           survival = FALSE,
                           cohortSample = 20000,
@@ -21,5 +19,5 @@ diagnostics <- phenotypeDiagnostics(cdm$study_cohorts,
 exportSummarisedResult(diagnostics,
                        minCellCount = minCellCount,
                        fileName = "phenotyper_results_{cdm_name}_{date}.csv",
-                       path = resultsFolder)
-info(logger, "Finished")
+                       path = results_folder)
+logMessage("Finished")

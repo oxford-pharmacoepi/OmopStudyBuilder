@@ -9,14 +9,8 @@ omopgenerics::validateCdmArgument(cdm,
 omopgenerics::assertNumeric(min_cell_count)
 
 # Create a log file ----
-loggerName <- gsub(":| |-", "", paste0("log_",
-                                       omopgenerics::cdmName(cdm),
-                                       "_", Sys.Date(),
-                                       ".txt"))
-logger <- create.logger()
-logfile(logger) <- here("results", loggerName)
-level(logger) <- "INFO"
-info(logger, "LOG CREATED")
+createLogFile(logFile = tempfile(pattern = "log_{date}_{time}"))
+logMessage("LOG CREATED")
 
 # Define analysis settings -----
 study_period <- c(as.Date(NA), as.Date(NA))
@@ -30,21 +24,21 @@ results[["snapshot"]] <- summariseOmopSnapshot(cdm)
 results[["obs_period"]] <- summariseObservationPeriod(cdm$observation_period)
 
 # Instantiate study cohorts ----
-info(logger, "Instantiating study cohorts")
+logMessage("Instantiating study cohorts")
 source(here("cohorts", "instantiate_cohorts.R"))
-info(logger, "Study cohorts instantiated")
+logMessage("Study cohorts instantiated")
 
 # Cohort counts and attrition ----
 # results[["counts"]] <- summariseCohortCount("...")
 # results[["attrition"]] <- summariseCohortAttrition("...")
 
 # Run analyses ----
-info(logger, "Run study analyses")
+logMessage("Run study analyses")
 source(here("analyses", "cohort_characteristics.R"))
 source(here("analyses", "cohort_survival.R"))
 source(here("analyses", "drug_utilisation.R"))
 source(here("analyses", "incidence_prevalence.R"))
-info(logger, "Analyses finished")
+logMessage("Analyses finished")
 
 # Finish ----
 results <- results |>
