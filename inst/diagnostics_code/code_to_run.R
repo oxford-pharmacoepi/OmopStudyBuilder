@@ -68,6 +68,6 @@ cdm <- cdmFromCon(
 )
 
 # Run study ----
-source(here("RunStudy.R"))
+source(here("run_study.R"))
 
 

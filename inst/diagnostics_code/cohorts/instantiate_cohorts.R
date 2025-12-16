@@ -1,8 +1,8 @@
 
 # Objective 1, 2 - Influenza vaccine ----
 info(logger, "Instantiating influenza vaccine codes")
-influenza_vaccine_codes <- importCodelist(path = here("Cohorts",
-                                                      "InfluenzaVaccine",
+influenza_vaccine_codes <- importCodelist(path = here("cohorts",
+                                                      "influenza_vaccine",
                                                       "influenza_vaccine.csv"),
                                           type = "csv")
 info(logger, "- Creating influenza vaccine concept cohort")
@@ -27,7 +27,7 @@ if(str_detect(tolower(cdmName(cdm)), "cprd")){
 
 # COVID-19 vaccine ----
 info(logger, "Instantiating covid19 vaccine cohort")
-covid19_vaccine_codes<-importCodelist(here("Cohorts","Vaccinations","covid19_vaccine.csv"), type = "csv")
+covid19_vaccine_codes<-importCodelist(here("cohorts","vaccinations","covid19_vaccine.csv"), type = "csv")
 cdm$covid19_vaccines <- conceptCohort(cdm,
                                       conceptSet = covid19_vaccine_codes,
                                       name = "covid19_vaccines",
@@ -37,7 +37,7 @@ cdm$covid19_vaccines <- conceptCohort(cdm,
 
 # Other vaccines ----
 info(logger, "Instantiating vaccines")
-vaccines_codes <- importCodelist(path = ,"Cohorts/Vaccinations", type = "csv")
+vaccines_codes <- importCodelist(path = ,"cohorts/vaccinations", type = "csv")
 cdm$vaccines <- conceptCohort(cdm,
                               conceptSet = vaccines_codes,
                               name = "vaccines",
@@ -48,7 +48,7 @@ cdm$vaccines <- conceptCohort(cdm,
 
 # Objective 3, immunocompromised relative to influenza vaccine ----
 info(logger, "Instantiating immunocompromised cohort")
-immunocompromised_codelists  <- codesFromConceptSet(here("Cohorts","Immunocompromised"), cdm)
+immunocompromised_codelists  <- codesFromConceptSet(here("cohorts","immunocompromised"), cdm)
 
 addImmunocompromised <-  function(cohort, immunocompromised_codelists) {
   cohort |>
@@ -92,7 +92,7 @@ cdm$vaccines <- addCohortTableIndex(cdm$vaccines)
 # Objective 4,  Outcomes -----
 info(logger, "Instantiating outcomes")
 
-outcomes_codes <- importCodelist(path = here("Cohorts/Outcomes/"), type = "csv")
+outcomes_codes <- importCodelist(path = here("cohorts/outcomes/"), type = "csv")
 cdm$outcomes <- conceptCohort(cdm,
                               conceptSet = outcomes_codes,
                               name = "outcomes",
@@ -103,7 +103,7 @@ cdm$outcomes <- cdm$outcomes %>%
 
 # Objective 3, Comorbidities -----
 info(logger, "Instantiating comorbidities")
-comorbidities_codes <- importCodelist(here("Cohorts","Comorbidities"), type = "csv")
+comorbidities_codes <- importCodelist(here("cohorts","comorbidities"), type = "csv")
 cdm$comorbidities <- conceptCohort(cdm,
                                    conceptSet = comorbidities_codes,
                                    name = "comorbidities",
@@ -128,7 +128,7 @@ cdm$comorbidities <- cdm$comorbidities |>
 
 # Objective 3, Pregnancy ----
 info(logger, "Instantiating pregnancy cohort")
-pregnancy_codes <- importCodelist(here("Cohorts","Pregnancy"), type = "csv")
+pregnancy_codes <- importCodelist(here("cohorts","pregnancy"), type = "csv")
 cdm$pregnancy <- conceptCohort(cdm,
                                conceptSet = pregnancy_codes,
                                name = "pregnancy",
@@ -137,7 +137,7 @@ cdm$pregnancy <- conceptCohort(cdm,
 
 # Objective 4, Symptoms -----
 info(logger, "Instantiating symptoms")
-symptoms_codes <- importCodelist(here("Cohorts","Symptoms"), type = "csv")
+symptoms_codes <- importCodelist(here("cohorts","symptoms"), type = "csv")
 cdm$symptoms<- conceptCohort(cdm,
                              conceptSet = symptoms_codes,
                              name = "symptoms",
@@ -149,7 +149,7 @@ cdm$symptoms <- cdm$symptoms |>
 
 # Hospitalisations ----
 info(logger, "Instantiating hospitalisation cohort")
-hosp_codes <- importCodelist(path = here("Cohorts", "Hospitalisation"),
+hosp_codes <- importCodelist(path = here("cohorts", "hospitalisation"),
                              type = "csv")
 cdm$hospitalisations <- conceptCohort(cdm,
                                       conceptSet = hosp_codes,
@@ -164,7 +164,7 @@ cdm$death_cohort <- CohortConstructor::deathCohort(cdm,
 
 # Immunocompromised separate ----
 info(logger, "Instantiating immunocompromised cohort (separate)")
-immunocompromised_codelists  <- codesFromConceptSet(here("Cohorts/Immunocompromised"), cdm)
+immunocompromised_codelists  <- codesFromConceptSet(here("cohorts/immunocompromised"), cdm)
 cdm$immunocompromised_separate <- conceptCohort(
   cdm,
   conceptSet = immunocompromised_codelists,

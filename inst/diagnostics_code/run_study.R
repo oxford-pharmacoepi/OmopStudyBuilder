@@ -1,5 +1,5 @@
 # create logger ----
-resultsFolder <- here("Results")
+resultsFolder <- here("results")
 if(!dir.exists(resultsFolder)){
   dir.create(resultsFolder)
 }
@@ -11,7 +11,7 @@ info(logger, "LOG CREATED")
 
 # run ----
 result <- list()
-source(here("Cohorts","InstantiateCohorts.R"))
+source(here("cohorts","instantiate_cohorts.R"))
 info(logger, "- Running PhenotypeDiagnostics")
 diagnostics <- phenotypeDiagnostics(cdm$study_cohorts,
                           survival = FALSE,
