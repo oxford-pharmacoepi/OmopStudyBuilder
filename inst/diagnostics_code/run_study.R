@@ -3,11 +3,9 @@ resultsFolder <- here("results")
 if(!dir.exists(resultsFolder)){
   dir.create(resultsFolder)
 }
-loggerName <- gsub(":| |-", "", paste0("log_", Sys.Date(),".txt"))
-logger <- create.logger()
-logfile(logger) <- here(resultsFolder, loggerName)
-level(logger) <- "INFO"
-info(logger, "LOG CREATED")
+
+createLogFile(logFile = tempfile(pattern = "log_{date}_{time}"))
+logMessage("LOG CREATED")
 
 # run ----
 result <- list()
@@ -18,8 +16,9 @@ diagnostics <- phenotypeDiagnostics(cdm$study_cohorts,
                           cohortSample = 20000,
                           matchedSample = NULL,
                           populationSample = NULL)
+
 exportSummarisedResult(diagnostics,
                        minCellCount = minCellCount,
                        fileName = "phenotyper_results_{cdm_name}_{date}.csv",
-                       path = resultsFolder)
-info(logger, "Finished")
+                       path = results_folder)
+logMessage("Finished")

@@ -1,7 +1,6 @@
 # renv::activate()
 # renv::restore()
 
-library(log4r)
 library(DBI)
 library(dplyr)
 library(here)

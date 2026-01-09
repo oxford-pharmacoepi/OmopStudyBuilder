@@ -106,4 +106,3 @@ validateRootDirectory <- function(dir) {
 
   return(invisible())
 }
-
