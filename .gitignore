@@ -48,3 +48,6 @@ renv/
 inst/doc
 /doc/
 /Meta/
+
+# Macos files
+.DS_Store

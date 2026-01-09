@@ -1,7 +1,7 @@
 # create logger ----
-results_folder <- here("Results")
-if (!dir.exists(results_folder)) {
-  dir.create(results_folder)
+resultsFolder <- here("results")
+if(!dir.exists(resultsFolder)){
+  dir.create(resultsFolder)
 }
 
 createLogFile(logFile = tempfile(pattern = "log_{date}_{time}"))
@@ -9,8 +9,8 @@ logMessage("LOG CREATED")
 
 # run ----
 result <- list()
-source(here("Cohorts", "InstantiateCohorts.R"))
-logMessage("- Running PhenotypeDiagnostics")
+source(here("cohorts","instantiate_cohorts.R"))
+info(logger, "- Running PhenotypeDiagnostics")
 diagnostics <- phenotypeDiagnostics(cdm$study_cohorts,
                           survival = FALSE,
                           cohortSample = 20000,
