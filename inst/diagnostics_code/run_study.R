@@ -16,6 +16,7 @@ diagnostics <- phenotypeDiagnostics(cdm$study_cohorts,
                           cohortSample = 20000,
                           matchedSample = NULL,
                           populationSample = NULL)
+
 exportSummarisedResult(diagnostics,
                        minCellCount = minCellCount,
                        fileName = "phenotyper_results_{cdm_name}_{date}.csv",

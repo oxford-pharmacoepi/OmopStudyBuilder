@@ -40,6 +40,9 @@ source(here("analyses", "drug_utilisation.R"))
 source(here("analyses", "incidence_prevalence.R"))
 logMessage("Analyses finished")
 
+# Capture log file ----
+results[["log"]] <- summariseLogFile(cdmName = omopgenerics::cdmName(cdm))
+
 # Finish ----
 results <- results |>
   vctrs::list_drop_empty() |>
