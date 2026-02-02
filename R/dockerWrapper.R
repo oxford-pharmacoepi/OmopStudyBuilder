@@ -547,14 +547,12 @@ buildStudy <- function(study_path, image_name = NULL) {
 #' Run OMOP study in Docker container
 #'
 #' @param image_name Name of the Docker image to run
-#' @param config_file Path to config.yml file (default: "config.yml")
-#' @param data_path Optional path to data directory to mount
-#' @param output_path Path where results should be saved (default: "./results")
+#' @param data_path Optional path to data directory (mounted at /data in container)
+#' @param output_path Where to save results (default: "./results")
 #' @return Output path (invisibly)
 #' @export
-runStudy <- function(image_name,
-                      config_file = "config.yml",
-                      data_path = NULL,
+runStudy <- function(image_name, 
+                      data_path = NULL, 
                       output_path = "./results") {
   if (!ensureDocker(check_daemon = TRUE)) cli::cli_abort("Docker is not available")
 
@@ -568,35 +566,22 @@ runStudy <- function(image_name,
   if (!is.null(data_path)) {
     if (!dir.exists(data_path)) cli::cli_abort("Data path does not exist: {data_path}")
     mounts <- c(mounts, "-v", paste0(normalizePath(data_path), ":/data"))
-    cli::cli_alert_info("Mounting data directory: {data_path}")
-  }
-
-  if (file.exists(config_file)) {
-    cfg_path <- normalizePath(config_file, winslash = "/")
-    mounts <- c(mounts, "-v", paste0(cfg_path, ":/study/config.yml"))
-    cli::cli_alert_info("Using config file: {config_file}")
-  } else {
-    cli::cli_alert_warning("Config file not found: {config_file}")
+    cli::cli_alert_info("Mounting data: {data_path} -> /data")
   }
 
   args <- c("run", "--rm", mounts, image_name, "Rscript", "/study/run_study.R")
 
-  cli::cli_h3("Running study in Docker container...")
-  cli::cli_alert_info("Results will be saved to: {output_path}")
+  cli::cli_h3("Running study in Docker...")
   cli::cli_rule()
 
   res <- dockerExec(args, stream = TRUE)
 
   cli::cli_rule()
   if (!res$ok) {
-    cli::cli_abort(c(
-      "Study execution failed.",
-      "i" = "Check the output above for error details.",
-      "i" = "Ensure your run_study.R file exists and runs without errors."
-    ))
+    cli::cli_abort("Study execution failed. Check output above for errors.")
   }
 
-  cli::cli_alert_success("Study completed successfully!")
+  cli::cli_alert_success("Done! Results in: {output_path}")
   invisible(output_path)
 }
 
