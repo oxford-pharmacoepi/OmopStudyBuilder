@@ -4,21 +4,14 @@
 \alias{runStudy}
 \title{Run OMOP study in Docker container}
 \usage{
-runStudy(
-  image_name,
-  config_file = "config.yml",
-  data_path = NULL,
-  output_path = "./results"
-)
+runStudy(image_name, data_path = NULL, output_path = "./results")
 }
 \arguments{
 \item{image_name}{Name of the Docker image to run}
 
-\item{config_file}{Path to config.yml file (default: "config.yml")}
+\item{data_path}{Optional path to data directory (mounted at /data in container)}
 
-\item{data_path}{Optional path to data directory to mount}
-
-\item{output_path}{Path where results should be saved (default: "./results")}
+\item{output_path}{Where to save results (default: "./results")}
 }
 \value{
 Output path (invisibly)
