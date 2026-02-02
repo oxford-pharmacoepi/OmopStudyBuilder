@@ -111,6 +111,54 @@ ensureDocker <- function(check_daemon = FALSE) {
   TRUE
 }
 
+#' Find and select OMOP study images
+#' @keywords internal
+selectStudyImage <- function() {
+  # Query Docker for all images
+  res <- dockerExec(c(
+    "images",
+    "--format", "{{.Repository}}"
+  ))
+  
+  if (!res$ok || length(res$out) == 0) {
+    cli::cli_abort(c(
+      "No Docker images found.",
+      "i" = "Run buildStudy() first to create a Docker image."
+    ))
+  }
+  
+  # Filter out <none> and get unique names
+  images <- unique(res$out)
+  images <- images[images != "<none>"]
+  
+  if (length(images) == 0) {
+    cli::cli_abort(c(
+      "No Docker images found.",
+      "i" = "Run buildStudy() first to create a Docker image."
+    ))
+  }
+  
+  # Always show interactive prompt
+  cli::cli_h3("Available Docker images:")
+  for (i in seq_along(images)) {
+    cli::cli_text("  {i}. {images[i]}")
+  }
+  cli::cli_text("")
+  
+  repeat {
+    choice <- readline(prompt = sprintf("Select image (1-%d): ", length(images)))
+    choice_num <- suppressWarnings(as.integer(choice))
+    
+    if (!is.na(choice_num) && choice_num >= 1 && choice_num <= length(images)) {
+      selected <- images[choice_num]
+      cli::cli_alert_success("Selected: {selected}")
+      return(selected)
+    }
+    
+    cli::cli_alert_warning("Invalid choice. Please enter a number between 1 and {length(images)}")
+  }
+}
+
 #' Snapshot packages and detect changes
 #' @keywords internal
 syncSnapshot <- function(study_path) {
@@ -546,15 +594,20 @@ buildStudy <- function(study_path, image_name = NULL) {
 
 #' Run OMOP study in Docker container
 #'
-#' @param image_name Name of the Docker image to run
+#' @param image_name Name of the Docker image to run. If NULL, will prompt to select from available images.
 #' @param data_path Optional path to data directory (mounted at /data in container)
 #' @param output_path Where to save results (default: "./results")
 #' @return Output path (invisibly)
 #' @export
-runStudy <- function(image_name, 
+runStudy <- function(image_name = NULL, 
                       data_path = NULL, 
                       output_path = "./results") {
   if (!ensureDocker(check_daemon = TRUE)) cli::cli_abort("Docker is not available")
+  
+  # Auto-select image if not provided
+  if (is.null(image_name)) {
+    image_name <- selectStudyImage()
+  }
 
   if (!dir.exists(output_path)) {
     dir.create(output_path, recursive = TRUE)

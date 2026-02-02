@@ -97,7 +97,7 @@ Package your study into a reproducible Docker container:
 checkDocker()
 
 # Build Docker image with locked package versions
-buildStudy("SampleStudy/study_code")
+OmopStudyBuilder::buildStudy(here::here())
 #> Building Docker image: omop-study-study-code
 #> This may take 5-15 minutes on first build...
 #> Image built successfully: omop-study-study-code
@@ -110,13 +110,30 @@ The Docker image contains your study code, exact R version, and all dependencies
 Execute your study in an isolated, reproducible environment:
 
 ```{r, eval = FALSE}
+runStudy(data_path = "path/to/data")
+#> Available Docker images:
+#>   1. omop-study-study-code
+#>   2. postgres
+#>   3. rocker/r-ver
+#> 
+#> Select image (1-3): 1
+#> ✔ Selected: omop-study-study-code
+#> 
+#> Running study in Docker...
+#> ════════════════════════════════════════════════════════════════════════
+#> [study execution output...]
+#> ════════════════════════════════════════════════════════════════════════
+#> ✔ Done! Results in: ./results
+```
+
+You can also specify the image directly to skip the interactive prompt:
+
+```{r, eval = FALSE}
 runStudy(
   image_name = "omop-study-study-code",
+  data_path = "path/to/data",
   output_path = "./results"
 )
-#> Running study in Docker container...
-#> Results will be saved to: ./results
-#> Study completed successfully!
 ```
 
 ## Alternative: One-Command Sync
