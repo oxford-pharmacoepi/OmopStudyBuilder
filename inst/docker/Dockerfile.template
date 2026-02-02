@@ -1,0 +1,49 @@
+# OMOP Study Docker Image Template
+# This provides a reproducible R environment for OMOP CDM studies
+# R version controlled in R/dockerConfig.R
+
+FROM rocker/r-ver:{{DOCKER_R_VERSION}}
+
+# Set labels for image identification
+LABEL maintainer="OMOP Study Team"
+LABEL description="Docker image for OMOP CDM study execution"
+LABEL omop-study="true"
+
+# Install system dependencies for database drivers
+RUN apt-get update && apt-get install -y \
+    # PostgreSQL client library
+    libpq-dev \
+    # ODBC drivers for SQL Server
+    unixodbc-dev \
+    # SSL/TLS support
+    libssl-dev \
+    # XML parsing (for some R packages)
+    libxml2-dev \
+    # Curl (for downloading)
+    libcurl4-openssl-dev \
+    # Clean up to reduce image size
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /study
+
+# Copy study code into the container
+COPY . /study
+
+# Install renv for package management
+RUN R -e "install.packages('renv', repos='https://cloud.r-project.org/')"
+
+# Check if renv.lock exists and restore packages accordingly
+RUN if [ -f "renv.lock" ]; then \
+      echo "Installing packages from renv.lock..." && \
+      R -e "renv::restore()"; \
+    else \
+      echo "No renv.lock found, installing default packages..." && \
+      R -e "install.packages(c({{DOCKER_DEFAULT_PACKAGES_STR}}), repos='https://cloud.r-project.org/')"; \
+    fi
+
+# Create output directory
+RUN mkdir -p /output
+
+# Set default command (can be overridden)
+CMD ["R"]

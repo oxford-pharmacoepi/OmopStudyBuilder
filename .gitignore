@@ -51,3 +51,10 @@ inst/doc
 
 # Macos files
 .DS_Store
+
+# Ignore test artifacts
+test_study/
+test_results/
+test_study_renv/
+*.tar
+

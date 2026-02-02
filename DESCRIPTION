@@ -13,6 +13,7 @@ RoxygenNote: 7.3.3
 Imports: 
     cli,
     dplyr,
+    jsonlite,
     purrr,
     omopgenerics,
     rlang,

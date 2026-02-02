@@ -42,31 +42,111 @@ remotes::install_github("oxford-pharmacoepi/OmopStudyBuilder")
 
 # Example Usage
 
-To illustrate how OmopStudyBuilder works, we begin by loading the package:
+OmopStudyBuilder provides a complete workflow for creating, reviewing, and distributing OMOP network studies. The package guides you from initial project setup through to Docker-based execution that ensures reproducibility across data partners.
 
-```{r, eval = TRUE}
+## Step 1: Create Study Structure
+
+Create your study project:
+
+```{r, eval = FALSE}
 library(OmopStudyBuilder)
-```
-
-Next, we create a new study project. You can provide any study name; the example below creates `"SampleStudy"` in the current working directory:
-
-```{r, eval = TRUE}
 OmopStudyBuilder::createStudy(here::here("SampleStudy"))
 ```
 
-After creating the project, open the study directory and use the [`renv`](https://rstudio.github.io/renv/) package to initialise a reproducible environment:
+This creates a standardized folder structure with template code for OMOP network studies.
+
+## Step 2: Review Your Study
+
+As you develop your analysis code, use the review functions to check code quality and dependencies:
 
 ```{r, eval = FALSE}
-renv::init()
+# Review study code files
+reviewStudyCode(here::here("SampleStudy/study_code"))
+
+# Review package dependencies
+reviewStudyDependencies(here::here("SampleStudy/study_code"))
 ```
 
-This will generate an `renv.lock` file, which OmopStudyBuilder uses to analyse the study dependencies:
+These functions help ensure your study meets best practices and identifies potential issues before distribution.
+
+## Step 3: Lock Package Versions
+
+Initialize package version control for your study:
 
 ```{r, eval = FALSE}
-OmopStudyBuilder::reviewStudyDependencies(here::here("SampleStudy"))
+# Initialize renv (first time only)
+initRenv("SampleStudy/study_code")
+
+# Install required packages (navigate to study directory first)
+setwd("SampleStudy/study_code")
+install.packages(c("dplyr", "CDMConnector", "IncidencePrevalence"))
+setwd("../..")  # Return to original directory
+
+# Lock package versions
+snapshotPackages("SampleStudy/study_code")
 ```
 
-To get a summary of the study code and its dependencies, you can use:
+This creates an `renv.lock` file that ensures all data partners use identical package versions.
+
+## Step 4: Build Docker Image
+
+Package your study into a reproducible Docker container:
+
 ```{r, eval = FALSE}
-OmopStudyBuilder::reviewStudyCode(here::here("SampleStudy"))
+# Check Docker is available
+checkDocker()
+
+# Build Docker image with locked package versions
+buildStudy("SampleStudy/study_code")
+#> Building Docker image: omop-study-study-code
+#> This may take 5-15 minutes on first build...
+#> Image built successfully: omop-study-study-code
 ```
+
+The Docker image contains your study code, exact R version, and all dependencies.
+
+## Step 5: Run Study in Docker
+
+Execute your study in an isolated, reproducible environment:
+
+```{r, eval = FALSE}
+runStudy(
+  image_name = "omop-study-study-code",
+  output_path = "./results"
+)
+#> Running study in Docker container...
+#> Results will be saved to: ./results
+#> Study completed successfully!
+```
+
+## Alternative: One-Command Sync
+
+For ongoing development, use `syncStudy()` to snapshot, build, validate, and test in one step:
+
+```{r, eval = FALSE}
+syncStudy(
+  study_path = "SampleStudy/study_code",
+  force_rebuild = FALSE,
+  run_test = TRUE
+)
+#> ══ SYNCING STUDY ENVIRONMENT ══
+#> 
+#> ── [1/4] Snapshotting package versions...
+#> ✔ Packages updated in renv.lock
+#> 
+#> ── [2/4] Building Docker image...
+#> ✔ Image up-to-date, skipping rebuild
+#> 
+#> ── [3/4] Validating Docker environment...
+#> ✔ Environment validated successfully!
+#>   • Local: 45 packages
+#>   • Docker: 45 packages
+#> 
+#> ── [4/4] Testing study execution in Docker...
+#> ✔ Study executed successfully in Docker!
+#> 
+#> ══ SYNC COMPLETE ══
+#> ✔ Study environment synchronized and validated
+```
+
+This ensures your local environment and Docker image are always in sync.
