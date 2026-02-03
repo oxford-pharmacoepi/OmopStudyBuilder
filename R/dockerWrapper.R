@@ -319,3 +319,56 @@ runRStudio <- function(image_name = NULL,
   
   invisible(container_id)
 }
+
+
+#' Push Docker image to Docker Hub
+#'
+#' @param image_name Local image name. If NULL, auto-detected from current directory.
+#' @param repo Docker Hub repository (e.g., "username/imagename"). If NULL, prompts for username.
+#' @return Repository name (invisibly)
+#' @export
+pushImage <- function(image_name = NULL, repo = NULL) {
+  if (!ensureDocker(check_daemon = TRUE)) cli::cli_abort("Docker is not available")
+  
+
+  # Auto-detect image name
+  if (is.null(image_name)) {
+    image_name <- tolower(gsub("[^a-z0-9]", "-", basename(here::here())))
+  }
+  
+  # Verify image exists
+  check <- dockerExec(c("image", "inspect", image_name))
+  if (!check$ok) cli::cli_abort("Image '{image_name}' not found. Run buildStudy() first.")
+  
+  # Get Docker Hub credentials
+  if (is.null(repo)) {
+    cli::cli_text("")
+    username <- readline("Docker Hub username: ")
+    repo <- paste0(username, "/", image_name)
+  }
+  
+  cli::cli_text("")
+  password <- readline("Docker Hub password/token: ")
+  
+  # Login
+  cli::cli_alert_info("Logging in to Docker Hub...")
+  login <- suppressWarnings(system2("docker", c("login", "-u", username, "--password-stdin"),
+                                    input = password, stdout = TRUE, stderr = TRUE))
+  if (!is.null(attr(login, "status")) && attr(login, "status") != 0) {
+    cli::cli_abort("Docker Hub login failed. Check credentials.")
+  }
+  
+  # Tag and push
+  cli::cli_alert_info("Tagging image as {repo}...")
+  dockerExec(c("tag", image_name, repo))
+  
+  cli::cli_alert_info("Pushing to Docker Hub...")
+  res <- dockerExec(c("push", repo), stream = TRUE)
+  
+  if (!res$ok) cli::cli_abort("Push failed.")
+  
+  cli::cli_alert_success("Pushed: {repo}")
+  cli::cli_alert_info("Pull command: docker pull {repo}")
+  
+  invisible(repo)
+}
