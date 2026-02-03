@@ -107,6 +107,19 @@ prepareDockerfile <- function(study_path, docker_r_version) {
     cli::cli_alert_success("Created Dockerfile in study directory (R version: {docker_r_version})")
   }
   
+  # Copy .dockerignore template
+  dockerignore_dest <- file.path(study_path, ".dockerignore")
+  if (!file.exists(dockerignore_dest)) {
+    dockerignore_template <- system.file("docker", ".dockerignore", package = "OmopStudyBuilder")
+    if (!file.exists(dockerignore_template) || dockerignore_template == "") {
+      dockerignore_template <- here::here("inst", "docker", ".dockerignore")
+    }
+    if (file.exists(dockerignore_template)) {
+      file.copy(dockerignore_template, dockerignore_dest)
+      cli::cli_alert_success("Created .dockerignore")
+    }
+  }
+  
   invisible(dockerfile_dest)
 }
 

@@ -1,0 +1,16 @@
+# RStudio files
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+*.Rproj
+
+# Build artifacts
+Dockerfile
+
+# Output directories
+results/
+
+# Git
+.git
+.gitignore
