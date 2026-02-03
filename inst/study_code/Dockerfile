@@ -1,5 +1,5 @@
 # OMOP Study Docker Image - RStudio Server
-FROM rocker/rstudio:4.2.3
+FROM rocker/rstudio:4.5.2
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -8,18 +8,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libssl-dev \
     libxml2-dev \
     libcurl4-openssl-dev \
+    libx11-dev \
+    libicu-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /home/rstudio/study
 
-# Copy dependency files for package restoration
+# Copy dependency file for package restoration
 COPY renv.lock ./
-COPY renv ./renv
 
-# Install renv and restore packages from renv.lock ONLY
+# Install renv and restore packages - use Posit binary packages for speed
 RUN R -e "install.packages('renv', repos='https://cloud.r-project.org/')" \
     && if [ -f "renv.lock" ]; then \
-         R -e "renv::restore()"; \
+         R -e "Sys.setenv(RENV_CONFIG_REPOS_OVERRIDE='https://packagemanager.posit.co/cran/__linux__/jammy/latest'); renv::restore()"; \
        fi \
     && rm -rf /tmp/*
 

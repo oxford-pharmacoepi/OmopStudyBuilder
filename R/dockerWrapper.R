@@ -167,9 +167,27 @@ buildStudy <- function(study_path = here::here(), image_name = NULL) {
   platform_args <- character()
   is_arm <- grepl("arm64|aarch64", Sys.info()["machine"], ignore.case = TRUE)
   if (is_arm) {
-    cli::cli_alert_info("ARM64 Mac detected - using x86_64 emulation for RStudio compatibility")
-    cli::cli_alert_warning("RStudio Server may take some minutes to start due to emulation")
-    platform_args <- c("--platform", "linux/amd64")
+    # Parse R version to check compatibility
+    r_version_parts <- as.numeric(strsplit(docker_r_version, "\\.")[[1]])
+    r_major <- r_version_parts[1]
+    r_minor <- r_version_parts[2]
+    
+    if (r_major < 4 || (r_major == 4 && r_minor < 3)) {
+      cli::cli_alert_warning("ARM64 Mac detected with R {docker_r_version}")
+      cli::cli_alert_danger("RStudio Server does NOT work reliably with R < 4.3 on ARM64 Macs")
+      cli::cli_text("")
+      cli::cli_bullets(c(
+        "x" = "The Docker image will build, but RStudio Server may not be accessible",
+        "i" = "Recommendation: Upgrade to R 4.3+ in your renv.lock for native ARM64 support",
+        "i" = "Alternative: Run on Intel Mac or Windows, or use command-line execution only"
+      ))
+      cli::cli_text("")
+      cli::cli_alert_info("Continuing build with x86_64 emulation (slow and unreliable)...")
+      platform_args <- c("--platform", "linux/amd64")
+    } else {
+      cli::cli_alert_success("ARM64 Mac detected - using native ARM64 image (R {docker_r_version})")
+      # No platform override needed - use native ARM64 image
+    }
   }
 
   res <- dockerExec(c(
@@ -239,16 +257,8 @@ runRStudio <- function(image_name = NULL,
     cli::cli_alert_info("Mounting data: {data_path} -> /data")
   }
   
-  # Detect if we need platform flag for ARM64 Macs
-  platform_args <- character()
-  is_arm <- grepl("arm64|aarch64", Sys.info()["machine"], ignore.case = TRUE)
-  if (is_arm) {
-    platform_args <- c("--platform", "linux/amd64")
-  }
-  
   # Start RStudio Server
   args <- c("run", "-d", 
-            platform_args,
             "-p", paste0(port, ":8787"),
             "-e", paste0("PASSWORD=", password),
             mounts, 
@@ -280,13 +290,21 @@ runRStudio <- function(image_name = NULL,
   
   container_id <- trimws(res$out[1])
   
-  if (is_arm) {
-    cli::cli_alert_success("RStudio Server starting...")
-    cli::cli_alert_warning("ARM64 emulation detected - RStudio may take some minutes to be ready")
-    cli::cli_alert_info("Please wait, then try opening the browser...")
-  } else {
-    cli::cli_alert_success("RStudio Server started!")
+  # Give RStudio a moment to initialize
+  Sys.sleep(2)
+  
+  # Verify container is running
+  status_check <- dockerExec(c("ps", "-q", "-f", paste0("id=", container_id)))
+  if (!status_check$ok || length(status_check$out) == 0) {
+    cli::cli_alert_danger("Container failed to start")
+    logs <- dockerExec(c("logs", "--tail", "20", container_id))
+    cli::cli_abort(c(
+      "x" = "RStudio Server container exited unexpectedly",
+      "i" = "Logs: {paste(logs$out, collapse = '\\n')}"
+    ))
   }
+  
+  cli::cli_alert_success("RStudio Server started!")
   cli::cli_text("")
   cli::cli_bullets(c(
     "!" = "Open browser: {.url http://localhost:{port}}",
