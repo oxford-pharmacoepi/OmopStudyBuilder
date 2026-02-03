@@ -1,9 +1,6 @@
 # Docker Wrapper Functions for OMOP Studies
 # Minimal set of functions for RStudio-based workflow
 
-# Constants
-DOCKER_IMAGE_PREFIX <- "omop-study-"
-
 #' Run a docker command and capture output
 #'
 #' @param args Character vector of docker CLI args
@@ -130,7 +127,7 @@ buildStudy <- function(study_path = here::here(), image_name = NULL) {
 
   if (is.null(image_name)) {
     study_name <- basename(normalizePath(study_path))
-    image_name <- paste0(DOCKER_IMAGE_PREFIX, tolower(gsub("[^a-z0-9]", "-", study_name)))
+    image_name <- tolower(gsub("[^a-z0-9]", "-", study_name))
   }
 
   # Detect R version and prepare Dockerfile
@@ -206,7 +203,7 @@ runRStudio <- function(image_name = NULL,
   # Auto-detect image name from current directory if not provided
   if (is.null(image_name)) {
     study_name <- basename(here::here())
-    image_name <- paste0(DOCKER_IMAGE_PREFIX, tolower(gsub("[^a-z0-9]", "-", study_name)))
+    image_name <- tolower(gsub("[^a-z0-9]", "-", study_name))
     cli::cli_alert_info("Using image: {image_name}")
   }
   
