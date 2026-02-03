@@ -258,7 +258,24 @@ runRStudio <- function(image_name = NULL,
   res <- dockerExec(args)
   
   if (!res$ok) {
-    cli::cli_abort("Failed to start RStudio Server")
+    error_msg <- paste(res$out, collapse = "\n")
+    if (grepl("port is already allocated|address already in use", error_msg, ignore.case = TRUE)) {
+      cli::cli_abort(c(
+        "x" = "Port {port} is already in use",
+        "i" = "Stop existing container: {.code docker ps} then {.code docker stop <container-id>}",
+        "i" = "Or use a different port: {.code runRStudio(port = 8788)}"
+      ))
+    }
+    if (grepl("No such image", error_msg, ignore.case = TRUE)) {
+      cli::cli_abort(c(
+        "x" = "Image '{image_name}' not found",
+        "i" = "Build the image first: {.code buildStudy()}"
+      ))
+    }
+    cli::cli_abort(c(
+      "x" = "Failed to start RStudio Server",
+      "i" = "Error: {error_msg}"
+    ))
   }
   
   container_id <- trimws(res$out[1])
