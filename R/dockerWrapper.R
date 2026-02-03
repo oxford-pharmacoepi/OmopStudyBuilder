@@ -166,7 +166,7 @@ buildStudy <- function(study_path = here::here(), image_name = NULL) {
     "--label", "omop-study=true",
     "--label", paste0("study-path=", study_path),
     normalizePath(study_path)
-  ))
+  ), stream = TRUE)
 
   if (!res$ok) {
     error_text <- paste(res$out, collapse = "\n")
