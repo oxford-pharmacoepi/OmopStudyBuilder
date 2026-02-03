@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxml2-dev \
     libcurl4-openssl-dev \
     libx11-dev \
+    libicu-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /home/rstudio/study
