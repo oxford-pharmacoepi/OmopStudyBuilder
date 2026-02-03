@@ -4,10 +4,10 @@
 \alias{buildStudy}
 \title{Build Docker image for an OMOP study}
 \usage{
-buildStudy(study_path, image_name = NULL)
+buildStudy(study_path = here::here(), image_name = NULL)
 }
 \arguments{
-\item{study_path}{Path to the study directory}
+\item{study_path}{Path to the study directory (defaults to current working directory)}
 
 \item{image_name}{Optional custom image name. Auto-generated if NULL}
 }

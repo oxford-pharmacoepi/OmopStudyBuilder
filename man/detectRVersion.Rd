@@ -4,7 +4,7 @@
 \alias{detectRVersion}
 \title{Detect and sync R version for Docker}
 \usage{
-detectRVersion(dockerfile_dest)
+detectRVersion(dockerfile_dest, study_path = NULL)
 }
 \description{
 Detect and sync R version for Docker
