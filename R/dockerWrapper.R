@@ -18,14 +18,13 @@ dockerExec <- function(args, stream = FALSE) {
   out <- suppressWarnings(system2("docker", args = args, stdout = TRUE, stderr = TRUE))
   status <- attr(out, "status")
   if (is.null(status)) status <- 0L
-  list(ok = identical(status, 0L), status = status, out = out, cmd = cmd)
+  return(list(ok = identical(status, 0L), status = status, out = out, cmd = cmd))
 }
 
 #' Check docker binary and (optionally) daemon (internal)
 #' @keywords internal
 ensureDocker <- function(check_daemon = FALSE) {
-  ver <- tryCatch(system2("docker", "--version", stdout = TRUE, stderr = TRUE),
-                  error = function(e) NULL)
+  ver <- tryCatch(system2("docker", "--version", stdout = TRUE, stderr = TRUE),error = function(e) NULL)
 
   if (is.null(ver)) {
     cli::cli_alert_danger("Docker not found. Please install Docker Desktop.")
@@ -43,7 +42,7 @@ ensureDocker <- function(check_daemon = FALSE) {
     cli::cli_alert_danger("Cannot connect to the Docker daemon. Is Docker Desktop running?")
     return(FALSE)
   }
-  TRUE
+  return(TRUE)
 }
 
 
@@ -121,6 +120,20 @@ prepareDockerfile <- function(study_path, docker_r_version) {
   }
   
   invisible(dockerfile_dest)
+}
+
+#' Find next available port starting from a given port
+#' @keywords internal
+findAvailablePort <- function(start_port = 8787, max_tries = 10) {
+  for (i in 0:(max_tries - 1)) {
+    port <- start_port + i
+    # Check if port is in use by Docker containers
+    check <- dockerExec(c("ps", "-q", "--filter", paste0("publish=", port)))
+    if (check$ok && (length(check$out) == 0 || all(check$out == ""))) {
+      return(port)
+    }
+  }
+  cli::cli_abort("No available ports found between {start_port} and {start_port + max_tries - 1}")
 }
 
 # -------------------------------------------------------------------------
@@ -220,7 +233,7 @@ buildStudy <- function(study_path = here::here(), image_name = NULL) {
 #' @param image_name Name of the Docker image to run. If NULL, auto-detected from current directory.
 #' @param data_path Optional path to data directory (mounted at /data in container)
 #' @param results_path Path to save results (default: "./results")
-#' @param port Port for RStudio Server (default: 8787)
+#' @param port Port for RStudio Server (default: 8787, auto-detects next available if in use)
 #' @param password RStudio password. If NULL, auto-generated and displayed.
 #' @return Container ID (invisibly)
 #' @export
@@ -236,6 +249,14 @@ runRStudio <- function(image_name = NULL,
     study_name <- basename(here::here())
     image_name <- tolower(gsub("[^a-z0-9]", "-", study_name))
     cli::cli_alert_info("Using image: {image_name}")
+  }
+  
+  # Check if port is available, find next available if not
+  port_check <- dockerExec(c("ps", "-q", "--filter", paste0("publish=", port)))
+  if (port_check$ok && length(port_check$out) > 0 && any(port_check$out != "")) {
+    original_port <- port
+    port <- findAvailablePort(start_port = port)
+    cli::cli_alert_warning("Port {original_port} in use, using port {port} instead")
   }
   
   # Generate password if not provided
@@ -265,6 +286,7 @@ runRStudio <- function(image_name = NULL,
             image_name)
   
   cli::cli_h3("Starting RStudio Server...")
+  cli::cli_alert_info("Command: docker {paste(args, collapse = ' ')}")
   res <- dockerExec(args)
   
   if (!res$ok) {
@@ -288,19 +310,34 @@ runRStudio <- function(image_name = NULL,
     ))
   }
   
-  container_id <- trimws(res$out[1])
+  # Extract container ID (filter out warnings, look for hex ID)
+  container_id <- NULL
+  for (line in res$out) {
+    clean_line <- trimws(line)
+    # Container IDs are 12 or 64 character hex strings
+    if (grepl("^[a-f0-9]{12,64}$", clean_line)) {
+      container_id <- clean_line
+      break
+    }
+  }
+  
+  if (is.null(container_id)) {
+    cli::cli_abort(c(
+      "x" = "Could not extract container ID",
+      "i" = "Output: {paste(res$out, collapse = ', ')}"
+    ))
+  }
   
   # Give RStudio a moment to initialize
   Sys.sleep(2)
   
   # Verify container is running
   status_check <- dockerExec(c("ps", "-q", "-f", paste0("id=", container_id)))
-  if (!status_check$ok || length(status_check$out) == 0) {
+  if (!status_check$ok || length(status_check$out) == 0 || all(status_check$out == "")) {
     cli::cli_alert_danger("Container failed to start")
-    logs <- dockerExec(c("logs", "--tail", "20", container_id))
     cli::cli_abort(c(
       "x" = "RStudio Server container exited unexpectedly",
-      "i" = "Logs: {paste(logs$out, collapse = '\\n')}"
+      "i" = "Check logs manually: {.code docker logs {container_id}}"
     ))
   }
   
@@ -348,7 +385,7 @@ pushImage <- function(image_name = NULL, repo = NULL) {
   }
   
   cli::cli_text("")
-  password <- readline("Docker Hub password/token: ")
+  password <- getPass::getPass("Docker Hub password/token: ")
   
   # Login
   cli::cli_alert_info("Logging in to Docker Hub...")
@@ -368,7 +405,6 @@ pushImage <- function(image_name = NULL, repo = NULL) {
   if (!res$ok) cli::cli_abort("Push failed.")
   
   cli::cli_alert_success("Pushed: {repo}")
-  cli::cli_alert_info("Pull command: docker pull {repo}")
   
   invisible(repo)
 }
