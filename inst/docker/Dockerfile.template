@@ -20,7 +20,7 @@ COPY renv.lock ./
 # Install renv and restore packages - use Posit binary packages for speed
 RUN R -e "install.packages('renv', repos='https://cloud.r-project.org/')" \
     && if [ -f "renv.lock" ]; then \
-         R -e "Sys.setenv(RENV_CONFIG_REPOS_OVERRIDE='https://packagemanager.posit.co/cran/__linux__/jammy/latest'); renv::restore()"; \
+         R -e "Sys.setenv(RENV_CONFIG_REPOS_OVERRIDE='https://packagemanager.posit.co/cran/__linux__/{{UBUNTU_CODENAME}}/latest'); renv::restore()"; \
        fi \
     && rm -rf /tmp/*
 

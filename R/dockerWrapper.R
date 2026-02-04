@@ -99,8 +99,23 @@ prepareDockerfile <- function(study_path, docker_r_version) {
       cli::cli_abort("Dockerfile.template not found. Ensure it's in inst/docker/ directory.")
     }
 
+    # Determine Ubuntu codename based on R version
+    r_version_parts <- as.numeric(strsplit(docker_r_version, "\\.")[[1]])
+    r_major <- r_version_parts[1]
+    r_minor <- r_version_parts[2]
+    
+    # Map R version to Ubuntu codename (matches Rocker base images)
+    ubuntu_codename <- if (r_major > 4 || (r_major == 4 && r_minor >= 5)) {
+      "noble"  # R 4.5+ uses Ubuntu 24.04 Noble
+    } else if (r_major == 4 && r_minor >= 2) {
+      "jammy"  # R 4.2-4.4 uses Ubuntu 22.04 Jammy
+    } else {
+      "focal"  # R 4.0-4.1 uses Ubuntu 20.04 Focal
+    }
+
     template_content <- readLines(dockerfile_template)
     template_content <- gsub("{{DOCKER_R_VERSION}}", docker_r_version, template_content, fixed = TRUE)
+    template_content <- gsub("{{UBUNTU_CODENAME}}", ubuntu_codename, template_content, fixed = TRUE)
     writeLines(template_content, dockerfile_dest)
 
     cli::cli_alert_success("Created Dockerfile in study directory (R version: {docker_r_version})")
