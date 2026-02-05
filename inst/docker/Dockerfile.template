@@ -13,19 +13,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /home/rstudio/study
 
-# Install renv (separate layer for better caching)
+# Install renv 
 RUN R -e "install.packages('renv', repos='https://cloud.r-project.org/')"
 
-# Copy dependency file for package restoration
+# Copy renv files 
 COPY --chown=rstudio:rstudio renv.lock ./
+COPY --chown=rstudio:rstudio .Rprofile ./
+COPY --chown=rstudio:rstudio renv/activate.R renv/settings.json ./renv/
 
 # Restore packages using Posit binary packages for speed
-RUN if [ -f "renv.lock" ]; then \
-         R -e "Sys.setenv(RENV_CONFIG_REPOS_OVERRIDE='https://packagemanager.posit.co/cran/__linux__/{{UBUNTU_CODENAME}}/latest'); renv::restore()"; \
-       fi \
+RUN R -e "Sys.setenv(RENV_CONFIG_REPOS_OVERRIDE='https://packagemanager.posit.co/cran/__linux__/{{UBUNTU_CODENAME}}/latest'); \
+           source('renv/activate.R'); \
+           renv::restore(prompt = FALSE)" \
     && rm -rf /tmp/*
 
-# Copy study code (separate layer for better caching)
+# Copy remaining study code 
 COPY --chown=rstudio:rstudio . /home/rstudio/study
 
 # Expose RStudio Server port
