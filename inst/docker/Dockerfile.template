@@ -1,4 +1,3 @@
-# OMOP Study Docker Image - RStudio Server
 FROM rocker/rstudio:{{DOCKER_R_VERSION}}
 
 # Install system dependencies
@@ -14,21 +13,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /home/rstudio/study
 
-# Copy dependency file for package restoration
-COPY renv.lock ./
+# Install renv (separate layer for better caching)
+RUN R -e "install.packages('renv', repos='https://cloud.r-project.org/')"
 
-# Install renv and restore packages - use Posit binary packages for speed
-RUN R -e "install.packages('renv', repos='https://cloud.r-project.org/')" \
-    && if [ -f "renv.lock" ]; then \
+# Copy dependency file for package restoration
+COPY --chown=rstudio:rstudio renv.lock ./
+
+# Restore packages using Posit binary packages for speed
+RUN if [ -f "renv.lock" ]; then \
          R -e "Sys.setenv(RENV_CONFIG_REPOS_OVERRIDE='https://packagemanager.posit.co/cran/__linux__/{{UBUNTU_CODENAME}}/latest'); renv::restore()"; \
        fi \
     && rm -rf /tmp/*
 
 # Copy study code (separate layer for better caching)
-COPY . /home/rstudio/study
-
-# Set proper permissions for RStudio user
-RUN chown -R rstudio:rstudio /home/rstudio/study
+COPY --chown=rstudio:rstudio . /home/rstudio/study
 
 # Expose RStudio Server port
 EXPOSE 8787

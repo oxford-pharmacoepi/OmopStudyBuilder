@@ -18,18 +18,19 @@ dockerExec <- function(args, stream = FALSE) {
   out <- suppressWarnings(system2("docker", args = args, stdout = TRUE, stderr = TRUE))
   status <- attr(out, "status")
   if (is.null(status)) status <- 0L
-  return(list(ok = identical(status, 0L), status = status, out = out, cmd = cmd))
+  list(ok = identical(status, 0L), status = status, out = out, cmd = cmd)
 }
 
 #' Check docker binary and (optionally) daemon (internal)
 #' @keywords internal
 ensureDocker <- function(check_daemon = FALSE) {
-  ver <- tryCatch(system2("docker", "--version", stdout = TRUE, stderr = TRUE),error = function(e) NULL)
+  ver <- tryCatch(system2("docker", "--version", stdout = TRUE, stderr = TRUE), error = function(e) NULL)
 
   if (is.null(ver)) {
-    cli::cli_alert_danger("Docker not found. Please install Docker Desktop.")
-    cli::cli_alert_info("Download from: {.url https://www.docker.com/products/docker-desktop}")
-    return(FALSE)
+    cli::cli_abort(c(
+      "x" = "Docker not found. Please install Docker Desktop.",
+      "i" = "Download from: {.url https://www.docker.com/products/docker-desktop}"
+    ))
   }
 
   version <- gsub("Docker version ([0-9.]+).*", "\\1", ver[1])
@@ -39,99 +40,105 @@ ensureDocker <- function(check_daemon = FALSE) {
 
   daemon <- dockerExec(c("info"), stream = FALSE)
   if (!daemon$ok) {
-    cli::cli_alert_danger("Cannot connect to the Docker daemon. Is Docker Desktop running?")
-    return(FALSE)
+    cli::cli_abort("x" = "Cannot connect to Docker daemon. Is Docker Desktop running?")
   }
   return(TRUE)
 }
 
-
-#' Detect and sync R version for Docker
+#' Get auto-generated image name from directory
 #' @keywords internal
-detectRVersion <- function(dockerfile_dest, study_path = NULL) {
-  # Always use renv.lock as the source of truth for R version
-  if (is.null(study_path)) {
-    cli::cli_abort("study_path is required to detect R version from renv.lock")
-  }
-  
+autoImageName <- function(path = here::here()) {
+  return(tolower(gsub("[^a-z0-9]", "-", basename(normalizePath(path)))))
+}
+
+#' Read R version from renv.lock
+#' @keywords internal
+getRVersionFromLock <- function(study_path) {
   lock_file <- file.path(study_path, "renv.lock")
+  
   if (!file.exists(lock_file)) {
     cli::cli_abort(c(
       "x" = "renv.lock not found in {study_path}",
-      "i" = "Navigate to your study directory first: {.code setwd('{study_path}')}",
-      "i" = "Then run: {.code renv::snapshot()}",
-      "i" = "This ensures reproducible package versions and R version across all environments"
+      "i" = "Run {.code renv::snapshot()} to create it"
     ))
   }
   
-  # Read R version from renv.lock
   tryCatch({
     lock_data <- jsonlite::read_json(lock_file)
-    if (!is.null(lock_data$R$Version)) {
-      docker_r_version <- lock_data$R$Version
-      cli::cli_alert_success("Using R {docker_r_version} from renv.lock")
-      return(docker_r_version)
-    } else {
-      cli::cli_abort(c(
-        "x" = "R version not found in renv.lock",
-        "i" = "Your renv.lock may be corrupted. Try running {.code renv::snapshot()} again"
-      ))
+    r_version <- lock_data$R$Version
+    if (is.null(r_version)) {
+      cli::cli_abort("x" = "R version not found in renv.lock")
     }
+    cli::cli_alert_success("Using R {r_version} from renv.lock")
+    return(r_version)
   }, error = function(e) {
     cli::cli_abort(c(
       "x" = "Could not read renv.lock: {e$message}",
-      "i" = "Your renv.lock may be corrupted. Try running {.code renv::snapshot()} again"
+      "i" = "Try {.code renv::snapshot()} again"
     ))
   })
 }
 
+#' Map R version to Ubuntu codename
+#' @keywords internal
+getUbuntuCodename <- function(r_version) {
+  parts <- as.numeric(strsplit(r_version, "\\.")[[1]])
+  
+  if (parts[1] > 4 || (parts[1] == 4 && parts[2] >= 5)) return("noble")
+  if (parts[1] == 4 && parts[2] >= 2) return("jammy")
+  return("focal")
+}
+
+#' Copy template file with variable substitution
+#' @keywords internal
+copyTemplate <- function(template_name, dest_path, replacements = list()) {
+  template <- system.file("docker", template_name, package = "OmopStudyBuilder")
+  if (template == "") template <- here::here("inst", "docker", template_name)
+  
+  if (!file.exists(template)) {
+    cli::cli_abort("{template_name} not found in package")
+  }
+  
+  if (length(replacements) > 0) {
+    content <- readLines(template)
+    for (key in names(replacements)) {
+      content <- gsub(key, replacements[[key]], content, fixed = TRUE)
+    }
+    writeLines(content, dest_path)
+  } else {
+    file.copy(template, dest_path)
+  }
+  
+  invisible(dest_path)
+}
+
 #' Prepare Dockerfile from template
 #' @keywords internal
-prepareDockerfile <- function(study_path, docker_r_version) {
+prepareDockerfile <- function(study_path, r_version) {
   dockerfile_dest <- file.path(study_path, "Dockerfile")
   
   if (!file.exists(dockerfile_dest)) {
-    dockerfile_template <- system.file("docker", "Dockerfile.template", package = "OmopStudyBuilder")
-    if (!file.exists(dockerfile_template) || dockerfile_template == "") {
-      dockerfile_template <- here::here("inst", "docker", "Dockerfile.template")
-    }
-    if (!file.exists(dockerfile_template)) {
-      cli::cli_abort("Dockerfile.template not found. Ensure it's in inst/docker/ directory.")
-    }
-
-    # Determine Ubuntu codename based on R version
-    r_version_parts <- as.numeric(strsplit(docker_r_version, "\\.")[[1]])
-    r_major <- r_version_parts[1]
-    r_minor <- r_version_parts[2]
+    ubuntu_codename <- getUbuntuCodename(r_version)
     
-    # Map R version to Ubuntu codename (matches Rocker base images)
-    ubuntu_codename <- if (r_major > 4 || (r_major == 4 && r_minor >= 5)) {
-      "noble"  # R 4.5+ uses Ubuntu 24.04 Noble
-    } else if (r_major == 4 && r_minor >= 2) {
-      "jammy"  # R 4.2-4.4 uses Ubuntu 22.04 Jammy
-    } else {
-      "focal"  # R 4.0-4.1 uses Ubuntu 20.04 Focal
-    }
-
-    template_content <- readLines(dockerfile_template)
-    template_content <- gsub("{{DOCKER_R_VERSION}}", docker_r_version, template_content, fixed = TRUE)
-    template_content <- gsub("{{UBUNTU_CODENAME}}", ubuntu_codename, template_content, fixed = TRUE)
-    writeLines(template_content, dockerfile_dest)
-
-    cli::cli_alert_success("Created Dockerfile in study directory (R version: {docker_r_version})")
+    copyTemplate(
+      "Dockerfile.template",
+      dockerfile_dest,
+      list(
+        "{{DOCKER_R_VERSION}}" = r_version,
+        "{{UBUNTU_CODENAME}}" = ubuntu_codename
+      )
+    )
+    
+    cli::cli_alert_success("Created Dockerfile (R {r_version}, Ubuntu {ubuntu_codename})")
   }
   
-  # Copy .dockerignore template
+  # Copy .dockerignore
   dockerignore_dest <- file.path(study_path, ".dockerignore")
   if (!file.exists(dockerignore_dest)) {
-    dockerignore_template <- system.file("docker", ".dockerignore", package = "OmopStudyBuilder")
-    if (!file.exists(dockerignore_template) || dockerignore_template == "") {
-      dockerignore_template <- here::here("inst", "docker", ".dockerignore")
-    }
-    if (file.exists(dockerignore_template)) {
-      file.copy(dockerignore_template, dockerignore_dest)
+    tryCatch({
+      copyTemplate(".dockerignore", dockerignore_dest)
       cli::cli_alert_success("Created .dockerignore")
-    }
+    }, error = function(e) NULL)
   }
   
   invisible(dockerfile_dest)
@@ -142,7 +149,6 @@ prepareDockerfile <- function(study_path, docker_r_version) {
 findAvailablePort <- function(start_port = 8787, max_tries = 10) {
   for (i in 0:(max_tries - 1)) {
     port <- start_port + i
-    # Check if port is in use by Docker containers
     check <- dockerExec(c("ps", "-q", "--filter", paste0("publish=", port)))
     if (check$ok && (length(check$out) == 0 || all(check$out == ""))) {
       return(port)
@@ -162,31 +168,15 @@ findAvailablePort <- function(start_port = 8787, max_tries = 10) {
 #' @return Image name (invisibly)
 #' @export
 buildStudy <- function(study_path = here::here(), image_name = NULL) {
-  if (!ensureDocker(check_daemon = TRUE)) cli::cli_abort("Docker is not available")
+  ensureDocker(check_daemon = TRUE)
 
   if (!dir.exists(study_path)) cli::cli_abort("Study path does not exist: {study_path}")
 
-  if (is.null(image_name)) {
-    study_name <- basename(normalizePath(study_path))
-    image_name <- tolower(gsub("[^a-z0-9]", "-", study_name))
-  }
+  image_name <- if (is.null(image_name)) autoImageName(study_path) else image_name
 
-  # Detect R version and prepare Dockerfile
-  dockerfile_dest <- file.path(study_path, "Dockerfile")
-  docker_r_version <- detectRVersion(dockerfile_dest, study_path)
-  prepareDockerfile(study_path, docker_r_version)
-
-  # Enforce renv.lock requirement
-  renv_lock <- file.path(study_path, "renv.lock")
-  if (!file.exists(renv_lock)) {
-    cli::cli_abort(c(
-      "x" = "renv.lock not found in {study_path}",
-      "i" = "Navigate to your study directory first: {.code setwd('{study_path}')}",
-      "i" = "Then run: {.code renv::snapshot()}",
-      "i" = "This ensures reproducible package versions across all environments"
-    ))
-  }
-  cli::cli_alert_info("Using renv.lock for package version control")
+  # Get R version and prepare Dockerfile
+  r_version <- getRVersionFromLock(study_path)
+  prepareDockerfile(study_path, r_version)
 
   cli::cli_h3("Building Docker image: {image_name}")
   cli::cli_alert_info("This may take some minutes on first build...")
@@ -195,13 +185,10 @@ buildStudy <- function(study_path = here::here(), image_name = NULL) {
   platform_args <- character()
   is_arm <- grepl("arm64|aarch64", Sys.info()["machine"], ignore.case = TRUE)
   if (is_arm) {
-    # Parse R version to check compatibility
-    r_version_parts <- as.numeric(strsplit(docker_r_version, "\\.")[[1]])
-    r_major <- r_version_parts[1]
-    r_minor <- r_version_parts[2]
+    parts <- as.numeric(strsplit(r_version, "\\.")[[1]])
     
-    if (r_major < 4 || (r_major == 4 && r_minor < 3)) {
-      cli::cli_alert_warning("ARM64 Mac detected with R {docker_r_version}")
+    if (parts[1] < 4 || (parts[1] == 4 && parts[2] < 3)) {
+      cli::cli_alert_warning("ARM64 Mac detected with R {r_version}")
       cli::cli_alert_danger("RStudio Server does NOT work reliably with R < 4.3 on ARM64 Macs")
       cli::cli_text("")
       cli::cli_bullets(c(
@@ -210,11 +197,10 @@ buildStudy <- function(study_path = here::here(), image_name = NULL) {
         "i" = "Alternative: Run on Intel Mac or Windows, or use command-line execution only"
       ))
       cli::cli_text("")
-      cli::cli_alert_info("Continuing build with x86_64 emulation (slow and unreliable)...")
+      cli::cli_alert_info("Continuing build with x86_64 emulation...")
       platform_args <- c("--platform", "linux/amd64")
     } else {
-      cli::cli_alert_success("ARM64 Mac detected - using native ARM64 image (R {docker_r_version})")
-      # No platform override needed - use native ARM64 image
+      cli::cli_alert_success("ARM64 Mac detected - using native ARM64 image (R {r_version})")
     }
   }
 
@@ -230,16 +216,15 @@ buildStudy <- function(study_path = here::here(), image_name = NULL) {
   if (!res$ok) {
     error_text <- paste(res$out, collapse = "\n")
     if (grepl("Cannot connect to the Docker daemon", error_text)) {
-      cli::cli_abort(c("Docker daemon is not running.", "i" = "Please start Docker Desktop and try again."))
+      cli::cli_abort(c("x" = "Docker daemon not running", "i" = "Please start Docker Desktop"))
     }
     if (grepl("permission denied", error_text, ignore.case = TRUE)) {
-      cli::cli_abort(c("Permission denied accessing Docker.", "i" = "You may need to run Docker Desktop or check Docker permissions."))
+      cli::cli_abort(c("x" = "Permission denied", "i" = "Check Docker permissions"))
     }
-    cli::cli_abort(c("Docker build failed.", "i" = "Check that your Dockerfile is valid and Docker is running properly."))
+    cli::cli_abort("Docker build failed. Check Dockerfile and Docker daemon.")
   }
 
   cli::cli_alert_success("Image built successfully: {image_name}")
-
   invisible(image_name)
 }
 
@@ -257,12 +242,11 @@ runRStudio <- function(image_name = NULL,
                         results_path = "./results",
                         port = 8787,
                         password = NULL) {
-  if (!ensureDocker(check_daemon = TRUE)) cli::cli_abort("Docker is not available")
+  ensureDocker(check_daemon = TRUE)
   
-  # Auto-detect image name from current directory if not provided
+  # Auto-detect image name
   if (is.null(image_name)) {
-    study_name <- basename(here::here())
-    image_name <- tolower(gsub("[^a-z0-9]", "-", study_name))
+    image_name <- autoImageName()
     cli::cli_alert_info("Using image: {image_name}")
   }
   
@@ -275,14 +259,10 @@ runRStudio <- function(image_name = NULL,
   }
   
   # Generate password if not provided
-  if (is.null(password)) {
-    password <- paste0("study", sample(1000:9999, 1))
-  }
+  if (is.null(password)) password <- paste0("study", sample(1000:9999, 1))
   
   # Create results directory
-  if (!dir.exists(results_path)) {
-    dir.create(results_path, recursive = TRUE)
-  }
+  if (!dir.exists(results_path)) dir.create(results_path, recursive = TRUE)
   
   # Build mounts
   mounts <- c("-v", paste0(normalizePath(results_path), ":/home/rstudio/study/results"))
@@ -293,15 +273,25 @@ runRStudio <- function(image_name = NULL,
     cli::cli_alert_info("Mounting data: {data_path} -> /data")
   }
   
+  # Generate unique container name
+  container_name <- image_name
+  i <- 0
+  while (i < 100) {
+    check <- dockerExec(c("ps", "-aq", "-f", paste0("name=^", container_name, "$")))
+    if (!check$ok || length(check$out) == 0 || all(check$out == "")) break
+    i <- i + 1
+    container_name <- paste0(image_name, "-", sprintf("%02d", i))
+  }
+  
   # Start RStudio Server
   args <- c("run", "-d", 
+            "--name", container_name,
             "-p", paste0(port, ":8787"),
             "-e", paste0("PASSWORD=", password),
             mounts, 
             image_name)
   
   cli::cli_h3("Starting RStudio Server...")
-  cli::cli_alert_info("Command: docker {paste(args, collapse = ' ')}")
   res <- dockerExec(args)
   
   if (!res$ok) {
@@ -309,27 +299,22 @@ runRStudio <- function(image_name = NULL,
     if (grepl("port is already allocated|address already in use", error_msg, ignore.case = TRUE)) {
       cli::cli_abort(c(
         "x" = "Port {port} is already in use",
-        "i" = "Stop existing container: {.code docker ps} then {.code docker stop <container-id>}",
-        "i" = "Or use a different port: {.code runRStudio(port = 8788)}"
+        "i" = "Try different port: {.code runRStudio(port = 8788)}"
       ))
     }
     if (grepl("No such image", error_msg, ignore.case = TRUE)) {
       cli::cli_abort(c(
         "x" = "Image '{image_name}' not found",
-        "i" = "Build the image first: {.code buildStudy()}"
+        "i" = "Build it first: {.code buildStudy()}"
       ))
     }
-    cli::cli_abort(c(
-      "x" = "Failed to start RStudio Server",
-      "i" = "Error: {error_msg}"
-    ))
+    cli::cli_abort(c("x" = "Failed to start RStudio Server", "i" = "Error: {error_msg}"))
   }
   
   # Extract container ID (filter out warnings, look for hex ID)
   container_id <- NULL
   for (line in res$out) {
     clean_line <- trimws(line)
-    # Container IDs are 12 or 64 character hex strings
     if (grepl("^[a-f0-9]{12,64}$", clean_line)) {
       container_id <- clean_line
       break
@@ -337,22 +322,17 @@ runRStudio <- function(image_name = NULL,
   }
   
   if (is.null(container_id)) {
-    cli::cli_abort(c(
-      "x" = "Could not extract container ID",
-      "i" = "Output: {paste(res$out, collapse = ', ')}"
-    ))
+    cli::cli_abort(c("x" = "Could not extract container ID", "i" = "Output: {paste(res$out, collapse = ', ')}"))
   }
   
-  # Give RStudio a moment to initialize
+  # Wait and verify
   Sys.sleep(2)
   
-  # Verify container is running
   status_check <- dockerExec(c("ps", "-q", "-f", paste0("id=", container_id)))
   if (!status_check$ok || length(status_check$out) == 0 || all(status_check$out == "")) {
-    cli::cli_alert_danger("Container failed to start")
     cli::cli_abort(c(
-      "x" = "RStudio Server container exited unexpectedly",
-      "i" = "Check logs manually: {.code docker logs {container_id}}"
+      "x" = "Container exited unexpectedly",
+      "i" = "Check logs: {.code docker logs {container_id}}"
     ))
   }
   
@@ -364,9 +344,7 @@ runRStudio <- function(image_name = NULL,
     "!" = "Password: {.strong {password}}"
   ))
   cli::cli_text("")
-  cli::cli_alert_info("Edit {.file code_to_run.R} to configure database credentials")
   cli::cli_alert_info("Results will be saved to: {results_path}")
-  cli::cli_text("")
   cli::cli_alert_info("To stop: docker stop {substr(container_id, 1, 12)}")
   
   invisible(container_id)
@@ -380,13 +358,10 @@ runRStudio <- function(image_name = NULL,
 #' @return Repository name (invisibly)
 #' @export
 pushImage <- function(image_name = NULL, repo = NULL) {
-  if (!ensureDocker(check_daemon = TRUE)) cli::cli_abort("Docker is not available")
-  
+  ensureDocker(check_daemon = TRUE)
 
   # Auto-detect image name
-  if (is.null(image_name)) {
-    image_name <- tolower(gsub("[^a-z0-9]", "-", basename(here::here())))
-  }
+  image_name <- if (is.null(image_name)) autoImageName() else image_name
   
   # Verify image exists
   check <- dockerExec(c("image", "inspect", image_name))
@@ -420,6 +395,5 @@ pushImage <- function(image_name = NULL, repo = NULL) {
   if (!res$ok) cli::cli_abort("Push failed.")
   
   cli::cli_alert_success("Pushed: {repo}")
-  
   invisible(repo)
 }
