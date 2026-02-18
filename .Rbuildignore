@@ -12,3 +12,5 @@
 ^README\.html$
 ^SampleStudy$
 ^OmopStudyExecutor$
+^inst/docker/\.dockerignore$
+^inst/study_code/\.dockerignore$

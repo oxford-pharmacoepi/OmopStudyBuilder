@@ -2,11 +2,14 @@
 % Please edit documentation in R/dockerWrapper.R
 \name{ensureDocker}
 \alias{ensureDocker}
-\title{Check docker binary and (optionally) daemon (internal)}
+\title{Check if Docker daemon is running}
 \usage{
-ensureDocker(check_daemon = FALSE)
+ensureDocker()
+}
+\value{
+TRUE if Docker is available, throws error otherwise
 }
 \description{
-Check docker binary and (optionally) daemon (internal)
+Check if Docker daemon is running
 }
 \keyword{internal}

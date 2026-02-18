@@ -6,26 +6,27 @@
 \usage{
 runRStudio(
   image_name = NULL,
-  data_path = NULL,
   results_path = "./results",
+  env_file = NULL,
   port = 8787,
   password = NULL
 )
 }
 \arguments{
-\item{image_name}{Name of the Docker image to run. If NULL, auto-detected from current directory.}
-
-\item{data_path}{Optional path to data directory (mounted at /data in container)}
+\item{image_name}{Name of Docker image to run (default: auto-detected from directory)}
 
 \item{results_path}{Path to save results (default: "./results")}
 
-\item{port}{Port for RStudio Server (default: 8787)}
+\item{env_file}{Optional path to a .env file (passed to Docker via --env-file)}
 
-\item{password}{RStudio password. If NULL, auto-generated and displayed.}
+\item{port}{Port for RStudio Server (default: 8787, auto-finds next available if busy)}
+
+\item{password}{RStudio password (default: auto-generated and displayed)}
 }
 \value{
 Container ID (invisibly)
 }
 \description{
-Run RStudio Server for interactive study execution
+Note: The Docker image must include RStudio Server (i.e., be built with
+`buildStudy(useRStudio = TRUE)` which uses a `rocker/rstudio` base image).
 }

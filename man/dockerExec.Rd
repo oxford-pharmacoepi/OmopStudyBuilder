@@ -2,19 +2,19 @@
 % Please edit documentation in R/dockerWrapper.R
 \name{dockerExec}
 \alias{dockerExec}
-\title{Run a docker command and capture output}
+\title{Execute a Docker command}
 \usage{
-dockerExec(args, stream = FALSE)
+dockerExec(args, error_message = "Docker command failed")
 }
 \arguments{
-\item{args}{Character vector of docker CLI args}
+\item{args}{Character vector of Docker command arguments}
 
-\item{stream}{If TRUE, stream stdout/stderr to console}
+\item{error_message}{Custom error message if command fails}
 }
 \value{
-list(ok, status, out, cmd)
+Command output as character vector (returned invisibly to avoid console clutter)
 }
 \description{
-Run a docker command and capture output
+Execute a Docker command
 }
 \keyword{internal}

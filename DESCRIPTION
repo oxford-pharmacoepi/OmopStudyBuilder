@@ -15,8 +15,8 @@ Depends:
 Imports: 
     cli,
     dplyr,
-    getPass,
     jsonlite,
+    processx,
     purrr,
     omopgenerics,
     rlang,
