@@ -4,10 +4,12 @@
 \alias{processEnvFile}
 \title{Process environment file argument}
 \usage{
-processEnvFile(env_file)
+processEnvFile(env_file, default_env_file = ".env")
 }
 \arguments{
 \item{env_file}{Path to .env file or NULL}
+
+\item{default_env_file}{Default env file path to use when env_file is NULL}
 }
 \value{
 Character vector of Docker env-file arguments (empty if no file)

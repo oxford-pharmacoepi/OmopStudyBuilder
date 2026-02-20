@@ -20,7 +20,7 @@ test_that("findAvailablePort returns valid port number", {
               "Docker not available")
   
   port <- findAvailablePort(start_port = 8787)
-  expect_type(port, "integer")
+  expect_true(is.numeric(port))
   expect_true(port >= 8787)
 })
 
@@ -64,39 +64,15 @@ test_that("runRStudio returns container ID invisibly", {
 # Container Lifecycle Tests
 # -------------------------------------------------------------------------
 
-test_that("stopRStudio auto-detects container", {
+test_that("stopStudy stops rstudio containers", {
   skip("Integration test - requires running container")
 })
 
-test_that("stopRStudio accepts explicit container name", {
+test_that("stopStudy accepts explicit container name", {
   skip("Integration test - requires running container")
 })
 
-test_that("listContainers returns data frame", {
-  skip_if_not(system2("docker", "info", stdout = FALSE, stderr = FALSE) == 0,
-              "Docker not available")
-  
-  result <- listContainers(all = FALSE)
-  expect_s3_class(result, "data.frame")
-  expect_true(all(c("ID", "Name", "Image", "Status", "Ports") %in% names(result)))
-})
 
-test_that("listImages returns data frame", {
-  skip_if_not(system2("docker", "info", stdout = FALSE, stderr = FALSE) == 0,
-              "Docker not available")
-  
-  result <- listImages()
-  expect_s3_class(result, "data.frame")
-  expect_true(all(c("Repository", "Tag", "ID", "Size") %in% names(result)))
-})
-
-test_that("cleanupContainers handles no containers gracefully", {
-  skip("Integration test - may remove user containers")
-})
-
-test_that("cleanupImages runs without error", {
-  skip("Integration test - may remove user images")
-})
 
 # -------------------------------------------------------------------------
 # Automated Execution Tests

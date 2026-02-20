@@ -17,7 +17,9 @@ runStudy(
 
 \item{results_path}{Path to save results (default: "./results")}
 
-\item{env_file}{Optional path to a .env file (passed to Docker via --env-file)}
+\item{env_file}{Optional path to a .env file (passed to Docker via --env-file).
+If NULL and a `.env` file exists in the current working directory, it will be
+used automatically.}
 
 \item{data_path}{Optional path to data directory (mounted at /data)}
 
