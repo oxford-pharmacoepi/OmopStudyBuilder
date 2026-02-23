@@ -8,7 +8,6 @@ createLogFile(logFile = tempfile(pattern = "log_{date}_{time}"))
 logMessage("LOG CREATED")
 
 # run ----
-result <- list()
 source(here("cohorts","instantiate_cohorts.R"))
 info(logger, "- Running PhenotypeDiagnostics")
 diagnostics <- phenotypeDiagnostics(cdm$study_cohorts,

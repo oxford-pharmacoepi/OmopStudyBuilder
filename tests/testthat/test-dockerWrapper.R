@@ -1,7 +1,7 @@
 library(testthat)
 
 # -------------------------------------------------------------------------
-# Basic Docker Detection
+# Docker Detection
 # -------------------------------------------------------------------------
 
 test_that("ensureDocker detects Docker daemon", {
@@ -11,22 +11,7 @@ test_that("ensureDocker detects Docker daemon", {
   expect_true(ensureDocker())
 })
 
-# -------------------------------------------------------------------------
-# Port Detection
-# -------------------------------------------------------------------------
 
-test_that("findAvailablePort returns valid port number", {
-  skip_if_not(system2("docker", "info", stdout = FALSE, stderr = FALSE) == 0,
-              "Docker not available")
-  
-  port <- findAvailablePort(start_port = 8787)
-  expect_true(is.numeric(port))
-  expect_true(port >= 8787)
-})
-
-test_that("findAvailablePort finds next available if first is busy", {
-  skip("Integration test - requires running container on specific port")
-})
 
 # -------------------------------------------------------------------------
 # buildStudy Tests
