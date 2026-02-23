@@ -1,5 +1,7 @@
 ---
-output: github_document
+output:
+  github_document:
+    html_preview: true
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -71,19 +73,14 @@ These functions help ensure your study meets best practices and identifies poten
 
 ## Step 3: Lock Package Versions
 
-Initialize package version control for your study:
+Initialize package version control for your study. OmopStudyBuilder expects a
+`renv.lock` in your study folder (typically `SampleStudy/study_code`).
 
 ```{r, eval = FALSE}
-# Initialize renv (first time only)
-initRenv("SampleStudy/study_code")
-
-# Install required packages (navigate to study directory first)
-setwd("SampleStudy/study_code")
+# First time only: initialize renv in your study folder
+renv::init(here::here("SampleStudy/study_code"))
 install.packages(c("dplyr", "CDMConnector", "IncidencePrevalence"))
-setwd("../..")  # Return to original directory
-
-# Lock package versions
-snapshotPackages("SampleStudy/study_code")
+renv::snapshot(here::here("SampleStudy/study_code"))
 ```
 
 This creates an `renv.lock` file that ensures all data partners use identical package versions.
@@ -93,14 +90,8 @@ This creates an `renv.lock` file that ensures all data partners use identical pa
 Package your study into a reproducible Docker container:
 
 ```{r, eval = FALSE}
-# Check Docker is available
-checkDocker()
-
-# Build Docker image with locked package versions
-OmopStudyBuilder::buildStudy(here::here())
-#> Building Docker image: omop-study-study-code
-#> This may take 5-15 minutes on first build...
-#> Image built successfully: omop-study-study-code
+# Build Docker image from your study folder (where renv.lock lives)
+OmopStudyBuilder::buildStudy(path = here::here("SampleStudy/study_code"))
 ```
 
 The Docker image contains your study code, exact R version, and all dependencies.
@@ -114,46 +105,18 @@ You have two options to execute your study:
 Launch RStudio Server in your browser for interactive execution:
 
 ```{r, eval = FALSE}
-runRStudio(data_path = "path/to/data")
-#> Available Docker images:
-#>   1. omop-study-study-code
-#>   2. postgres
-#> 
-#> Select image (1-2): 1
-#> 
-#> Starting RStudio Server...
-#> ✔ RStudio Server started!
-#> 
-#> ! Open browser: http://localhost:8787
-#> ! Username: rstudio
-#> ! Password: study1234
-#> 
-#> ℹ Edit code_to_run.R to configure database credentials
-#> ℹ Results will be saved to: ./results
-#> 
-#> ℹ To stop: docker stop a1b2c3d4e5f6
+runRStudio()
 ```
 
-Edit `code_to_run.R` in RStudio to set your database credentials, then run the analysis interactively.
+Edit `code_to_run.R` in RStudio to set your database credentials (or use a `.env`
+file and pass it with `env_file = ".env"`), then run the analysis interactively.
 
 ### Option B: Automated Execution
 
 Run the study as a non-interactive script:
 
 ```{r, eval = FALSE}
-runStudy(data_path = "path/to/data")
-#> Available Docker images:
-#>   1. omop-study-study-code
-#>   2. postgres
-#> 
-#> Select image (1-2): 1
-#> ✔ Selected: omop-study-study-code
-#> 
-#> Running study in Docker...
-#> ════════════════════════════════════════════════════════════════════════
-#> [study execution output...]
-#> ════════════════════════════════════════════════════════════════════════
-#> ✔ Done! Results in: ./results
+runStudy()
 ```
 
 You can also specify the image directly to skip the interactive prompt:
@@ -162,104 +125,32 @@ You can also specify the image directly to skip the interactive prompt:
 runStudy(
   image_name = "omop-study-study-code",
   data_path = "path/to/data",
-  output_path = "./results"
+  results_path = "./results"
 )
 ```
 
 ## Step 6: Distribute to Data Partners
 
-Choose your distribution method based on network connectivity:
+To distribute a study, share the **study folder** created by
+`createStudy()` (including the `study_code/` project and its `renv.lock`).
+Data partners can then build and run the study using OmopStudyBuilder functions
+without needing to run Docker commands manually.
 
-### Option A: Docker Hub (Online Distribution)
-
-Push to Docker Hub for easy sharing:
-
-```{r, eval = FALSE}
-pushImage("omop-study-study-code", "yourusername/myomopstudy:v1.0")
-#> Pushing omop-study-study-code to Docker Hub
-#> ℹ Logging into Docker Hub...
-#> ℹ Tagging omop-study-study-code -> yourusername/myomopstudy:v1.0
-#> ℹ Pushing to Docker Hub (this may take 5-15 minutes)...
-#> 
-#> ✔ Image pushed to Docker Hub!
-#> 
-#> ℹ Partners can pull with: pullImage('yourusername/myomopstudy:v1.0')
-#> ℹ Then run with: runRStudio(image_name = 'yourusername/myomopstudy:v1.0', data_path = 'path/to/data')
-```
-
-**Data partners** pull and run:
+### Data partner workflow
 
 ```{r, eval = FALSE}
-# Install the package (one-time setup)
 install.packages("OmopStudyBuilder")
+library(OmopStudyBuilder)
 
-# Pull the study image
-pullImage("yourusername/myomopstudy:v1.0")
+# 1) Build the study image from the provided study folder
+buildStudy(path = here::here("SampleStudy/study_code"))
 
-# Run RStudio
-runRStudio(
-  image_name = "yourusername/myomopstudy:v1.0",
-  data_path = "C:/my_omop_data"
-)
+# 2) Run the study (automated)
+runStudy()
+
+# Or: run interactively in RStudio Server
+runRStudio()
+
+# 3) Stop the running container when finished
+stopStudy()
 ```
-
-### Option B: Tar File (Offline Distribution)
-
-Export to a file for secure/offline sharing:
-
-```{r, eval = FALSE}
-exportImage("omop-study-study-code", "myomopstudy-v1.0.tar")
-#> Exporting omop-study-study-code to myomopstudy-v1.0.tar
-#> ℹ This will create a ~1-2GB file and may take 5-10 minutes...
-#> 
-#> ✔ Image exported: myomopstudy-v1.0.tar (1.45 GB)
-#> 
-#> ℹ Send this file to data partners
-#> ℹ Partners load with: loadImage('myomopstudy-v1.0.tar')
-#> ℹ Then run with: runRStudio(data_path = 'path/to/data')
-```
-
-**Data partners** load and run:
-
-```{r, eval = FALSE}
-# Install the package (one-time setup)
-install.packages("OmopStudyBuilder")
-
-# Load the study image
-loadImage("myomopstudy-v1.0.tar")
-
-# Run RStudio
-runRStudio(data_path = "C:/my_omop_data")
-```
-
-## Alternative: One-Command Sync
-
-For ongoing development, use `syncStudy()` to snapshot, build, validate, and test in one step:
-
-```{r, eval = FALSE}
-syncStudy(
-  study_path = "SampleStudy/study_code",
-  force_rebuild = FALSE,
-  run_test = TRUE
-)
-#> ══ SYNCING STUDY ENVIRONMENT ══
-#> 
-#> ── [1/4] Snapshotting package versions...
-#> ✔ Packages updated in renv.lock
-#> 
-#> ── [2/4] Building Docker image...
-#> ✔ Image up-to-date, skipping rebuild
-#> 
-#> ── [3/4] Validating Docker environment...
-#> ✔ Environment validated successfully!
-#>   • Local: 45 packages
-#>   • Docker: 45 packages
-#> 
-#> ── [4/4] Testing study execution in Docker...
-#> ✔ Study executed successfully in Docker!
-#> 
-#> ══ SYNC COMPLETE ══
-#> ✔ Study environment synchronized and validated
-```
-
-This ensures your local environment and Docker image are always in sync.

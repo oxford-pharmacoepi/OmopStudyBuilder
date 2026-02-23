@@ -628,177 +628,85 @@ GitHub:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># install.packages(&quot;remotes&quot;)</span></span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&quot;oxford-pharmacoepi/OmopStudyBuilder&quot;</span>)</span></code></pre></div>
 <h1 id="example-usage">Example Usage</h1>
-<p>To illustrate how OmopStudyBuilder works, we begin by loading the
-package:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">library</span>(OmopStudyBuilder)</span></code></pre></div>
-<p>Next, we create a new study project. You can provide any study name;
-the example below creates <code>&quot;SampleStudy&quot;</code> in the current
-working directory:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>OmopStudyBuilder<span class="sc">::</span><span class="fu">createStudy</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;SampleStudy&quot;</span>))</span></code></pre></div>
-<p>After creating the project, open the study directory and use the <a href="https://rstudio.github.io/renv/"><code>renv</code></a> package to
-initialise a reproducible environment:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">init</span>()</span></code></pre></div>
-<p>This will generate an <code>renv.lock</code> file, which
-OmopStudyBuilder uses to analyse the study dependencies:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>OmopStudyBuilder<span class="sc">::</span><span class="fu">reviewStudyDependencies</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;SampleStudy&quot;</span>))</span></code></pre></div>
-<p>To get a summary of the study code and its dependencies, you can
-use:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>OmopStudyBuilder<span class="sc">::</span><span class="fu">reviewStudyCode</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;SampleStudy&quot;</span>))</span></code></pre></div>
-<h1 id="docker-execution-engine">Docker Execution Engine</h1>
-<p>OmopStudyBuilder includes a Docker-based execution system that allows
-studies to be run in reproducible, isolated environments. This ensures
-that studies produce consistent results across different systems and
-eliminates “works on my machine” problems.</p>
-<h2 id="complete-workflow">Complete Workflow</h2>
-<p>The typical workflow combines study creation with Docker
-containerization:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># 1. Create study structure</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">library</span>(OmopStudyBuilder)</span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="fu">createStudy</span>(<span class="st">&quot;MyStudy&quot;</span>)</span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co"># 2. Initialize package management</span></span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="fu">setwd</span>(<span class="st">&quot;MyStudy/study_code&quot;</span>)</span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">init</span>()</span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a></span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co"># 3. Develop your study code</span></span>
-<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co"># Edit files in study_code/ directory</span></span>
-<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co"># Install required packages: install.packages(&quot;dplyr&quot;)</span></span>
-<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a></span>
-<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co"># 4. Lock package versions</span></span>
-<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">snapshot</span>()</span>
-<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a></span>
-<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co"># 5. Build Docker image</span></span>
-<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="fu">buildStudy</span>(<span class="st">&quot;.&quot;</span>)</span>
-<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a></span>
-<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a><span class="co"># 6. Run study in Docker</span></span>
-<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a><span class="fu">runStudy</span>(</span>
-<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a>  <span class="at">image_name =</span> <span class="st">&quot;omop-study-study-code&quot;</span>,</span>
-<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a>  <span class="at">config_file =</span> <span class="st">&quot;config.yml&quot;</span>,</span>
-<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a>  <span class="at">output_path =</span> <span class="st">&quot;../results&quot;</span></span>
-<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a>)</span></code></pre></div>
-<h2 id="setup-requirements">Setup Requirements</h2>
-<p>Before using the Docker execution features, you need:</p>
-<ol style="list-style-type: decimal">
-<li>Docker Desktop installed and running on your system</li>
-<li>OmopStudyBuilder package loaded</li>
-</ol>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">library</span>(OmopStudyBuilder)</span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="co"># or in development</span></span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">load_all</span>()</span></code></pre></div>
-<h2 id="core-functions">Core Functions</h2>
-<h3 id="checkdocker">checkDocker()</h3>
-<p>Verifies that Docker is installed and accessible from R. Returns TRUE
-if Docker is available, FALSE otherwise.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">checkDocker</span>()</span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="co">#&gt; Docker 28.3.2 detected</span></span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
-<h3 id="buildstudystudy_path-image_name--null">buildStudy(study_path,
-image_name = NULL)</h3>
-<p>Creates a Docker image containing the study code and all required R
-packages. The image is a self-contained environment that can be
-distributed to data partners.</p>
-<p>Arguments: - <code>study_path</code>: Path to the study directory
-created by createStudy() - <code>image_name</code>: Optional custom name
-for the Docker image. If NULL, generates name automatically.</p>
-<p>The function automatically detects if renv.lock exists and uses it to
-install exact package versions. If no renv.lock is found, it installs a
-default set of packages.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">buildStudy</span>(<span class="st">&quot;path/to/study&quot;</span>)</span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt; Building Docker image: omop-study-mystudy</span></span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt; This may take 5-15 minutes on first build...</span></span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt; Image built successfully: omop-study-mystudy</span></span></code></pre></div>
-<h3 id="runstudyimage_name-config_file-data_path-output_path">runStudy(image_name,
-config_file, data_path, output_path)</h3>
-<p>Executes the study inside a Docker container. The study runs in
-complete isolation and saves results to the specified output
-directory.</p>
-<p>Arguments: - <code>image_name</code>: Name of the Docker image to run
-- <code>config_file</code>: Path to YAML configuration file (default:
-“config.yml”) - <code>data_path</code>: Optional path to data directory
-to mount in container - <code>output_path</code>: Directory where
-results will be saved (default: “./results”)</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">runStudy</span>(</span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>  <span class="at">image_name =</span> <span class="st">&quot;omop-study-mystudy&quot;</span>,</span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>  <span class="at">config_file =</span> <span class="st">&quot;database_config.yml&quot;</span>,</span>
-<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>  <span class="at">output_path =</span> <span class="st">&quot;./results&quot;</span></span>
-<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>)</span>
-<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="co">#&gt; Running study in Docker container...</span></span>
-<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="co">#&gt; Results will be saved to: ./results</span></span>
-<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="co">#&gt; Study completed successfully!</span></span></code></pre></div>
-<h2 id="package-version-management-with-renv">Package Version Management
-with renv</h2>
-<p>To ensure reproducibility, lock package versions using renv before
-building the Docker image:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="co"># In your study directory</span></span>
-<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="fu">setwd</span>(<span class="st">&quot;path/to/study&quot;</span>)</span>
-<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a></span>
-<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="co"># Initialize renv (first time only)</span></span>
-<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">init</span>()</span>
-<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a></span>
-<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a><span class="co"># Install required packages</span></span>
-<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="fu">c</span>(<span class="st">&quot;dplyr&quot;</span>, <span class="st">&quot;ggplot2&quot;</span>, <span class="st">&quot;DatabaseConnector&quot;</span>))</span>
-<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a></span>
-<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a><span class="co"># Lock package versions</span></span>
-<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">snapshot</span>()</span>
-<span id="cb12-12"><a href="#cb12-12" tabindex="-1"></a></span>
-<span id="cb12-13"><a href="#cb12-13" tabindex="-1"></a><span class="co"># Build Docker image with locked versions</span></span>
-<span id="cb12-14"><a href="#cb12-14" tabindex="-1"></a><span class="fu">buildStudy</span>(<span class="st">&quot;path/to/study&quot;</span>)</span></code></pre></div>
-<p>The Docker image will contain the exact package versions specified in
-renv.lock, ensuring identical environments across all execution
-sites.</p>
-<h2 id="additional-functions">Additional Functions</h2>
-<p>Additional utilities available:</p>
-<h3 id="initrenvstudy_path">initRenv(study_path)</h3>
-<p>Initializes renv in a study directory, setting up package version
-management.</p>
-<h3 id="snapshotpackagesstudy_path">snapshotPackages(study_path)</h3>
-<p>Takes a snapshot of currently installed packages and locks their
-versions in renv.lock.</p>
-<h3 id="syncstudystudy_path-force_rebuild-run_test-output_path">syncStudy(study_path,
-force_rebuild, run_test, output_path)</h3>
-<p>One-stop command to sync local environment with Docker. Snapshots
-packages, builds image, verifies compatibility, and optionally tests
-execution.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">syncStudy</span>(</span>
-<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>  <span class="at">study_path =</span> <span class="st">&quot;path/to/study&quot;</span>,</span>
-<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  <span class="at">force_rebuild =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>  <span class="at">run_test =</span> <span class="cn">TRUE</span></span>
-<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>)</span>
-<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="co">#&gt; ══ SYNCING STUDY ENVIRONMENT ══</span></span>
-<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="co">#&gt; ── [1/4] Snapshotting package versions...</span></span>
-<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="co">#&gt; ✔ Packages updated in renv.lock</span></span>
-<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="co">#&gt; ── [2/4] Building Docker image...</span></span>
-<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="co">#&gt; ✔ Image up-to-date, skipping rebuild</span></span>
-<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="co">#&gt; ── [3/4] Validating Docker environment...</span></span>
-<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a><span class="co">#&gt; ✔ Environment validated successfully!</span></span>
-<span id="cb13-16"><a href="#cb13-16" tabindex="-1"></a><span class="co">#&gt;   • Local: 45 packages</span></span>
-<span id="cb13-17"><a href="#cb13-17" tabindex="-1"></a><span class="co">#&gt;   • Docker: 45 packages</span></span>
-<span id="cb13-18"><a href="#cb13-18" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb13-19"><a href="#cb13-19" tabindex="-1"></a><span class="co">#&gt; ── [4/4] Testing study execution in Docker...</span></span>
-<span id="cb13-20"><a href="#cb13-20" tabindex="-1"></a><span class="co">#&gt; ✔ Study executed successfully in Docker!</span></span>
-<span id="cb13-21"><a href="#cb13-21" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb13-22"><a href="#cb13-22" tabindex="-1"></a><span class="co">#&gt; ══ SYNC COMPLETE - Ready for distribution! ══</span></span></code></pre></div>
-<h2 id="how-it-works">How It Works</h2>
-<p>The Docker execution system operates through these steps:</p>
-<ol style="list-style-type: decimal">
-<li>Study code and renv.lock are packaged with a Dockerfile
-template</li>
-<li>Docker builds an image containing R 4.5.2, system dependencies, and
-all required packages</li>
-<li>The image can be distributed to data partners via Docker registry or
-offline transfer</li>
-<li>Partners run the study using runStudy() without installing any R
-packages</li>
-<li>Results are extracted from the container to the local
-filesystem</li>
-</ol>
-<p>This approach guarantees that: - All execution environments are
-identical - Package versions are locked and reproducible - System
-dependencies are included - Studies run independently of local R
-installations - Results are consistent across all sites</p>
+<p>OmopStudyBuilder provides a complete workflow for creating,
+reviewing, and distributing OMOP network studies. The package guides you
+from initial project setup through to Docker-based execution that
+ensures reproducibility across data partners.</p>
+<h2 id="step-1-create-study-structure">Step 1: Create Study
+Structure</h2>
+<p>Create your study project:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">library</span>(OmopStudyBuilder)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>OmopStudyBuilder<span class="sc">::</span><span class="fu">createStudy</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;SampleStudy&quot;</span>))</span></code></pre></div>
+<p>This creates a standardized folder structure with template code for
+OMOP network studies.</p>
+<h2 id="step-2-review-your-study">Step 2: Review Your Study</h2>
+<p>As you develop your analysis code, use the review functions to check
+code quality and dependencies:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Review study code files</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">reviewStudyCode</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;SampleStudy/study_code&quot;</span>))</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co"># Review package dependencies</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="fu">reviewStudyDependencies</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;SampleStudy/study_code&quot;</span>))</span></code></pre></div>
+<p>These functions help ensure your study meets best practices and
+identifies potential issues before distribution.</p>
+<h2 id="step-3-lock-package-versions">Step 3: Lock Package Versions</h2>
+<p>Initialize package version control for your study. OmopStudyBuilder
+expects a <code>renv.lock</code> in your study folder (typically
+<code>SampleStudy/study_code</code>).</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># First time only: initialize renv in your study folder</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">init</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;SampleStudy/study_code&quot;</span>))</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="fu">c</span>(<span class="st">&quot;dplyr&quot;</span>, <span class="st">&quot;CDMConnector&quot;</span>, <span class="st">&quot;IncidencePrevalence&quot;</span>))</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">snapshot</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;SampleStudy/study_code&quot;</span>))</span></code></pre></div>
+<p>This creates an <code>renv.lock</code> file that ensures all data
+partners use identical package versions.</p>
+<h2 id="step-4-build-docker-image">Step 4: Build Docker Image</h2>
+<p>Package your study into a reproducible Docker container:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># Build Docker image from your study folder (where renv.lock lives)</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>OmopStudyBuilder<span class="sc">::</span><span class="fu">buildStudy</span>(<span class="at">path =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;SampleStudy/study_code&quot;</span>))</span></code></pre></div>
+<p>The Docker image contains your study code, exact R version, and all
+dependencies.</p>
+<h2 id="step-5-run-study">Step 5: Run Study</h2>
+<p>You have two options to execute your study:</p>
+<h3 id="option-a-interactive-rstudio-recommended-for-data-partners">Option
+A: Interactive RStudio (Recommended for Data Partners)</h3>
+<p>Launch RStudio Server in your browser for interactive execution:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">runRStudio</span>()</span></code></pre></div>
+<p>Edit <code>code_to_run.R</code> in RStudio to set your database
+credentials (or use a <code>.env</code> file and pass it with
+<code>env_file = &quot;.env&quot;</code>), then run the analysis
+interactively.</p>
+<h3 id="option-b-automated-execution">Option B: Automated Execution</h3>
+<p>Run the study as a non-interactive script:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">runStudy</span>()</span></code></pre></div>
+<p>You can also specify the image directly to skip the interactive
+prompt:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">runStudy</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="at">image_name =</span> <span class="st">&quot;omop-study-study-code&quot;</span>,</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="at">data_path =</span> <span class="st">&quot;path/to/data&quot;</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="at">results_path =</span> <span class="st">&quot;./results&quot;</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>)</span></code></pre></div>
+<h2 id="step-6-distribute-to-data-partners">Step 6: Distribute to Data
+Partners</h2>
+<p>To distribute a study, share the <strong>study folder</strong>
+created by <code>createStudy()</code> (including the
+<code>study_code/</code> project and its <code>renv.lock</code>). Data
+partners can then build and run the study using OmopStudyBuilder
+functions without needing to run Docker commands manually.</p>
+<h3 id="data-partner-workflow">Data partner workflow</h3>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;OmopStudyBuilder&quot;</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="fu">library</span>(OmopStudyBuilder)</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co"># 1) Build the study image from the provided study folder</span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="fu">buildStudy</span>(<span class="at">path =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;SampleStudy/study_code&quot;</span>))</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co"># 2) Run the study (automated)</span></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="fu">runStudy</span>()</span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co"># Or: run interactively in RStudio Server</span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="fu">runRStudio</span>()</span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co"># 3) Stop the running container when finished</span></span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="fu">stopStudy</span>()</span></code></pre></div>
 
 </body>
 </html>
