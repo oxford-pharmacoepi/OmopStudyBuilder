@@ -15,16 +15,16 @@ coverage](https://codecov.io/gh/oxford-pharmacoepi/OmopStudyBuilder/branch/main/
 
 <!-- badges: end -->
 
-The goal of **OmopStudyBuilder** is to help you prepare a study for
-network studies using the OMOP Common Data Model (CDM). The package sets
-up an R project for your study with a default folder structure and
-template code typically required for network studies. This allows you to
-focus on the parts of the analysis that are specific to your study
-design.
+The **OmopStudyBuilder** package helps a study prepare for network
+studies using the OMOP Common Data Model (CDM). The package sets up an R
+project for your study with a default folder structure and template code
+typically required for network studies. This allows you to focus on the
+parts of the analysis that are specific to your study design.
 
-In addition to project setup, the package also provides utilities for
-reviewing study code and its dependencies, helping ensure
-reproducibility, consistency, and alignment with best practices.
+In addition to project setup, the package reviews code and dependencies,
+supports renv locking for consistent package versions, and can build and
+run a Docker image for reproducible execution aligned with best
+practices.
 
 The package is highly opinionated and designed to align with the OxInfer
 study code checklist. For further details, please refer to the formal
@@ -42,42 +42,56 @@ remotes::install_github("oxford-pharmacoepi/OmopStudyBuilder")
 
 # Example Usage
 
-To illustrate how OmopStudyBuilder works, we begin by loading the
-package:
+To illustrate how OmopStudyBuilder works, start by creating the study
+folder and reviewing what it contains:
 
 ``` r
 library(OmopStudyBuilder)
+createStudy(here::here("SampleStudy"))
+
+reviewStudyCode(here::here("SampleStudy/study_code"))
+reviewStudyDependencies(here::here("SampleStudy/study_code"))
 ```
 
-Next, we create a new study project. You can provide any study name; the
-example below creates `"SampleStudy"` in the current working directory:
+Lock package versions with renv so everyone runs the same environment,
+then build the study image from the study folder.
 
 ``` r
-OmopStudyBuilder::createStudy(here::here("SampleStudy"))
-#> ✔ ,/SampleStudy prepared as root folder for study.
-#> ✔ ./SampleStudy/diagnostics_code prepared for study diagnostics code
-#> ✔ ./SampleStudy/diagnostics_shiny prepared for diagnostics shiny app
-#> ✔ ./SampleStudy/study_code prepared for study study code
-#> ✔ ./SampleStudy/study_shiny prepared for study shiny app
+renv::init(here::here("SampleStudy/study_code"))
+install.packages(c("dplyr", "CDMConnector", "IncidencePrevalence"))
+renv::snapshot(here::here("SampleStudy/study_code"))
+
+buildStudy(path = here::here("SampleStudy/study_code"))
 ```
 
-After creating the project, open the study directory and use the
-[`renv`](https://rstudio.github.io/renv/) package to initialise a
-reproducible environment:
+Run the study interactively in RStudio Server or as an automated script.
+If you use a `.env` file for credentials, pass `env_file = ".env"`.
 
 ``` r
-renv::init()
+runRStudio()
+runStudy()
 ```
 
-This will generate an `renv.lock` file, which OmopStudyBuilder uses to
-analyse the study dependencies:
+Use optional inputs only if you need them:
 
 ``` r
-OmopStudyBuilder::reviewStudyDependencies(here::here("SampleStudy"))
+runStudy(
+  image_name = "omop-study-study-code",
+  data_path = "path/to/data",
+  results_path = "./results"
+)
 ```
 
-To get a summary of the study code and its dependencies, you can use:
+To distribute the study, share the **study folder** created by
+`createStudy()` (including `study_code/` and `renv.lock`). Partners can
+build and run using the same commands.
 
 ``` r
-OmopStudyBuilder::reviewStudyCode(here::here("SampleStudy"))
+install.packages("OmopStudyBuilder")
+library(OmopStudyBuilder)
+
+buildStudy(path = here::here("SampleStudy/study_code"))
+runStudy()
+runRStudio()
+stopStudy()
 ```
