@@ -14,3 +14,6 @@
 ^OmopStudyExecutor$
 ^inst/docker/\.dockerignore$
 ^inst/study_code/\.dockerignore$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
