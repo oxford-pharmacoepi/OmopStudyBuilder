@@ -1,0 +1,27 @@
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://oxford-pharmacoepi.github.io/OmopStudyBuilder/404.html</loc></url>
+<url><loc>https://oxford-pharmacoepi.github.io/OmopStudyBuilder/LICENSE.html</loc></url>
+<url><loc>https://oxford-pharmacoepi.github.io/OmopStudyBuilder/articles/createStudy.html</loc></url>
+<url><loc>https://oxford-pharmacoepi.github.io/OmopStudyBuilder/articles/index.html</loc></url>
+<url><loc>https://oxford-pharmacoepi.github.io/OmopStudyBuilder/authors.html</loc></url>
+<url><loc>https://oxford-pharmacoepi.github.io/OmopStudyBuilder/index.html</loc></url>
+<url><loc>https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/OmopStudyBuilder-package.html</loc></url>
+<url><loc>https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/autoDetectImageName.html</loc></url>
+<url><loc>https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/buildDockerLabels.html</loc></url>
+<url><loc>https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/buildStudy.html</loc></url>
+<url><loc>https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/createStudy.html</loc></url>
+<url><loc>https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/dockerExec.html</loc></url>
+<url><loc>https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/dockerQuery.html</loc></url>
+<url><loc>https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/ensureDocker.html</loc></url>
+<url><loc>https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/findAvailablePort.html</loc></url>
+<url><loc>https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/generateContainerName.html</loc></url>
+<url><loc>https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/index.html</loc></url>
+<url><loc>https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/processEnvFile.html</loc></url>
+<url><loc>https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/reviewStudyCode.html</loc></url>
+<url><loc>https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/reviewStudyDependencies.html</loc></url>
+<url><loc>https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/runRStudio.html</loc></url>
+<url><loc>https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/runStudy.html</loc></url>
+<url><loc>https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/stopStudy.html</loc></url>
+<url><loc>https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/verifyImageExists.html</loc></url>
+</urlset>
+
