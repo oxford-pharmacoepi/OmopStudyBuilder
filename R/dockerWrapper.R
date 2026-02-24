@@ -6,11 +6,22 @@
 #' @return Command output as character vector (returned invisibly to avoid console clutter)
 #' @keywords internal
 dockerExec <- function(args, error_message = "Docker command failed") {
-  result <- system2("docker", args, stdout = TRUE, stderr = TRUE)
+  result <- suppressWarnings(system2("docker", args, stdout = TRUE, stderr = TRUE))
   if (!is.null(attr(result, "status")) && attr(result, "status") != 0) {
     stop(error_message, "\n", paste(result, collapse = "\n"), call. = FALSE)
   }
   return(invisible(result))
+}
+
+#' Run a Docker query command and return cleaned output
+#' @param args Character vector of Docker command arguments
+#' @return Output lines, or empty if the command fails
+#' @keywords internal
+dockerQuery <- function(args) {
+  out <- suppressWarnings(system2("docker", args, stdout = TRUE, stderr = TRUE))
+  status <- attr(out, "status")
+  if (!is.null(status) && !identical(as.integer(status), 0L)) return(character(0))
+  out[nzchar(out)]
 }
 
 #' Stop a running OmopStudyBuilder container (automated or RStudio)
@@ -44,21 +55,10 @@ stopStudy <- function(container = NULL, image_name = NULL, mode = c("any", "rstu
   if (!isTRUE(all)) filters <- c(filters, "-f", paste0("label=omopstudybuilder.image=", image_name))
   if (mode != "any") filters <- c(filters, "-f", paste0("label=omopstudybuilder.mode=", mode))
 
-  ids <- system2("docker", c("ps", "-q", filters), stdout = TRUE, stderr = TRUE)
-  ids_status <- attr(ids, "status")
-  if (!is.null(ids_status) && !identical(as.integer(ids_status), 0L)) ids <- character(0)
-  ids <- ids[nzchar(ids)]
+  ids <- dockerQuery(c("ps", "-q", filters))
   
   if (length(ids) == 0 && !isTRUE(all) && mode %in% c("any", "rstudio")) {
-    ids <- system2(
-      "docker",
-      c("ps", "-q", "-f", paste0("ancestor=", image_name)),
-      stdout = TRUE,
-      stderr = TRUE
-    )
-    ids_status <- attr(ids, "status")
-    if (!is.null(ids_status) && !identical(as.integer(ids_status), 0L)) ids <- character(0)
-    ids <- ids[nzchar(ids)]
+    ids <- dockerQuery(c("ps", "-q", "-f", paste0("ancestor=", image_name)))
   }
   
   if (length(ids) == 0) {
@@ -130,16 +130,12 @@ buildStudy <- function(image_name = NULL,
   # Update renv.lock to capture all dependencies
   if (snapshot) {
     message("Updating renv.lock (project dependencies only)...")
-    old_wd <- getwd()
-    on.exit(setwd(old_wd), add = TRUE)
-    setwd(path)
-    
     # Check for and repair broken symlinks in renv cache
     message("Checking renv integrity...")
-    suppressWarnings(suppressMessages(try(renv::repair(), silent = TRUE)))
+    suppressWarnings(suppressMessages(try(renv::repair(project = path), silent = TRUE)))
     
     # Check for missing packages and auto-install them
-    deps <- try(renv::dependencies(), silent = TRUE)
+    deps <- try(renv::dependencies(root = path), silent = TRUE)
     if (inherits(deps, "try-error")) deps <- NULL
     if (!is.null(deps) && nrow(deps) > 0) {
       required_pkgs <- unique(deps$Package)
@@ -165,18 +161,18 @@ buildStudy <- function(image_name = NULL,
     }
     
     # Snapshot all dependencies (non-interactive, force include all dependencies)
+    old_interactive <- getOption("renv.config.auto.snapshot")
+    options(renv.config.auto.snapshot = FALSE)
+    on.exit(options(renv.config.auto.snapshot = old_interactive), add = TRUE)
+
     snapshot_res <- try({
       # Force snapshot even if some packages couldn't install on host
       # Use type = "all" to include all dependencies found in code, regardless of installation status
-      old_interactive <- getOption("renv.config.auto.snapshot")
-      options(renv.config.auto.snapshot = FALSE)
-      on.exit(options(renv.config.auto.snapshot = old_interactive), add = TRUE)
-      
-      renv::snapshot(type = "all", prompt = FALSE, force = TRUE)
+      renv::snapshot(project = path, type = "all", prompt = FALSE, force = TRUE)
       message("renv.lock updated successfully")
       
       # Quick status check (don't halt on inconsistencies)
-      status_msg <- try(utils::capture.output(renv::status()), silent = TRUE)
+      status_msg <- try(utils::capture.output(renv::status(project = path)), silent = TRUE)
       if (inherits(status_msg, "try-error")) status_msg <- character(0)
       if (length(status_msg) > 0 && any(grepl("inconsistent", status_msg, ignore.case = TRUE))) {
         message("Note: Some packages couldn't install on your host machine but are in renv.lock for Docker to install.")
@@ -191,42 +187,6 @@ buildStudy <- function(image_name = NULL,
     }
   }
 
-  # If the lockfile includes GitHub packages, Docker builds may require a token
-  # (rate limits / restricted network environments).
-  if (is.null(github_token) || !nzchar(github_token)) {
-    lock_file_for_check <- file.path(path, "renv.lock")
-    if (file.exists(lock_file_for_check)) {
-      lock_data_for_check <- try(jsonlite::read_json(lock_file_for_check), silent = TRUE)
-      if (inherits(lock_data_for_check, "try-error")) lock_data_for_check <- NULL
-      pkgs <- NULL
-      if (is.list(lock_data_for_check)) pkgs <- lock_data_for_check$Packages
-      if (is.list(pkgs) && length(pkgs) > 0) {
-        has_github <- any(vapply(pkgs, function(rec) {
-          src <- rec[["Source"]]
-          isTRUE(identical(src, "GitHub"))
-        }, logical(1)))
-        if (isTRUE(has_github) && !nzchar(Sys.getenv("GITHUB_PAT"))) {
-          warning(
-            "renv.lock contains GitHub packages. If Docker build fails downloading from GitHub, ",
-            "provide github_token=... (or set GITHUB_PAT) when calling buildStudy().",
-            call. = FALSE
-          )
-        }
-      }
-    }
-  }
-  
-  # Auto-detect R version from renv.lock if not provided
-  if (is.null(r_version)) {
-    lock_file <- file.path(path, "renv.lock")
-    lock_data <- jsonlite::read_json(lock_file)
-    r_version <- lock_data$R$Version
-    if (is.null(r_version)) {
-      stop("Could not find R version in renv.lock", call. = FALSE)
-    }
-    message("Detected R version from renv.lock: ", r_version)
-  }
-  
   # Verify required renv files exist
   required_files <- c("renv.lock", ".Rprofile", file.path("renv", "activate.R"))
   missing <- required_files[!file.exists(file.path(path, required_files))]
@@ -236,6 +196,47 @@ buildStudy <- function(image_name = NULL,
       "Initialize renv with: renv::init()",
       call. = FALSE
     )
+  }
+
+  # If the lockfile includes GitHub packages, Docker builds may require a token
+  # (rate limits / restricted network environments).
+  lock_file <- file.path(path, "renv.lock")
+  lock_data <- try(jsonlite::read_json(lock_file), silent = TRUE)
+  if (inherits(lock_data, "try-error")) {
+    stop("Could not read renv.lock", call. = FALSE)
+  }
+
+  if (is.null(github_token) || !nzchar(github_token)) {
+    pkgs <- NULL
+    if (is.list(lock_data)) pkgs <- lock_data$Packages
+    if (is.list(pkgs) && length(pkgs) > 0) {
+      has_github <- any(vapply(pkgs, function(rec) {
+        src <- rec[["Source"]]
+        isTRUE(identical(src, "GitHub"))
+      }, logical(1)))
+      if (isTRUE(has_github) && !nzchar(Sys.getenv("GITHUB_PAT"))) {
+        warning(
+          "renv.lock contains GitHub packages. If Docker build fails downloading from GitHub, ",
+          "provide github_token=... (or set GITHUB_PAT) when calling buildStudy().",
+          call. = FALSE
+        )
+      }
+    }
+  }
+  
+  # Auto-detect R version from renv.lock if not provided
+  if (is.null(r_version)) {
+    r_version <- lock_data$R$Version
+    if (is.null(r_version)) {
+      stop("Could not find R version in renv.lock", call. = FALSE)
+    }
+    message("Detected R version from renv.lock: ", r_version)
+  }
+  
+  if (!is.null(image_name) && nzchar(image_name)) {
+    if (grepl("[A-Z\\s]", image_name)) {
+      stop("Invalid image_name: must be lowercase and contain no spaces.", call. = FALSE)
+    }
   }
   
   # Ensure .dockerignore exists (prevents copying large/unnecessary files)
@@ -306,17 +307,13 @@ buildStudy <- function(image_name = NULL,
   message("Building Docker image: ", image_name, ":latest")
   message("This may take 5-10 minutes on first build...\n")
   
-  # Use system() for real-time streaming output
-  build_args <- ""
+  # Use system2() for safer argument handling
+  build_args_vec <- c("build", "--progress=plain", "-t", paste0(image_name, ":latest"))
   if (!is.null(github_token) && nzchar(github_token)) {
-    build_args <- paste0("--build-arg GITHUB_PAT=", shQuote(github_token))
+    build_args_vec <- c(build_args_vec, "--build-arg", paste0("GITHUB_PAT=", github_token))
   }
-  exit_code <- system(
-    sprintf("docker build --progress=plain -t %s %s %s", 
-            paste0(image_name, ":latest"), 
-            build_args,
-            shQuote(path))
-  )
+  build_args_vec <- c(build_args_vec, normalizePath(path, winslash = "/", mustWork = TRUE))
+  exit_code <- system2("docker", build_args_vec)
   
   if (exit_code != 0) {
     stop("Failed to build image: ", image_name, call. = FALSE)
@@ -334,25 +331,24 @@ buildStudy <- function(image_name = NULL,
 #' @return Available port number
 #' @keywords internal
 findAvailablePort <- function(start_port = 8787, max_tries = 10) {
+  hosts_to_try <- c("127.0.0.1", "localhost", "::1")
   for (i in 0:(max_tries - 1)) {
     port <- start_port + i
-    result <- system2(
-      "docker",
-      c("ps", "-q", "--filter", paste0("publish=", port)),
-      stdout = TRUE,
-      stderr = TRUE
-    )
-    result_status <- attr(result, "status")
-    if (!is.null(result_status) && !identical(as.integer(result_status), 0L)) result <- character(0)
+    result <- dockerQuery(c("ps", "-q", "--filter", paste0("publish=", port)))
     
     if (length(result) == 0) {
-      con <- suppressWarnings(try(
-        socketConnection(host = "127.0.0.1", port = port, open = "r+", timeout = 0.25),
-        silent = TRUE
-      ))
-      in_use_local <- !inherits(con, "try-error")
-      if (isTRUE(in_use_local)) close(con)
-      
+      in_use_local <- FALSE
+      for (host in hosts_to_try) {
+        con <- suppressWarnings(try(
+          socketConnection(host = host, port = port, open = "r+", timeout = 0.25),
+          silent = TRUE
+        ))
+        if (!inherits(con, "try-error")) {
+          close(con)
+          in_use_local <- TRUE
+          break
+        }
+      }
       if (!isTRUE(in_use_local)) return(port)
     }
   }
@@ -379,20 +375,13 @@ autoDetectImageName <- function(image_name = NULL) {
 #' @return Unique container name
 #' @keywords internal
 generateContainerName <- function(base_name, suffix = NULL, max_tries = 100) {
-  container_name <- if (is.null(suffix)) base_name else paste0(base_name, suffix)
+  container_base <- if (is.null(suffix)) base_name else paste0(base_name, suffix)
+  container_name <- container_base
   for (i in 0:(max_tries - 1)) {
-    check <- system2(
-      "docker",
-      c("ps", "-aq", "-f", paste0("name=^", container_name, "$")),
-      stdout = TRUE,
-      stderr = TRUE
-    )
-    check_status <- attr(check, "status")
-    if (!is.null(check_status) && !identical(as.integer(check_status), 0L)) check <- character(0)
+    check <- dockerQuery(c("ps", "-aq", "-f", paste0("name=^", container_name, "$")))
     if (length(check) == 0) return(container_name)
     if (i < max_tries - 1) {
-      suffix_str <- if (is.null(suffix)) "" else suffix
-      container_name <- paste0(base_name, suffix_str, "-", sprintf("%02d", i + 1))
+      container_name <- paste0(container_base, "-", sprintf("%02d", i + 1))
     }
   }
   stop("Could not find available container name after ", max_tries, " attempts", call. = FALSE)
@@ -457,12 +446,11 @@ verifyImageExists <- function(image_name, check_rstudio = FALSE) {
     if (inherits(rserver_status, "try-error")) rserver_status <- 1L
 
     if (!isTRUE(rserver_status == 0)) {
-      warning(
+      stop(
         "RStudio Server not available in image '", image_name, "'.\n",
         "Rebuild with: buildStudy(useRStudio = TRUE)",
         call. = FALSE
       )
-      stop("Cannot start RStudio Server from an image without RStudio Server.", call. = FALSE)
     }
   }
   return(invisible(TRUE))
@@ -505,16 +493,7 @@ runRStudio <- function(image_name = NULL, results_path = "./results", env_file =
   
   message("Starting RStudio Server...")
   container_id <- dockerExec(args, "Failed to start RStudio Server")[1]
-  Sys.sleep(2)
-  
-  check <- system2(
-    "docker",
-    c("ps", "-q", "-f", paste0("id=", container_id)),
-    stdout = TRUE,
-    stderr = TRUE
-  )
-  check_status <- attr(check, "status")
-  if (!is.null(check_status) && !identical(as.integer(check_status), 0L)) check <- character(0)
+  check <- dockerQuery(c("ps", "-q", "-f", paste0("id=", container_id)))
   if (length(check) == 0) {
     stop("Container exited unexpectedly.\nCheck logs with: docker logs ", container_id, call. = FALSE)
   }
@@ -525,9 +504,8 @@ runRStudio <- function(image_name = NULL, results_path = "./results", env_file =
   while (is.null(reachable_host) && as.numeric(difftime(Sys.time(), start, units = "secs")) < 30) {
     for (host in hosts_to_try) {
       con <- suppressWarnings(try(socketConnection(host = host, port = port, open = "r+", timeout = 0.5), silent = TRUE))
-      ok <- !inherits(con, "try-error")
-      if (isTRUE(ok)) close(con)
-      if (isTRUE(ok)) {
+      if (!inherits(con, "try-error")) {
+        close(con)
         reachable_host <- host
         break
       }
