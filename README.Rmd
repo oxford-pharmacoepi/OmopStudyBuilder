@@ -26,9 +26,9 @@ knitr::opts_chunk$set(
 
 <!-- badges: end -->
 
-The goal of **OmopStudyBuilder** is to help you prepare a study for network studies using the OMOP Common Data Model (CDM). The package sets up an R project for your study with a default folder structure and template code typically required for network studies. This allows you to focus on the parts of the analysis that are specific to your study design.
+The **OmopStudyBuilder** package helps a study prepare for network studies using the OMOP Common Data Model (CDM). The package sets up an R project for your study with a default folder structure and template code typically required for network studies. This allows you to focus on the parts of the analysis that are specific to your study design.
 
-In addition to project setup, the package also provides utilities for reviewing study code and its dependencies, helping ensure reproducibility, consistency, and alignment with best practices.
+In addition to project setup, the package reviews code and dependencies, supports renv locking for consistent package versions, and can build and run a Docker image for reproducible execution aligned with best practices.
 
 The package is highly opinionated and designed to align with the OxInfer study code checklist. For further details, please refer to the formal documentation at:
 [https://oxford-pharmacoepi.github.io/Oxinfer/onboarding/code_review.html](https://oxford-pharmacoepi.github.io/Oxinfer/onboarding/code_review.html)
@@ -44,82 +44,34 @@ remotes::install_github("oxford-pharmacoepi/OmopStudyBuilder")
 
 # Example Usage
 
-OmopStudyBuilder provides a complete workflow for creating, reviewing, and distributing OMOP network studies. The package guides you from initial project setup through to Docker-based execution that ensures reproducibility across data partners.
-
-## Step 1: Create Study Structure
-
-Create your study project:
+To illustrate how OmopStudyBuilder works, start by creating the study folder and reviewing what it contains:
 
 ```{r, eval = FALSE}
 library(OmopStudyBuilder)
-OmopStudyBuilder::createStudy(here::here("SampleStudy"))
-```
+createStudy(here::here("SampleStudy"))
 
-This creates a standardized folder structure with template code for OMOP network studies.
-
-## Step 2: Review Your Study
-
-As you develop your analysis code, use the review functions to check code quality and dependencies:
-
-```{r, eval = FALSE}
-# Review study code files
 reviewStudyCode(here::here("SampleStudy/study_code"))
-
-# Review package dependencies
 reviewStudyDependencies(here::here("SampleStudy/study_code"))
 ```
 
-These functions help ensure your study meets best practices and identifies potential issues before distribution.
-
-## Step 3: Lock Package Versions
-
-Initialize package version control for your study. OmopStudyBuilder expects a
-`renv.lock` in your study folder (typically `SampleStudy/study_code`).
+Lock package versions with renv so everyone runs the same environment, then build the study image from the study folder.
 
 ```{r, eval = FALSE}
-# First time only: initialize renv in your study folder
 renv::init(here::here("SampleStudy/study_code"))
 install.packages(c("dplyr", "CDMConnector", "IncidencePrevalence"))
 renv::snapshot(here::here("SampleStudy/study_code"))
+
+buildStudy(path = here::here("SampleStudy/study_code"))
 ```
 
-This creates an `renv.lock` file that ensures all data partners use identical package versions.
-
-## Step 4: Build Docker Image
-
-Package your study into a reproducible Docker container:
-
-```{r, eval = FALSE}
-# Build Docker image from your study folder (where renv.lock lives)
-OmopStudyBuilder::buildStudy(path = here::here("SampleStudy/study_code"))
-```
-
-The Docker image contains your study code, exact R version, and all dependencies.
-
-## Step 5: Run Study
-
-You have two options to execute your study:
-
-### Option A: Interactive RStudio (Recommended for Data Partners)
-
-Launch RStudio Server in your browser for interactive execution:
+Run the study interactively in RStudio Server or as an automated script. If you use a `.env` file for credentials, pass `env_file = ".env"`.
 
 ```{r, eval = FALSE}
 runRStudio()
-```
-
-Edit `code_to_run.R` in RStudio to set your database credentials (or use a `.env`
-file and pass it with `env_file = ".env"`), then run the analysis interactively.
-
-### Option B: Automated Execution
-
-Run the study as a non-interactive script:
-
-```{r, eval = FALSE}
 runStudy()
 ```
 
-You can also specify the image directly to skip the interactive prompt:
+Use optional inputs only if you need them:
 
 ```{r, eval = FALSE}
 runStudy(
@@ -129,28 +81,14 @@ runStudy(
 )
 ```
 
-## Step 6: Distribute to Data Partners
-
-To distribute a study, share the **study folder** created by
-`createStudy()` (including the `study_code/` project and its `renv.lock`).
-Data partners can then build and run the study using OmopStudyBuilder functions
-without needing to run Docker commands manually.
-
-### Data partner workflow
+To distribute the study, share the **study folder** created by `createStudy()` (including `study_code/` and `renv.lock`). Partners can build and run using the same commands.
 
 ```{r, eval = FALSE}
 install.packages("OmopStudyBuilder")
 library(OmopStudyBuilder)
 
-# 1) Build the study image from the provided study folder
 buildStudy(path = here::here("SampleStudy/study_code"))
-
-# 2) Run the study (automated)
 runStudy()
-
-# Or: run interactively in RStudio Server
 runRStudio()
-
-# 3) Stop the running container when finished
 stopStudy()
 ```
