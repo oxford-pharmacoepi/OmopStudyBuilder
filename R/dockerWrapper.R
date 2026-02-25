@@ -361,10 +361,14 @@ pushStudyImage <- function(image_name = NULL,
   repo_ref <- if (grepl("/", repo, fixed = TRUE)) repo else paste0(username, "/", repo)
   image_ref <- paste0(repo_ref, ":", tag)
 
+  stdin_file <- tempfile("dockerhub-password-")
+  on.exit(unlink(stdin_file), add = TRUE)
+  writeLines(password, stdin_file, useBytes = TRUE)
+
   login_res <- suppressWarnings(system2(
     "docker",
     c("login", "--username", username, "--password-stdin"),
-    stdin = password,
+    stdin = stdin_file,
     stdout = TRUE,
     stderr = TRUE
   ))
