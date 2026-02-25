@@ -378,7 +378,20 @@ pushStudyImage <- function(image_name = NULL,
   }
 
   dockerExec(c("tag", paste0(image_name, ":latest"), image_ref), "Failed to tag image")
-  dockerExec(c("push", image_ref), "Failed to push image")
+  message("Pushing image (this may take a while): ", image_ref)
+  push_res <- processx::run(
+    "docker",
+    c("push", image_ref),
+    echo = TRUE,
+    error_on_status = FALSE
+  )
+  if (!identical(as.integer(push_res$status), 0L)) {
+    stop(
+      "Failed to push image.\n",
+      paste(c(push_res$stdout, push_res$stderr), collapse = "\n"),
+      call. = FALSE
+    )
+  }
 
   if (isTRUE(logout)) {
     suppressWarnings(system2("docker", "logout", stdout = TRUE, stderr = TRUE))
