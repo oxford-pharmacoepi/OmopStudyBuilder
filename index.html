@@ -68,6 +68,43 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"oxford-pharmacoepi/OmopStudyBuilder"</span><span class="op">)</span></span></code></pre></div>
+<div class="section level2">
+<h2 id="installing-docker">Installing Docker<a class="anchor" aria-label="anchor" href="#installing-docker"></a>
+</h2>
+<p>This package supports building and running study code in Docker for reproducible execution. Install Docker and confirm it is running before using the Docker-based workflow.</p>
+<p><strong>General checks (all operating systems)</strong></p>
+<ul>
+<li>Install Docker.</li>
+<li>Start Docker (e.g., Docker Desktop).</li>
+<li>Verify Docker is available:
+<ul>
+<li><code>docker --version</code></li>
+<li><code>docker info</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>macOS</strong></p>
+<ul>
+<li>Install Docker Desktop for Mac: <a href="https://docs.docker.com/desktop/setup/install/mac-install/" class="external-link uri">https://docs.docker.com/desktop/setup/install/mac-install/</a>
+</li>
+<li>Open Docker Desktop and wait until it reports “Docker Desktop is running”.</li>
+</ul>
+<p><strong>Windows</strong></p>
+<ul>
+<li>Install Docker Desktop for Windows (WSL 2 recommended): <a href="https://docs.docker.com/desktop/setup/install/windows-install/" class="external-link uri">https://docs.docker.com/desktop/setup/install/windows-install/</a>
+</li>
+<li>Ensure WSL 2 is enabled (Docker Desktop installer will guide you).</li>
+<li>Open Docker Desktop and wait until it is running.</li>
+</ul>
+<p><strong>Linux</strong></p>
+<ul>
+<li>Install Docker Engine using your distribution instructions: <a href="https://docs.docker.com/engine/install/" class="external-link uri">https://docs.docker.com/engine/install/</a>
+</li>
+<li>Start/enable the Docker service (varies by distro).</li>
+<li>If you want to run Docker without <code>sudo</code>, follow: <a href="https://docs.docker.com/engine/install/linux-postinstall/" class="external-link uri">https://docs.docker.com/engine/install/linux-postinstall/</a>
+</li>
+</ul>
+</div>
 </div>
 <div class="section level1">
 <h1 id="example-usage">Example Usage<a class="anchor" aria-label="anchor" href="#example-usage"></a>
