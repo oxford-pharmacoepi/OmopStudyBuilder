@@ -325,6 +325,68 @@ buildStudy <- function(image_name = NULL,
   return(invisible(image_name))
 }
 
+#' Push a Docker image to Docker Hub
+#' @param image_name Name of Docker image to push (default: auto-detected from directory)
+#' @param repo Docker Hub repository (e.g., "username/repo" or "repo")
+#' @param tag Tag to push (default: "latest")
+#' @param username Docker Hub username (prompted if NULL)
+#' @param password Docker Hub password or token (prompted if NULL, hidden input)
+#' @param logout If TRUE, logs out after pushing
+#' @return Pushed image reference (invisibly)
+#' @export
+pushStudyImage <- function(image_name = NULL,
+                           repo,
+                           tag = "latest",
+                           username = NULL,
+                           password = NULL,
+                           logout = TRUE) {
+  ensureDocker()
+  image_name <- autoDetectImageName(image_name)
+  verifyImageExists(image_name)
+
+  if (missing(repo) || !nzchar(repo)) {
+    stop("repo is required (e.g., 'username/repo' or 'repo').", call. = FALSE)
+  }
+
+  if (is.null(username) || !nzchar(username)) {
+    username <- readline("Docker Hub username: ")
+  }
+  if (!nzchar(username)) stop("Username is required.", call. = FALSE)
+
+  if (is.null(password) || !nzchar(password)) {
+    if (!requireNamespace("getPass", quietly = TRUE)) {
+      stop("Package 'getPass' is required for secure password input.", call. = FALSE)
+    }
+    password <- getPass::getPass("Docker Hub password or token: ")
+  }
+  if (!nzchar(password)) stop("Password or token is required.", call. = FALSE)
+
+  repo_ref <- if (grepl("/", repo, fixed = TRUE)) repo else paste0(username, "/", repo)
+  image_ref <- paste0(repo_ref, ":", tag)
+
+  login_res <- suppressWarnings(system2(
+    "docker",
+    c("login", "--username", username, "--password-stdin"),
+    stdin = password,
+    stdout = TRUE,
+    stderr = TRUE
+  ))
+  login_status <- attr(login_res, "status")
+  if (!is.null(login_status) && !identical(as.integer(login_status), 0L)) {
+    stop("Docker login failed.\n", paste(login_res, collapse = "\n"), call. = FALSE)
+  }
+
+  dockerExec(c("tag", paste0(image_name, ":latest"), image_ref), "Failed to tag image")
+  dockerExec(c("push", image_ref), "Failed to push image")
+
+  if (isTRUE(logout)) {
+    suppressWarnings(system2("docker", "logout", stdout = TRUE, stderr = TRUE))
+  }
+
+  message("Pushed image: ", image_ref)
+  return(invisible(image_ref))
+}
+
 #' Find next available port starting from a given port
 #' @param start_port Starting port number to check
 #' @param max_tries Maximum number of ports to try

@@ -2,6 +2,7 @@
 
 export(buildStudy)
 export(createStudy)
+export(pushStudyImage)
 export(reviewStudyCode)
 export(reviewStudyDependencies)
 export(runRStudio)
