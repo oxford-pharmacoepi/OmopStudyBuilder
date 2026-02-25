@@ -1,4 +1,4 @@
-# OmopStudyBuilder [![OmopStudyBuilder logo](reference/figures/image.jfif)](https://github.com/oxford-pharmacoepi/OmopStudyBuilder)
+# OmopStudyBuilder ![OmopStudyBuilder logo](reference/figures/image.jfif)
 
 The **OmopStudyBuilder** package helps a study prepare for network
 studies using the OMOP Common Data Model (CDM). The package sets up an R
@@ -12,9 +12,8 @@ run a Docker image for reproducible execution aligned with best
 practices.
 
 The package is highly opinionated and designed to align with the OxInfer
-study code checklist. For further details, please refer to the formal
-documentation at:
-<https://oxford-pharmacoepi.github.io/Oxinfer/onboarding/code_review.html>
+study code checklist. For further details, please refer to the
+[documentation](https://oxford-pharmacoepi.github.io/Oxinfer/onboarding/code_review.html).
 
 # Installation
 
@@ -116,4 +115,14 @@ buildStudy(path = here::here("SampleStudy", "study_code"))
 runStudy()
 runRStudio()
 stopStudy()
+```
+
+To push a built image to Docker Hub, use the helper and enter your
+credentials when prompted (the tag defaults to `latest`, and the image
+name defaults to the current folder name):
+
+``` r
+pushStudyImage(
+  repo = "yourname/omop-study-study-code"
+)
 ```

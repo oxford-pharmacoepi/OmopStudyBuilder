@@ -6,6 +6,8 @@
   : Build a Docker image for an OMOP study
 - [`createStudy()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/createStudy.md)
   : Creates initial directory for an OMOP CDM network study
+- [`pushStudyImage()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/pushStudyImage.md)
+  : Push a Docker image to Docker Hub
 - [`reviewStudyCode()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/reviewStudyCode.md)
   : Review study code
 - [`reviewStudyDependencies()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/reviewStudyDependencies.md)
