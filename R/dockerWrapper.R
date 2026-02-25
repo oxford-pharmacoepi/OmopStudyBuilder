@@ -340,13 +340,13 @@ pushStudyImage <- function(image_name = NULL,
                            username = NULL,
                            password = NULL,
                            logout = TRUE) {
-  ensureDocker()
-  image_name <- autoDetectImageName(image_name)
-  verifyImageExists(image_name)
-
   if (missing(repo) || !nzchar(repo)) {
     stop("repo is required (e.g., 'username/repo' or 'repo').", call. = FALSE)
   }
+
+  ensureDocker()
+  image_name <- autoDetectImageName(image_name)
+  verifyImageExists(image_name)
 
   if (is.null(username) || !nzchar(username)) {
     username <- readline("Docker Hub username: ")

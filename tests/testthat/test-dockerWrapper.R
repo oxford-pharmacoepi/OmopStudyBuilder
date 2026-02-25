@@ -14,6 +14,38 @@ test_that("ensureDocker detects Docker daemon", {
 
 
 # -------------------------------------------------------------------------
+# pushStudyImage Tests
+# -------------------------------------------------------------------------
+
+test_that("pushStudyImage requires repo", {
+  skip_if_not(exists("pushStudyImage", mode = "function"), "Package not loaded")
+  expect_error(
+    pushStudyImage(),
+    "repo is required",
+    fixed = TRUE
+  )
+})
+
+test_that("pushStudyImage errors when image is missing", {
+  skip_if_not(system2("docker", "info", stdout = FALSE, stderr = FALSE) == 0,
+              "Docker not available")
+
+  expect_error(
+    pushStudyImage(
+      image_name = "__definitely_not_an_image__",
+      repo = "someone/somewhere",
+      username = "x",
+      password = "y",
+      logout = FALSE
+    ),
+    "not found",
+    ignore.case = TRUE
+  )
+})
+
+
+
+# -------------------------------------------------------------------------
 # buildStudy Tests
 # -------------------------------------------------------------------------
 
