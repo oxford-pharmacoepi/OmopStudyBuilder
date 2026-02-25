@@ -49,19 +49,19 @@ folder and reviewing what it contains:
 library(OmopStudyBuilder)
 createStudy(here::here("SampleStudy"))
 
-reviewStudyCode(here::here("SampleStudy/study_code"))
-reviewStudyDependencies(here::here("SampleStudy/study_code"))
+reviewStudyCode(here::here("SampleStudy", "study_code"))
+reviewStudyDependencies(here::here("SampleStudy", "study_code"))
 ```
 
 Lock package versions with renv so everyone runs the same environment,
 then build the study image from the study folder.
 
 ``` r
-renv::init(here::here("SampleStudy/study_code"))
+renv::init(here::here("SampleStudy", "study_code"))
 install.packages(c("dplyr", "CDMConnector", "IncidencePrevalence"))
-renv::snapshot(here::here("SampleStudy/study_code"))
+renv::snapshot(here::here("SampleStudy", "study_code"))
 
-buildStudy(path = here::here("SampleStudy/study_code"))
+buildStudy(path = here::here("SampleStudy", "study_code"))
 ```
 
 Run the study interactively in RStudio Server or as an automated script.
@@ -90,7 +90,7 @@ build and run using the same commands.
 install.packages("OmopStudyBuilder")
 library(OmopStudyBuilder)
 
-buildStudy(path = here::here("SampleStudy/study_code"))
+buildStudy(path = here::here("SampleStudy", "study_code"))
 runStudy()
 runRStudio()
 stopStudy()
