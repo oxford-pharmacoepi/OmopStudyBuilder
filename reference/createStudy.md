@@ -39,11 +39,11 @@ Project directory will be created
 # Create a study called "SampleStudy" in a temporary directory
 study_root <- file.path(tempdir(), "SampleStudy")
 createStudy(study_root)
-#> ✔ /tmp/RtmplmOhKY/SampleStudy prepared as root folder for study.
-#> ✔ /tmp/RtmplmOhKY/SampleStudy/diagnostics_code prepared for study diagnostics code
-#> ✔ /tmp/RtmplmOhKY/SampleStudy/diagnostics_shiny prepared for diagnostics shiny app
-#> ✔ /tmp/RtmplmOhKY/SampleStudy/study_code prepared for study study code
-#> ✔ /tmp/RtmplmOhKY/SampleStudy/study_shiny prepared for study shiny app
+#> ✔ /tmp/RtmppP4ohB/SampleStudy prepared as root folder for study.
+#> ✔ /tmp/RtmppP4ohB/SampleStudy/diagnostics_code prepared for study diagnostics code
+#> ✔ /tmp/RtmppP4ohB/SampleStudy/diagnostics_shiny prepared for diagnostics shiny app
+#> ✔ /tmp/RtmppP4ohB/SampleStudy/study_code prepared for study study code
+#> ✔ /tmp/RtmppP4ohB/SampleStudy/study_shiny prepared for study shiny app
 
 # Inspect the top-level contents
 list.files(study_root)
