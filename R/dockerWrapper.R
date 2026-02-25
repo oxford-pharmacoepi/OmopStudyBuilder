@@ -354,9 +354,6 @@ pushStudyImage <- function(image_name = NULL,
   if (!nzchar(username)) stop("Username is required.", call. = FALSE)
 
   if (is.null(password) || !nzchar(password)) {
-    if (!requireNamespace("getPass", quietly = TRUE)) {
-      stop("Package 'getPass' is required for secure password input.", call. = FALSE)
-    }
     password <- getPass::getPass("Docker Hub password or token: ")
   }
   if (!nzchar(password)) stop("Password or token is required.", call. = FALSE)
