@@ -24,6 +24,7 @@ Imports:
     stringr
 Suggests: 
     testthat,
+    getPass,
     here,
     renv,
     knitr,
