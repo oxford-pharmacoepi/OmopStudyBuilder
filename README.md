@@ -40,6 +40,42 @@ You can install the development version of the package from GitHub:
 remotes::install_github("oxford-pharmacoepi/OmopStudyBuilder")
 ```
 
+## Installing Docker
+
+This package supports building and running study code in Docker for
+reproducible execution. Install Docker and confirm it is running before
+using the Docker-based workflow.
+
+**General checks (all operating systems)**
+
+- Install Docker.
+- Start Docker (e.g., Docker Desktop).
+- Verify Docker is available:
+  - `docker --version`
+  - `docker info`
+
+**macOS**
+
+- Install Docker Desktop for Mac:
+  <https://docs.docker.com/desktop/setup/install/mac-install/>
+- Open Docker Desktop and wait until it reports “Docker Desktop is
+  running”.
+
+**Windows**
+
+- Install Docker Desktop for Windows (WSL 2 recommended):
+  <https://docs.docker.com/desktop/setup/install/windows-install/>
+- Ensure WSL 2 is enabled (Docker Desktop installer will guide you).
+- Open Docker Desktop and wait until it is running.
+
+**Linux**
+
+- Install Docker Engine using your distribution instructions:
+  <https://docs.docker.com/engine/install/>
+- Start/enable the Docker service (varies by distro).
+- If you want to run Docker without `sudo`, follow:
+  <https://docs.docker.com/engine/install/linux-postinstall/>
+
 # Example Usage
 
 To illustrate how OmopStudyBuilder works, start by creating the study
