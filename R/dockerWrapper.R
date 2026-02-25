@@ -325,6 +325,82 @@ buildStudy <- function(image_name = NULL,
   return(invisible(image_name))
 }
 
+#' Push a Docker image to Docker Hub
+#' @param image_name Name of Docker image to push (default: auto-detected from directory)
+#' @param repo Docker Hub repository (e.g., "username/repo" or "repo")
+#' @param tag Tag to push (default: "latest")
+#' @param username Docker Hub username (prompted if NULL)
+#' @param password Docker Hub password or token (prompted if NULL, hidden input)
+#' @param logout If TRUE, logs out after pushing
+#' @return Pushed image reference (invisibly)
+#' @export
+pushStudyImage <- function(image_name = NULL,
+                           repo,
+                           tag = "latest",
+                           username = NULL,
+                           password = NULL,
+                           logout = TRUE) {
+  if (missing(repo) || !nzchar(repo)) {
+    stop("repo is required (e.g., 'username/repo' or 'repo').", call. = FALSE)
+  }
+
+  ensureDocker()
+  image_name <- autoDetectImageName(image_name)
+  verifyImageExists(image_name)
+
+  if (is.null(username) || !nzchar(username)) {
+    username <- readline("Docker Hub username: ")
+  }
+  if (!nzchar(username)) stop("Username is required.", call. = FALSE)
+
+  if (is.null(password) || !nzchar(password)) {
+    password <- getPass::getPass("Docker Hub password or token: ")
+  }
+  if (!nzchar(password)) stop("Password or token is required.", call. = FALSE)
+
+  repo_ref <- if (grepl("/", repo, fixed = TRUE)) repo else paste0(username, "/", repo)
+  image_ref <- paste0(repo_ref, ":", tag)
+
+  stdin_file <- tempfile("dockerhub-password-")
+  on.exit(unlink(stdin_file), add = TRUE)
+  writeLines(password, stdin_file, useBytes = TRUE)
+
+  login_res <- suppressWarnings(system2(
+    "docker",
+    c("login", "--username", username, "--password-stdin"),
+    stdin = stdin_file,
+    stdout = TRUE,
+    stderr = TRUE
+  ))
+  login_status <- attr(login_res, "status")
+  if (!is.null(login_status) && !identical(as.integer(login_status), 0L)) {
+    stop("Docker login failed.\n", paste(login_res, collapse = "\n"), call. = FALSE)
+  }
+
+  dockerExec(c("tag", paste0(image_name, ":latest"), image_ref), "Failed to tag image")
+  message("Pushing image (this may take a while): ", image_ref)
+  push_res <- processx::run(
+    "docker",
+    c("push", image_ref),
+    echo = TRUE,
+    error_on_status = FALSE
+  )
+  if (!identical(as.integer(push_res$status), 0L)) {
+    stop(
+      "Failed to push image.\n",
+      paste(c(push_res$stdout, push_res$stderr), collapse = "\n"),
+      call. = FALSE
+    )
+  }
+
+  if (isTRUE(logout)) {
+    suppressWarnings(system2("docker", "logout", stdout = TRUE, stderr = TRUE))
+  }
+
+  message("Pushed image: ", image_ref)
+  return(invisible(image_ref))
+}
+
 #' Find next available port starting from a given port
 #' @param start_port Starting port number to check
 #' @param max_tries Maximum number of ports to try
