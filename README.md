@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# OmopStudyBuilder <img src="man/figures/image.jfif" align="right" height="138" alt="OmopStudyBuilder logo" />
+# OmopStudyBuilder <img src="man/figures/image.jfif" align="right" style="height:100px; background: var(--bs-body-bg, #fff); padding-left: 12px; position: relative; z-index: 1;" alt="OmopStudyBuilder logo" />
 
 <!-- badges: start -->
 
