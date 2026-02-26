@@ -34,6 +34,8 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/createStudy.html">createStudy</a></li>
+    <li><a class="dropdown-item" href="../articles/dockerWrapper.html">dockerWrapper</a></li>
+    <li><a class="dropdown-item" href="../articles/reviewStudy.html">reviewStudy</a></li>
   </ul>
 </li>
       </ul>
@@ -273,9 +275,12 @@ partners.</p>
 </h3>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Build a Docker image containing your study code</span></span>
-<span><span class="fu"><a href="../reference/buildStudy.html">buildStudy</a></span><span class="op">(</span><span class="st">"MyStudy/study_code"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/buildStudy.html">buildStudy</a></span><span class="op">(</span></span>
+<span>  image_name <span class="op">=</span> <span class="st">"omop-study-study-code"</span>,</span>
+<span>  path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">study_root</span>, <span class="st">"study_code"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span><span class="co">#&gt; Building Docker image: omop-study-study-code</span></span>
-<span><span class="co">#&gt; This may take 5-15 minutes on first build...</span></span>
+<span><span class="co">#&gt; This may take some minutes on first build...</span></span>
 <span><span class="co">#&gt; ✔ Image built successfully: omop-study-study-code</span></span></code></pre></div>
 <p>The image contains: - Your exact R version - All package dependencies
 (from renv.lock) - Your study code - Database drivers and system
@@ -289,54 +294,51 @@ dependencies</p>
 </h4>
 <p>Push to Docker Hub for easy sharing with connected partners:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">pushImage</span><span class="op">(</span><span class="st">"omop-study-study-code"</span>, <span class="st">"yourusername/myomopstudy:v1.0"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/pushStudyImage.html">pushStudyImage</a></span><span class="op">(</span></span>
+<span>  image_name <span class="op">=</span> <span class="st">"omop-study-study-code"</span>,</span>
+<span>  repo <span class="op">=</span> <span class="st">"yourusername/myomopstudy"</span></span>
+<span><span class="op">)</span></span>
 <span><span class="co">#&gt; ✔ Image pushed to Docker Hub!</span></span></code></pre></div>
-<p>Data partners pull and run:</p>
+<p>Data partners can then pull and run the image.</p>
+<p>They can then run either an interactive RStudio Server session, or
+run the study in automated mode.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://oxford-pharmacoepi.github.io/OmopStudyBuilder/">OmopStudyBuilder</a></span><span class="op">)</span></span>
-<span><span class="fu">pullImage</span><span class="op">(</span><span class="st">"yourusername/myomopstudy:v1.0"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Interactive (requires image built with buildStudy(useRStudio = TRUE)):</span></span>
 <span><span class="fu"><a href="../reference/runRStudio.html">runRStudio</a></span><span class="op">(</span></span>
-<span>  image_name <span class="op">=</span> <span class="st">"yourusername/myomopstudy:v1.0"</span>,</span>
-<span>  data_path <span class="op">=</span> <span class="st">"C:/my_omop_data"</span></span>
+<span>  image_name <span class="op">=</span> <span class="st">"yourusername/myomopstudy:latest"</span>,</span>
+<span>  results_path <span class="op">=</span> <span class="st">"./results"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level4">
-<h4 id="option-2-tar-file-offline">Option 2: Tar File (Offline)<a class="anchor" aria-label="anchor" href="#option-2-tar-file-offline"></a>
-</h4>
-<p>Export to a file for secure/offline distribution:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">exportImage</span><span class="op">(</span><span class="st">"omop-study-study-code"</span>, <span class="st">"myomopstudy-v1.0.tar"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; ✔ Image exported: myomopstudy-v1.0.tar (1.45 GB)</span></span></code></pre></div>
-<p>Data partners load and run:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://oxford-pharmacoepi.github.io/OmopStudyBuilder/">OmopStudyBuilder</a></span><span class="op">)</span></span>
-<span><span class="fu">loadImage</span><span class="op">(</span><span class="st">"myomopstudy-v1.0.tar"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/runRStudio.html">runRStudio</a></span><span class="op">(</span>data_path <span class="op">=</span> <span class="st">"C:/my_omop_data"</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level3">
 <h3 id="interactive-vs-automated-execution">Interactive vs Automated Execution<a class="anchor" aria-label="anchor" href="#interactive-vs-automated-execution"></a>
 </h3>
-<p><strong>RStudio Server</strong> (recommended for non-technical
-partners):</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/runRStudio.html">runRStudio</a></span><span class="op">(</span>data_path <span class="op">=</span> <span class="st">"path/to/data"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; ✔ RStudio Server started!</span></span>
-<span><span class="co">#&gt; ! Open browser: http://localhost:8787</span></span>
-<span><span class="co">#&gt; ! Username: rstudio</span></span>
-<span><span class="co">#&gt; ! Password: study1234</span></span></code></pre></div>
+<p><strong>RStudio Server</strong> runs the Docker image and opens a
+browser to the RStudio Server URL:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Requires image built with buildStudy(useRStudio = TRUE)</span></span>
+<span><span class="fu"><a href="../reference/runRStudio.html">runRStudio</a></span><span class="op">(</span></span>
+<span>  image_name <span class="op">=</span> <span class="st">"omop-study-study-code"</span>,</span>
+<span>  results_path <span class="op">=</span> <span class="st">"./results"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>Partners edit credentials in <code>code_to_run.R</code> and run the
 study interactively.</p>
 <p><strong>Automated execution</strong> (for programmatic
 workflows):</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/runStudy.html">runStudy</a></span><span class="op">(</span></span>
 <span>  image_name <span class="op">=</span> <span class="st">"omop-study-study-code"</span>,</span>
-<span>  data_path <span class="op">=</span> <span class="st">"path/to/data"</span>,</span>
-<span>  output_path <span class="op">=</span> <span class="st">"./results"</span></span>
+<span>  results_path <span class="op">=</span> <span class="st">"./results"</span>,</span>
+<span>  data_path <span class="op">=</span> <span class="st">"path/to/data"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>See <code>inst/DATA_PARTNER_GUIDE.md</code> for detailed instructions
-to share with data partners.</p>
+<p>To stop any running OmopStudyBuilder containers, use:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/stopStudy.html">stopStudy</a></span><span class="op">(</span>image_name <span class="op">=</span> <span class="st">"omop-study-study-code"</span><span class="op">)</span></span></code></pre></div>
+<p>For more operational details, see the README files generated into
+your study folders (for example <code>study_code/README.md</code> and
+<code>diagnostics_code/README.md</code>).</p>
 <hr>
 </div>
 </div>

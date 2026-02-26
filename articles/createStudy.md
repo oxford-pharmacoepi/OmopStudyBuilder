@@ -173,9 +173,12 @@ package it into a Docker image and distribute it to data partners.
 
 ``` r
 # Build a Docker image containing your study code
-buildStudy("MyStudy/study_code")
+buildStudy(
+  image_name = "omop-study-study-code",
+  path = file.path(study_root, "study_code")
+)
 #> Building Docker image: omop-study-study-code
-#> This may take 5-15 minutes on first build...
+#> This may take some minutes on first build...
 #> ✔ Image built successfully: omop-study-study-code
 ```
 
@@ -190,48 +193,39 @@ dependencies
 Push to Docker Hub for easy sharing with connected partners:
 
 ``` r
-pushImage("omop-study-study-code", "yourusername/myomopstudy:v1.0")
+pushStudyImage(
+  image_name = "omop-study-study-code",
+  repo = "yourusername/myomopstudy"
+)
 #> ✔ Image pushed to Docker Hub!
 ```
 
-Data partners pull and run:
+Data partners can then pull and run the image.
+
+They can then run either an interactive RStudio Server session, or run
+the study in automated mode.
 
 ``` r
 library(OmopStudyBuilder)
-pullImage("yourusername/myomopstudy:v1.0")
+
+# Interactive (requires image built with buildStudy(useRStudio = TRUE)):
 runRStudio(
-  image_name = "yourusername/myomopstudy:v1.0",
-  data_path = "C:/my_omop_data"
+  image_name = "yourusername/myomopstudy:latest",
+  results_path = "./results"
 )
-```
-
-#### Option 2: Tar File (Offline)
-
-Export to a file for secure/offline distribution:
-
-``` r
-exportImage("omop-study-study-code", "myomopstudy-v1.0.tar")
-#> ✔ Image exported: myomopstudy-v1.0.tar (1.45 GB)
-```
-
-Data partners load and run:
-
-``` r
-library(OmopStudyBuilder)
-loadImage("myomopstudy-v1.0.tar")
-runRStudio(data_path = "C:/my_omop_data")
 ```
 
 ### Interactive vs Automated Execution
 
-**RStudio Server** (recommended for non-technical partners):
+**RStudio Server** runs the Docker image and opens a browser to the
+RStudio Server URL:
 
 ``` r
-runRStudio(data_path = "path/to/data")
-#> ✔ RStudio Server started!
-#> ! Open browser: http://localhost:8787
-#> ! Username: rstudio
-#> ! Password: study1234
+# Requires image built with buildStudy(useRStudio = TRUE)
+runRStudio(
+  image_name = "omop-study-study-code",
+  results_path = "./results"
+)
 ```
 
 Partners edit credentials in `code_to_run.R` and run the study
@@ -242,12 +236,19 @@ interactively.
 ``` r
 runStudy(
   image_name = "omop-study-study-code",
-  data_path = "path/to/data",
-  output_path = "./results"
+  results_path = "./results",
+  data_path = "path/to/data"
 )
 ```
 
-See `inst/DATA_PARTNER_GUIDE.md` for detailed instructions to share with
-data partners.
+To stop any running OmopStudyBuilder containers, use:
+
+``` r
+stopStudy(image_name = "omop-study-study-code")
+```
+
+For more operational details, see the README files generated into your
+study folders (for example `study_code/README.md` and
+`diagnostics_code/README.md`).
 
 ------------------------------------------------------------------------
