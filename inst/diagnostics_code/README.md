@@ -1,3 +1,3 @@
-# Study name
+# Diagnostics code
 
-Brief description of the study
+Brief description of the diagnostics project
