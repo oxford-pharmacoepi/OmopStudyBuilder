@@ -305,7 +305,7 @@ buildStudy <- function(image_name = NULL,
   
   # Build the image with streaming output
   message("Building Docker image: ", image_name, ":latest")
-  message("This may take 5-10 minutes on first build...\n")
+  message("This may take some minutes on first build...\n")
   
   # Use system2() for safer argument handling
   build_args_vec <- c("build", "--progress=plain", "-t", paste0(image_name, ":latest"))

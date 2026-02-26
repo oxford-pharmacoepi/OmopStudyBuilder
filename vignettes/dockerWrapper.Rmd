@@ -1,0 +1,114 @@
+---
+title: "dockerWrapper"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{dockerWrapper}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(OmopStudyBuilder)
+```
+
+## Overview
+
+This vignette describes the Docker helper functions in `OmopStudyBuilder`:
+
+- `buildStudy()` builds a Docker image for your study
+- `runRStudio()` starts an interactive RStudio Server session inside the image
+- `runStudy()` runs your study script in automated mode (streaming logs)
+- `stopStudy()` stops containers started by `runRStudio()`/`runStudy()`
+- `pushStudyImage()` tags and pushes your image to Docker Hub
+
+All Docker calls require Docker to be installed and the Docker daemon to be running.
+
+## Build an image
+
+`buildStudy()` expects an `renv.lock` (and renv activation files) in the directory you point it at.
+By default it will also snapshot your dependencies before building.
+
+```{r buildStudy-example, eval=FALSE}
+# From the study_code folder (or pass path=...)
+buildStudy(
+  image_name = "my-study",
+  path = "./study_code",
+  useRStudio = FALSE
+)
+```
+
+If you want `runRStudio()`, build with an RStudio base image:
+
+```{r buildStudy-rstudio, eval=FALSE}
+buildStudy(
+  image_name = "my-study",
+  path = "./study_code",
+  useRStudio = TRUE
+)
+```
+
+If your `renv.lock` includes GitHub packages and you hit GitHub rate limits during the build,
+pass a token:
+
+```{r buildStudy-github-token, eval=FALSE}
+buildStudy(
+  path = "./study_code",
+  github_token = Sys.getenv("GITHUB_PAT")
+)
+```
+
+## Run interactively (RStudio Server)
+
+`runRStudio()` runs the Docker image and opens a browser to the RStudio Server URL.
+Results are written to `results_path` on your host.
+
+```{r runRStudio-example, eval=FALSE}
+runRStudio(
+  image_name = "my-study",
+  results_path = "./results"
+)
+```
+
+To pass runtime settings to the container, create a `.env` file in your working directory
+and it will be used automatically (or provide `env_file = "path/to/.env"`).
+
+## Run in automated mode
+
+`runStudy()` executes an R script in the container (default `code_to_run.R`) and streams
+stdout/stderr to your console.
+
+```{r runStudy-example, eval=FALSE}
+runStudy(
+  image_name = "my-study",
+  results_path = "./results",
+  data_path = "/path/to/cdm/data",
+  script_path = "code_to_run.R"
+)
+```
+
+## Stop containers
+
+Use `stopStudy()` to stop containers started by `runRStudio()` and/or `runStudy()`.
+
+```{r stopStudy-example, eval=FALSE}
+stopStudy(image_name = "my-study")
+```
+
+## Push to Docker Hub
+
+`pushStudyImage()` will tag `image_name:latest` and push it to a Docker Hub repository.
+
+```{r pushStudyImage-example, eval=FALSE}
+pushStudyImage(
+  image_name = "my-study",
+  repo = "yourusername/my-study"
+)
+```
+
