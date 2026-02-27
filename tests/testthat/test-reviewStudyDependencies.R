@@ -2,7 +2,7 @@ test_that("summarise renv", {
 
   temp_dir <- here::here(tempdir(), omopgenerics::uniqueTableName())
   dir.create(path = temp_dir, recursive = TRUE)
-  createStudy(directory = temp_dir)
+  initStudy(directory = temp_dir)
 
   # no renv yet
   expect_warning(reviewStudyDependencies(here::here(temp_dir, "diagnostics_code")))

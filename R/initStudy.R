@@ -20,11 +20,11 @@
 #' @examples
 #' # Create a study called "SampleStudy" in a temporary directory
 #' study_root <- file.path(tempdir(), "SampleStudy")
-#' createStudy(study_root)
+#' initStudy(study_root)
 #'
 #' # Inspect the top-level contents
 #' list.files(study_root)
-createStudy <- function(directory,
+initStudy <- function(directory,
                         diagnostics = TRUE,
                         study = TRUE) {
   validateRootDirectory(directory)

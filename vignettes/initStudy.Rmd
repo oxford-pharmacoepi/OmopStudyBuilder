@@ -1,8 +1,8 @@
 ---
-title: "createStudy"
+title: "initStudy"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{createStudy}
+  %\VignetteIndexEntry{initStudy}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -20,7 +20,7 @@ library(OmopStudyBuilder)
 
 ## Introduction
 
-`createStudy()` is the starting point for building a study project with the
+`initStudy()` is the starting point for building a study project with the
 **OMOP Common Data Model (CDM)** using the `OmopStudyBuilder` package.
 
 It generates a fully structured project folder containing:
@@ -36,7 +36,7 @@ manually assembling the surrounding infrastructure.
 
 In this vignette you will learn how to:
 
-* Create a new study project using `createStudy()`
+* Create a new study project using `initStudy()`
 * Explore the folder structure that is generated
 * Control whether diagnostics and/or study analysis templates are included
 * Understand next steps after project creation
@@ -45,7 +45,7 @@ In this vignette you will learn how to:
 
 ## Basic usage
 
-The simplest way to use `createStudy()` is to provide a directory path.
+The simplest way to use `initStudy()` is to provide a directory path.
 If the directory:
 
 * **Does not exist**: it will be created
@@ -59,9 +59,9 @@ folder.
 # Create a temporary root for this vignette
 study_root <- file.path(tempdir(), "SampleStudy")
 
-createStudy(study_root)
+initStudy(study_root)
 
-# Show top-level contents created by createStudy()
+# Show top-level contents created by initStudy()
 list.files(study_root)
 ```
 
@@ -91,7 +91,7 @@ You can control which parts of the template are created with the
 ```{r diagnostics-only, message=FALSE}
 diag_root <- file.path(tempdir(), "DiagnosticsOnly")
 
-createStudy(
+initStudy(
   directory   = diag_root,
   diagnostics = TRUE,
   study       = FALSE
@@ -105,7 +105,7 @@ list.files(diag_root)
 ```{r study-only, message=FALSE}
 study_only_root <- file.path(tempdir(), "StudyOnly")
 
-createStudy(
+initStudy(
   directory   = study_only_root,
   diagnostics = FALSE,
   study       = TRUE
@@ -116,7 +116,7 @@ list.files(study_only_root)
 
 ---
 
-## What to do after `createStudy()`
+## What to do after `initStudy()`
 
 After generating the project structure, you will mainly work with these folders and files:
 

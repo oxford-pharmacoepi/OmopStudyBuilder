@@ -82,7 +82,7 @@ folder and reviewing what it contains:
 
 ``` r
 library(OmopStudyBuilder)
-createStudy(here::here("SampleStudy"))
+initStudy(here::here("SampleStudy"))
 
 reviewStudyCode(here::here("SampleStudy", "study_code"))
 reviewStudyDependencies(here::here("SampleStudy", "study_code"))
@@ -118,7 +118,7 @@ runStudy(
 ```
 
 To distribute the study, share the **study folder** created by
-`createStudy()` (including `study_code/` and `renv.lock`). Partners can
+`initStudy()` (including `study_code/` and `renv.lock`). Partners can
 build and run using the same commands.
 
 ``` r
