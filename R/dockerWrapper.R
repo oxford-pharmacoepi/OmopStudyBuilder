@@ -110,18 +110,18 @@ ensureDocker <- function() {
 #' @param github_token Optional GitHub token for installing GitHub packages during build
 #' @return Image name (invisibly - already printed to console)
 #' @export
-buildStudy <- function(image_name = NULL, 
-                       path = ".", 
-                       useRStudio = FALSE,
-                       r_version = NULL,
-                       snapshot = TRUE,
-                       github_token = NULL) {
+dockeriseStudy <- function(image_name = NULL, 
+                          path = ".", 
+                          useRStudio = FALSE,
+                          r_version = NULL,
+                          snapshot = TRUE,
+                          github_token = NULL) {
   # Ensure Docker is running
   ensureDocker()
 
   if (!requireNamespace("renv", quietly = TRUE)) {
     stop(
-      "Package 'renv' is required for buildStudy().\n",
+      "Package 'renv' is required for dockeriseStudy().\n",
       "Install it with: install.packages('renv')",
       call. = FALSE
     )
@@ -217,7 +217,7 @@ buildStudy <- function(image_name = NULL,
       if (isTRUE(has_github) && !nzchar(Sys.getenv("GITHUB_PAT"))) {
         warning(
           "renv.lock contains GitHub packages. If Docker build fails downloading from GitHub, ",
-          "provide github_token=... (or set GITHUB_PAT) when calling buildStudy().",
+          "provide github_token=... (or set GITHUB_PAT) when calling dockeriseStudy().",
           call. = FALSE
         )
       }
@@ -507,8 +507,8 @@ verifyImageExists <- function(image_name, check_rstudio = FALSE) {
   ), silent = TRUE))
   if (inherits(inspect_status, "try-error")) inspect_status <- 1L
   if (!isTRUE(inspect_status == 0)) {
-    stop("Image '", image_name, "' not found.\nBuild it first with: buildStudy()",
-         if (check_rstudio) "\nFor RStudio mode, build with: buildStudy(useRStudio = TRUE)" else "",
+    stop("Image '", image_name, "' not found.\nBuild it first with: dockeriseStudy()",
+         if (check_rstudio) "\nFor RStudio mode, build with: dockeriseStudy(useRStudio = TRUE)" else "",
          call. = FALSE)
   }
   if (check_rstudio) {
@@ -524,7 +524,7 @@ verifyImageExists <- function(image_name, check_rstudio = FALSE) {
     if (!isTRUE(rserver_status == 0)) {
       stop(
         "RStudio Server not available in image '", image_name, "'.\n",
-        "Rebuild with: buildStudy(useRStudio = TRUE)",
+        "Rebuild with: dockeriseStudy(useRStudio = TRUE)",
         call. = FALSE
       )
     }
@@ -535,7 +535,7 @@ verifyImageExists <- function(image_name, check_rstudio = FALSE) {
 #' Run RStudio Server for interactive study execution
 #'
 #' Note: The Docker image must include RStudio Server (i.e., be built with
-#' `buildStudy(useRStudio = TRUE)` which uses a `rocker/rstudio` base image).
+#' `dockeriseStudy(useRStudio = TRUE)` which uses a `rocker/rstudio` base image).
 #' @param image_name Name of Docker image to run (default: auto-detected from directory)
 #' @param results_path Path to save results (default: "./results")
 #' @param env_file Optional path to a .env file (passed to Docker via --env-file).

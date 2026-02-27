@@ -148,7 +148,7 @@ Once your study code is ready, `OmopStudyBuilder` provides functions to package 
 
 ```{r build-docker, eval=FALSE}
 # Build a Docker image containing your study code
-buildStudy(
+dockeriseStudy(
   image_name = "omop-study-study-code",
   path = file.path(study_root, "study_code")
 )
@@ -184,7 +184,7 @@ They can then run either an interactive RStudio Server session, or run the study
 ```{r pull-run, eval=FALSE}
 library(OmopStudyBuilder)
 
-# Interactive (requires image built with buildStudy(useRStudio = TRUE)):
+# Interactive (requires image built with dockeriseStudy(useRStudio = TRUE)):
 runRStudio(
   image_name = "yourusername/myomopstudy:latest",
   results_path = "./results"
@@ -196,7 +196,7 @@ runRStudio(
 **RStudio Server** runs the Docker image and opens a browser to the RStudio Server URL:
 
 ```{r rstudio-run, eval=FALSE}
-# Requires image built with buildStudy(useRStudio = TRUE)
+# Requires image built with dockeriseStudy(useRStudio = TRUE)
 runRStudio(
   image_name = "omop-study-study-code",
   results_path = "./results"

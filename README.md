@@ -96,7 +96,7 @@ renv::init(here::here("SampleStudy", "study_code"))
 install.packages(c("dplyr", "CDMConnector", "IncidencePrevalence"))
 renv::snapshot(here::here("SampleStudy", "study_code"))
 
-buildStudy(path = here::here("SampleStudy", "study_code"))
+dockeriseStudy(path = here::here("SampleStudy", "study_code"))
 ```
 
 Run the study interactively in RStudio Server or as an automated script.
@@ -125,7 +125,7 @@ build and run using the same commands.
 install.packages("OmopStudyBuilder")
 library(OmopStudyBuilder)
 
-buildStudy(path = here::here("SampleStudy", "study_code"))
+dockeriseStudy(path = here::here("SampleStudy", "study_code"))
 runStudy()
 runRStudio()
 stopStudy()

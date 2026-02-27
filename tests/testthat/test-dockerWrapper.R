@@ -46,14 +46,14 @@ test_that("pushStudyImage errors when image is missing", {
 
 
 # -------------------------------------------------------------------------
-# buildStudy Tests
+# dockeriseStudy Tests
 # -------------------------------------------------------------------------
 
-test_that("buildStudy uses r-ver by default", {
+test_that("dockeriseStudy uses r-ver by default", {
   skip("Integration test - requires valid renv project")
 })
 
-test_that("buildStudy uses rstudio when requested", {
+test_that("dockeriseStudy uses rstudio when requested", {
   skip("Integration test - requires valid renv project")
 })
 

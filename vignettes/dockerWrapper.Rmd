@@ -22,7 +22,7 @@ library(OmopStudyBuilder)
 
 This vignette describes the Docker helper functions in `OmopStudyBuilder`:
 
-- `buildStudy()` builds a Docker image for your study
+- `dockeriseStudy()` builds a Docker image for your study
 - `runRStudio()` starts an interactive RStudio Server session inside the image
 - `runStudy()` runs your study script in automated mode (streaming logs)
 - `stopStudy()` stops containers started by `runRStudio()`/`runStudy()`
@@ -32,12 +32,12 @@ All Docker calls require Docker to be installed and the Docker daemon to be runn
 
 ## Build an image
 
-`buildStudy()` expects an `renv.lock` (and renv activation files) in the directory you point it at.
+`dockeriseStudy()` expects an `renv.lock` (and renv activation files) in the directory you point it at.
 By default it will also snapshot your dependencies before building.
 
-```{r buildStudy-example, eval=FALSE}
+```{r dockeriseStudy-example, eval=FALSE}
 # From the study_code folder (or pass path=...)
-buildStudy(
+dockeriseStudy(
   image_name = "my-study",
   path = "./study_code",
   useRStudio = FALSE
@@ -46,8 +46,8 @@ buildStudy(
 
 If you want `runRStudio()`, build with an RStudio base image:
 
-```{r buildStudy-rstudio, eval=FALSE}
-buildStudy(
+```{r dockeriseStudy-rstudio, eval=FALSE}
+dockeriseStudy(
   image_name = "my-study",
   path = "./study_code",
   useRStudio = TRUE
@@ -57,8 +57,8 @@ buildStudy(
 If your `renv.lock` includes GitHub packages and you hit GitHub rate limits during the build,
 pass a token:
 
-```{r buildStudy-github-token, eval=FALSE}
-buildStudy(
+```{r dockeriseStudy-github-token, eval=FALSE}
+dockeriseStudy(
   path = "./study_code",
   github_token = Sys.getenv("GITHUB_PAT")
 )
