@@ -1,30 +1,4 @@
-#' Summarise dependencies in renv lock file
-#'
-#' @param dir Path to folder containing R project with renv.lock file
-#' @param type Whether R project is for analysis code or study reporting.
-#'
-#' @returns Summary of state of dependencies
-#' @export
-#'
-reviewStudyDependencies  <- function(dir, type = "analysis"){
-
-  omopgenerics::assertChoice(type, choices = c("analysis", "reporting"))
-
-  if(!file.exists(here::here(dir, "renv.lock"))){
-    cli::cli_warn(c("renv.lock file not found in {dir}",
-                    i = "A renv file should be added to ensure reproducibility"))
-    return(invisible(NULL))
-  }
-
-  reportDependencies(dir)
-
-  lock <- renv::lockfile_read(here::here(dir, "renv.lock"))
-  reportLockPkgs(lock, type)
-  checkPkgSource(lock)
-  checkLatestVersion(lock)
-
-  return(invisible())
-}
+# Internal helpers for reviewStudy() — dependency summarisation
 
 reportDependencies <- function(dir){
   cli::cat_line()
