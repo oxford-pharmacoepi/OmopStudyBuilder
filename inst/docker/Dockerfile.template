@@ -1,0 +1,94 @@
+FROM {{BASE_IMAGE}}
+
+# ── GitHub token (optional, for private GitHub packages) ─────────────────────
+ARG GITHUB_PAT
+ENV GITHUB_PAT=${GITHUB_PAT}
+ENV RENV_CONFIG_GITHUB_PAT=${GITHUB_PAT}
+
+# ── System dependencies ─────────────────────────────────────────────────────
+# Comprehensive set covering all common OMOP / HADES R packages.
+#   build-tools  : build-essential, cmake, git, pkg-config
+#   db-clients   : libpq-dev (RPostgres), unixodbc-dev (odbc),
+#                  libsqlite3-dev (RSQLite)
+#   crypto / ssl : libssl-dev (openssl), libsodium-dev (sodium)
+#   web / http   : libcurl4-openssl-dev (curl, httr)
+#   xml          : libxml2-dev (xml2)
+#   text / i18n  : libicu-dev (stringi)
+#   graphics     : libfontconfig1-dev libfreetype6-dev (systemfonts),
+#                  libharfbuzz-dev libfribidi-dev (textshaping),
+#                  libjpeg-dev libpng-dev libtiff-dev libcairo2-dev
+#                  libwebp-dev (ragg)
+#   compression  : zlib1g-dev, libbz2-dev, liblzma-dev
+#   git          : libgit2-dev (gert, git2r)
+#   regex        : libpcre2-dev
+#   java         : openjdk-11-jdk (rJava)
+#   docs         : pandoc
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential cmake git pkg-config ca-certificates \
+    libpq-dev unixodbc-dev libsqlite3-dev \
+    libssl-dev libsodium-dev \
+    libcurl4-openssl-dev \
+    libxml2-dev \
+    libicu-dev \
+    libfontconfig1-dev libfreetype6-dev libharfbuzz-dev libfribidi-dev \
+    libjpeg-dev libpng-dev libtiff-dev libcairo2-dev libwebp-dev \
+    zlib1g-dev libbz2-dev liblzma-dev \
+    libgit2-dev \
+    libpcre2-dev \
+    openjdk-11-jdk \
+    pandoc \
+    && rm -rf /var/lib/apt/lists/*
+
+# ── Configure Java (required for rJava) ──────────────────────────────────────
+RUN R CMD javareconf
+
+# ── Working directory ────────────────────────────────────────────────────────
+WORKDIR /workspace
+
+# ── renv infrastructure (copied first for Docker layer caching) ──────────────
+COPY renv.lock renv.lock
+COPY .Rprofile .Rprofile
+COPY renv/activate.R renv/activate.R
+
+# ── Install renv ─────────────────────────────────────────────────────────────
+RUN R -e "install.packages('renv', repos = 'https://cloud.r-project.org')"
+
+# ── Configure R compilation flags (required for large C++ packages on ARM64) ─
+RUN mkdir -p /root/.R && \
+    echo "CC = gcc -fPIC" >> /root/.R/Makevars && \
+    echo "CXX = g++ -fPIC" >> /root/.R/Makevars && \
+    echo "CXX11 = g++ -fPIC" >> /root/.R/Makevars && \
+    echo "CXX14 = g++ -fPIC" >> /root/.R/Makevars && \
+    echo "CXX17 = g++ -fPIC" >> /root/.R/Makevars && \
+    echo "CXX20 = g++ -fPIC" >> /root/.R/Makevars && \
+    echo "FC = gfortran -fPIC" >> /root/.R/Makevars
+
+# ── Restore packages ────────────────────────────────────────────────────────
+# Use Posit Package Manager for pre-built Linux binaries (much faster).
+# The Ubuntu codename is detected automatically from the base image.
+RUN . /etc/os-release && \
+    export RENV_CONFIG_REPOS_OVERRIDE="https://packagemanager.posit.co/cran/__linux__/${VERSION_CODENAME}/latest" && \
+    R -e "renv::restore(prompt = FALSE, clean = TRUE)"
+
+# ── Study code (separate layer — changes won't invalidate package cache) ─────
+COPY . /workspace
+
+# ── RStudio convenience (only when rocker/rstudio base is used) ─────────────
+# Make the study code visible at ~/study in the RStudio Files pane and ensure
+# the `rstudio` user can edit files interactively.
+RUN if id -u rstudio >/dev/null 2>&1; then \
+            chown -R rstudio:rstudio /workspace && \
+            rm -rf /home/rstudio/study && \
+            ln -s /workspace /home/rstudio/study && \
+            printf '%s\n' \
+                "local({" \
+                "  # Auto-activate renv so restored packages are available in RStudio" \
+                "  try(setwd('/workspace'), silent = TRUE)" \
+                "  Sys.setenv(RENV_PROJECT = '/workspace')" \
+                "  if (file.exists('/workspace/renv/activate.R')) source('/workspace/renv/activate.R')" \
+                "})" \
+                > /home/rstudio/.Rprofile && \
+            chown rstudio:rstudio /home/rstudio/.Rprofile; \
+        fi
+
+{{EXPOSE_PORT}}
