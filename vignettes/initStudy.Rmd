@@ -170,7 +170,7 @@ The image contains:
 Push to Docker Hub for easy sharing with connected partners:
 
 ```{r push-image, eval=FALSE}
-pushStudyImage(
+pushDockerImage(
   image_name = "omop-study-study-code",
   repo = "yourusername/myomopstudy"
 )

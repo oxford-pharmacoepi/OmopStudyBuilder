@@ -334,7 +334,7 @@ dockeriseStudy <- function(image_name = NULL,
 #' @param logout If TRUE, logs out after pushing
 #' @return Pushed image reference (invisibly)
 #' @export
-pushStudyImage <- function(image_name = NULL,
+pushDockerImage <- function(image_name = NULL,
                            repo,
                            tag = "latest",
                            username = NULL,

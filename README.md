@@ -136,7 +136,7 @@ credentials when prompted (the tag defaults to `latest`, and the image
 name defaults to the current folder name):
 
 ``` r
-pushStudyImage(
+pushDockerImage(
   repo = "yourname/omop-study-study-code"
 )
 ```

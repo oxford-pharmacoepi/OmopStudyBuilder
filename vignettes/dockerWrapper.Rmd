@@ -26,7 +26,7 @@ This vignette describes the Docker helper functions in `OmopStudyBuilder`:
 - `runRStudio()` starts an interactive RStudio Server session inside the image
 - `runStudy()` runs your study script in automated mode (streaming logs)
 - `stopStudy()` stops containers started by `runRStudio()`/`runStudy()`
-- `pushStudyImage()` tags and pushes your image to Docker Hub
+- `pushDockerImage()` tags and pushes your image to Docker Hub
 
 All Docker calls require Docker to be installed and the Docker daemon to be running.
 
@@ -103,10 +103,10 @@ stopStudy(image_name = "my-study")
 
 ## Push to Docker Hub
 
-`pushStudyImage()` will tag `image_name:latest` and push it to a Docker Hub repository.
+`pushDockerImage()` will tag `image_name:latest` and push it to a Docker Hub repository.
 
-```{r pushStudyImage-example, eval=FALSE}
-pushStudyImage(
+```{r pushDockerImage-example, eval=FALSE}
+pushDockerImage(
   image_name = "my-study",
   repo = "yourusername/my-study"
 )
