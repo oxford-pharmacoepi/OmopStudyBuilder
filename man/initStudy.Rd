@@ -4,7 +4,14 @@
 \alias{initStudy}
 \title{Creates initial directory for an OMOP CDM network study}
 \usage{
-initStudy(directory, diagnostics = TRUE, study = TRUE)
+initStudy(
+  directory,
+  diagnostics = TRUE,
+  study = TRUE,
+  studyTitle = NULL,
+  studyLeads = NULL,
+  studyDescription = NULL
+)
 }
 \arguments{
 \item{directory}{Path to a directory that will be used as the root folder
@@ -20,6 +27,15 @@ If FALSE, these diagnostics folders are not created.}
 If TRUE (the default), the function creates the `study_code/`
 and `study_shiny/` folders using the package templates.
 If FALSE, these study folders are not created.}
+
+\item{studyTitle}{Character string with the study title. If NULL (default),
+uses the directory basename.}
+
+\item{studyLeads}{Character string with study leads. If NULL (default),
+leaves a placeholder.}
+
+\item{studyDescription}{Character string with study description. If NULL (default),
+leaves a placeholder.}
 }
 \value{
 Project directory will be created
@@ -34,4 +50,10 @@ initStudy(study_root)
 
 # Inspect the top-level contents
 list.files(study_root)
+
+# Create another study with custom metadata
+study_root2 <- file.path(tempdir(), "DiabetesStudy")
+initStudy(study_root2,
+          studyTitle = "Diabetes Prevalence Study",
+          studyLeads = "Dr. Smith, Dr. Jones")
 }
