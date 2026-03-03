@@ -14,24 +14,24 @@ test_that("ensureDocker detects Docker daemon", {
 
 
 # -------------------------------------------------------------------------
-# pushStudyImage Tests
+# pushDockerImage Tests
 # -------------------------------------------------------------------------
 
-test_that("pushStudyImage requires repo", {
-  skip_if_not(exists("pushStudyImage", mode = "function"), "Package not loaded")
+test_that("pushDockerImage requires repo", {
+  skip_if_not(exists("pushDockerImage", mode = "function"), "Package not loaded")
   expect_error(
-    pushStudyImage(),
+    pushDockerImage(),
     "repo is required",
     fixed = TRUE
   )
 })
 
-test_that("pushStudyImage errors when image is missing", {
+test_that("pushDockerImage errors when image is missing", {
   skip_if_not(system2("docker", "info", stdout = FALSE, stderr = FALSE) == 0,
               "Docker not available")
 
   expect_error(
-    pushStudyImage(
+    pushDockerImage(
       image_name = "__definitely_not_an_image__",
       repo = "someone/somewhere",
       username = "x",
@@ -46,14 +46,14 @@ test_that("pushStudyImage errors when image is missing", {
 
 
 # -------------------------------------------------------------------------
-# buildStudy Tests
+# dockeriseStudy Tests
 # -------------------------------------------------------------------------
 
-test_that("buildStudy uses r-ver by default", {
+test_that("dockeriseStudy uses r-ver by default", {
   skip("Integration test - requires valid renv project")
 })
 
-test_that("buildStudy uses rstudio when requested", {
+test_that("dockeriseStudy uses rstudio when requested", {
   skip("Integration test - requires valid renv project")
 })
 
