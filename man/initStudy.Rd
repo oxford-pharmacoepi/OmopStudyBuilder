@@ -48,11 +48,12 @@ Creates initial directory for an OMOP CDM network study
 study_root <- file.path(tempdir(), "SampleStudy")
 initStudy(study_root)
 
-# With metadata
-initStudy(study_root,
-          studyTitle = "Diabetes Prevalence Study",
-          studyLeads = "Dr. Smith, Dr. Jones")
-
 # Inspect the top-level contents
 list.files(study_root)
+
+# Create another study with metadata
+study_root2 <- file.path(tempdir(), "DiabetesStudy")
+initStudy(study_root2,
+          studyTitle = "Diabetes Prevalence Study",
+          studyLeads = "Dr. Smith, Dr. Jones")
 }
