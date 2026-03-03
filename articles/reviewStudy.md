@@ -25,8 +25,8 @@ Point `reviewStudyCode()` at the folder you want to inspect (often
 `study_code/` or `diagnostics_code/`).
 
 The simplest pattern is to run these commands from within the project
-you want to review (for example, open `StudyCode.Rproj` or
-`Diagnostics.Rproj`).
+you want to review (for example, open `study_code.Rproj` or
+`diagnostics_code.Rproj`).
 
 ``` r
 reviewStudyCode(".")

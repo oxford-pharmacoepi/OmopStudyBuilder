@@ -69,23 +69,26 @@ To inspect the full structure:
 list.files(study_root, recursive = TRUE)
 #>  [1] "diagnostics_code/code_to_run.R"                
 #>  [2] "diagnostics_code/cohorts/instantiate_cohorts.R"
-#>  [3] "diagnostics_code/README.md"                    
-#>  [4] "diagnostics_code/results/readme.md"            
-#>  [5] "diagnostics_code/run_study.R"                  
-#>  [6] "diagnostics_shiny/README.md"                   
-#>  [7] "README.md"                                     
-#>  [8] "study_code/analyses/cohort_characteristics.R"  
-#>  [9] "study_code/analyses/cohort_survival.R"         
-#> [10] "study_code/analyses/drug_utilisation.R"        
-#> [11] "study_code/analyses/incidence_prevalence.R"    
-#> [12] "study_code/code_to_run.R"                      
-#> [13] "study_code/codelist/codelist_creation.R"       
-#> [14] "study_code/cohorts/instantiate_cohorts.R"      
-#> [15] "study_code/Dockerfile"                         
-#> [16] "study_code/README.md"                          
-#> [17] "study_code/Results/README.md"                  
-#> [18] "study_code/run_study.R"                        
-#> [19] "study_shiny/README.md"
+#>  [3] "diagnostics_code/diagnostics_code.Rproj"       
+#>  [4] "diagnostics_code/README.md"                    
+#>  [5] "diagnostics_code/results/readme.md"            
+#>  [6] "diagnostics_code/run_study.R"                  
+#>  [7] "diagnostics_shiny/diagnostics_shiny.Rproj"     
+#>  [8] "diagnostics_shiny/README.md"                   
+#>  [9] "README.md"                                     
+#> [10] "study_code/analyses/cohort_characteristics.R"  
+#> [11] "study_code/analyses/cohort_survival.R"         
+#> [12] "study_code/analyses/drug_utilisation.R"        
+#> [13] "study_code/analyses/incidence_prevalence.R"    
+#> [14] "study_code/code_to_run.R"                      
+#> [15] "study_code/codelist/codelist_creation.R"       
+#> [16] "study_code/cohorts/instantiate_cohorts.R"      
+#> [17] "study_code/README.md"                          
+#> [18] "study_code/Results/README.md"                  
+#> [19] "study_code/run_study.R"                        
+#> [20] "study_code/study_code.Rproj"                   
+#> [21] "study_shiny/README.md"                         
+#> [22] "study_shiny/study_shiny.Rproj"
 ```
 
 ------------------------------------------------------------------------
@@ -133,9 +136,9 @@ After generating the project structure, you will mainly work with these
 folders and files:
 
 - `study_code/`
-  - `StudyCode.Rproj`: open this in RStudio to work on the main analysis
-    code. It sets the working directory so all relative paths behave
-    correctly.  
+  - `study_code.Rproj`: open this in RStudio to work on the main
+    analysis code. It sets the working directory so all relative paths
+    behave correctly.  
   - `code_to_run.R`: where you add database connection details, schemas,
     and global settings
   - `cohorts/instantiate_cohorts.R`: defines the study cohorts using
@@ -144,8 +147,8 @@ folders and files:
   - `run_study.R`: orchestrates the analysis steps (cohort creation,
     summaries, analyses, export).
 - `diagnostics_code/`
-  - `diagnostics.Rproj`: open this project to work on diagnostics. It
-    keeps diagnostics code separate from the main analysis project.  
+  - `diagnostics_code.Rproj`: open this project to work on diagnostics.
+    It keeps diagnostics code separate from the main analysis project.  
   - `code_to_run.R`: similar to the study version, but dedicated to
     diagnostics. You set connection details and schemas used for running
     phenotype diagnostics.  
