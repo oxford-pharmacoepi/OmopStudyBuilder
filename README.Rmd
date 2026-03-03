@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# OmopStudyBuilder <img src="man/figures/image.jfif" align="right" height="138" alt="OmopStudyBuilder logo" />
+# OmopStudyBuilder <img src="man/figures/image.jfif" align="right" style="height:100px; background: var(--bs-body-bg, #fff); padding-left: 12px; position: relative; z-index: 1;" alt="OmopStudyBuilder logo" />
 
 <!-- badges: start -->
 
@@ -78,7 +78,7 @@ To illustrate how OmopStudyBuilder works, start by creating the study folder and
 
 ```{r, eval = FALSE}
 library(OmopStudyBuilder)
-createStudy(here::here("SampleStudy"))
+initStudy(here::here("SampleStudy"))
 
 reviewStudyCode(here::here("SampleStudy", "study_code"))
 reviewStudyDependencies(here::here("SampleStudy", "study_code"))
@@ -91,7 +91,7 @@ renv::init(here::here("SampleStudy", "study_code"))
 install.packages(c("dplyr", "CDMConnector", "IncidencePrevalence"))
 renv::snapshot(here::here("SampleStudy", "study_code"))
 
-buildStudy(path = here::here("SampleStudy", "study_code"))
+dockeriseStudy(path = here::here("SampleStudy", "study_code"))
 ```
 
 Run the study interactively in RStudio Server or as an automated script. If you use a `.env` file for credentials, pass `env_file = ".env"`.
@@ -111,13 +111,13 @@ runStudy(
 )
 ```
 
-To distribute the study, share the **study folder** created by `createStudy()` (including `study_code/` and `renv.lock`). Partners can build and run using the same commands.
+To distribute the study, share the **study folder** created by `initStudy()` (including `study_code/` and `renv.lock`). Partners can build and run using the same commands.
 
 ```{r, eval = FALSE}
 install.packages("OmopStudyBuilder")
 library(OmopStudyBuilder)
 
-buildStudy(path = here::here("SampleStudy", "study_code"))
+dockeriseStudy(path = here::here("SampleStudy", "study_code"))
 runStudy()
 runRStudio()
 stopStudy()
@@ -126,7 +126,7 @@ stopStudy()
 To push a built image to Docker Hub, use the helper and enter your credentials when prompted (the tag defaults to `latest`, and the image name defaults to the current folder name):
 
 ```{r, eval = FALSE}
-pushStudyImage(
+pushDockerImage(
   repo = "yourname/omop-study-study-code"
 )
 ```
