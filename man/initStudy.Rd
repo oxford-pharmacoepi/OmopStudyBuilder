@@ -49,9 +49,9 @@ study_root <- file.path(tempdir(), "SampleStudy")
 initStudy(study_root)
 
 # With metadata
-createStudy(study_root,
-            studyTitle = "Diabetes Prevalence Study",
-            studyLeads = "Dr. Smith, Dr. Jones")
+initStudy(study_root,
+          studyTitle = "Diabetes Prevalence Study",
+          studyLeads = "Dr. Smith, Dr. Jones")
 
 # Inspect the top-level contents
 list.files(study_root)
