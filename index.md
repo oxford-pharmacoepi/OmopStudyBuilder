@@ -67,7 +67,7 @@ folder and reviewing what it contains:
 
 ``` r
 library(OmopStudyBuilder)
-createStudy(here::here("SampleStudy"))
+initStudy(here::here("SampleStudy"))
 
 reviewStudyCode(here::here("SampleStudy", "study_code"))
 reviewStudyDependencies(here::here("SampleStudy", "study_code"))
@@ -81,7 +81,7 @@ renv::init(here::here("SampleStudy", "study_code"))
 install.packages(c("dplyr", "CDMConnector", "IncidencePrevalence"))
 renv::snapshot(here::here("SampleStudy", "study_code"))
 
-buildStudy(path = here::here("SampleStudy", "study_code"))
+dockeriseStudy(path = here::here("SampleStudy", "study_code"))
 ```
 
 Run the study interactively in RStudio Server or as an automated script.
@@ -103,7 +103,7 @@ runStudy(
 ```
 
 To distribute the study, share the **study folder** created by
-[`createStudy()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/createStudy.md)
+[`initStudy()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/initStudy.md)
 (including `study_code/` and `renv.lock`). Partners can build and run
 using the same commands.
 
@@ -111,7 +111,7 @@ using the same commands.
 install.packages("OmopStudyBuilder")
 library(OmopStudyBuilder)
 
-buildStudy(path = here::here("SampleStudy", "study_code"))
+dockeriseStudy(path = here::here("SampleStudy", "study_code"))
 runStudy()
 runRStudio()
 stopStudy()
@@ -122,7 +122,7 @@ credentials when prompted (the tag defaults to `latest`, and the image
 name defaults to the current folder name):
 
 ``` r
-pushStudyImage(
+pushDockerImage(
   repo = "yourname/omop-study-study-code"
 )
 ```

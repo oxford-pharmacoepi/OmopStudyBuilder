@@ -33,8 +33,8 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/createStudy.html">createStudy</a></li>
-    <li><a class="dropdown-item" href="../articles/dockerWrapper.html">dockerWrapper</a></li>
+<li><a class="dropdown-item" href="../articles/dockerWrapper.html">dockerWrapper</a></li>
+    <li><a class="dropdown-item" href="../articles/initStudy.html">initStudy</a></li>
     <li><a class="dropdown-item" href="../articles/reviewStudy.html">reviewStudy</a></li>
   </ul>
 </li>
@@ -74,7 +74,8 @@
 <code>OmopStudyBuilder</code>:</p>
 <ul>
 <li>
-<code><a href="../reference/buildStudy.html">buildStudy()</a></code> builds a Docker image for your study</li>
+<code><a href="../reference/dockeriseStudy.html">dockeriseStudy()</a></code> builds a Docker image for your
+study</li>
 <li>
 <code><a href="../reference/runRStudio.html">runRStudio()</a></code> starts an interactive RStudio Server
 session inside the image</li>
@@ -86,7 +87,7 @@ session inside the image</li>
 <code><a href="../reference/runRStudio.html">runRStudio()</a></code>/<code><a href="../reference/runStudy.html">runStudy()</a></code>
 </li>
 <li>
-<code><a href="../reference/pushStudyImage.html">pushStudyImage()</a></code> tags and pushes your image to Docker
+<code><a href="../reference/pushDockerImage.html">pushDockerImage()</a></code> tags and pushes your image to Docker
 Hub</li>
 </ul>
 <p>All Docker calls require Docker to be installed and the Docker daemon
@@ -95,12 +96,12 @@ to be running.</p>
 <div class="section level2">
 <h2 id="build-an-image">Build an image<a class="anchor" aria-label="anchor" href="#build-an-image"></a>
 </h2>
-<p><code><a href="../reference/buildStudy.html">buildStudy()</a></code> expects an <code>renv.lock</code> (and renv
-activation files) in the directory you point it at. By default it will
-also snapshot your dependencies before building.</p>
+<p><code><a href="../reference/dockeriseStudy.html">dockeriseStudy()</a></code> expects an <code>renv.lock</code> (and
+renv activation files) in the directory you point it at. By default it
+will also snapshot your dependencies before building.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># From the study_code folder (or pass path=...)</span></span>
-<span><span class="fu"><a href="../reference/buildStudy.html">buildStudy</a></span><span class="op">(</span></span>
+<span><span class="fu"><a href="../reference/dockeriseStudy.html">dockeriseStudy</a></span><span class="op">(</span></span>
 <span>  image_name <span class="op">=</span> <span class="st">"my-study"</span>,</span>
 <span>  path <span class="op">=</span> <span class="st">"./study_code"</span>,</span>
 <span>  useRStudio <span class="op">=</span> <span class="cn">FALSE</span></span>
@@ -108,7 +109,7 @@ also snapshot your dependencies before building.</p>
 <p>If you want <code><a href="../reference/runRStudio.html">runRStudio()</a></code>, build with an RStudio base
 image:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/buildStudy.html">buildStudy</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/dockeriseStudy.html">dockeriseStudy</a></span><span class="op">(</span></span>
 <span>  image_name <span class="op">=</span> <span class="st">"my-study"</span>,</span>
 <span>  path <span class="op">=</span> <span class="st">"./study_code"</span>,</span>
 <span>  useRStudio <span class="op">=</span> <span class="cn">TRUE</span></span>
@@ -116,7 +117,7 @@ image:</p>
 <p>If your <code>renv.lock</code> includes GitHub packages and you hit
 GitHub rate limits during the build, pass a token:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/buildStudy.html">buildStudy</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/dockeriseStudy.html">dockeriseStudy</a></span><span class="op">(</span></span>
 <span>  path <span class="op">=</span> <span class="st">"./study_code"</span>,</span>
 <span>  github_token <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"GITHUB_PAT"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -161,10 +162,11 @@ console.</p>
 <div class="section level2">
 <h2 id="push-to-docker-hub">Push to Docker Hub<a class="anchor" aria-label="anchor" href="#push-to-docker-hub"></a>
 </h2>
-<p><code><a href="../reference/pushStudyImage.html">pushStudyImage()</a></code> will tag <code>image_name:latest</code>
-and push it to a Docker Hub repository.</p>
+<p><code><a href="../reference/pushDockerImage.html">pushDockerImage()</a></code> will tag
+<code>image_name:latest</code> and push it to a Docker Hub
+repository.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/pushStudyImage.html">pushStudyImage</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/pushDockerImage.html">pushDockerImage</a></span><span class="op">(</span></span>
 <span>  image_name <span class="op">=</span> <span class="st">"my-study"</span>,</span>
 <span>  repo <span class="op">=</span> <span class="st">"yourusername/my-study"</span></span>
 <span><span class="op">)</span></span></code></pre></div>

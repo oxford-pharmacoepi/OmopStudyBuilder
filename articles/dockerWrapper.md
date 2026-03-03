@@ -9,7 +9,7 @@ library(OmopStudyBuilder)
 This vignette describes the Docker helper functions in
 `OmopStudyBuilder`:
 
-- [`buildStudy()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/buildStudy.md)
+- [`dockeriseStudy()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/dockeriseStudy.md)
   builds a Docker image for your study
 - [`runRStudio()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/runRStudio.md)
   starts an interactive RStudio Server session inside the image
@@ -18,7 +18,7 @@ This vignette describes the Docker helper functions in
 - [`stopStudy()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/stopStudy.md)
   stops containers started by
   [`runRStudio()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/runRStudio.md)/[`runStudy()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/runStudy.md)
-- [`pushStudyImage()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/pushStudyImage.md)
+- [`pushDockerImage()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/pushDockerImage.md)
   tags and pushes your image to Docker Hub
 
 All Docker calls require Docker to be installed and the Docker daemon to
@@ -26,14 +26,14 @@ be running.
 
 ## Build an image
 
-[`buildStudy()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/buildStudy.md)
+[`dockeriseStudy()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/dockeriseStudy.md)
 expects an `renv.lock` (and renv activation files) in the directory you
 point it at. By default it will also snapshot your dependencies before
 building.
 
 ``` r
 # From the study_code folder (or pass path=...)
-buildStudy(
+dockeriseStudy(
   image_name = "my-study",
   path = "./study_code",
   useRStudio = FALSE
@@ -45,7 +45,7 @@ If you want
 build with an RStudio base image:
 
 ``` r
-buildStudy(
+dockeriseStudy(
   image_name = "my-study",
   path = "./study_code",
   useRStudio = TRUE
@@ -56,7 +56,7 @@ If your `renv.lock` includes GitHub packages and you hit GitHub rate
 limits during the build, pass a token:
 
 ``` r
-buildStudy(
+dockeriseStudy(
   path = "./study_code",
   github_token = Sys.getenv("GITHUB_PAT")
 )
@@ -109,11 +109,11 @@ stopStudy(image_name = "my-study")
 
 ## Push to Docker Hub
 
-[`pushStudyImage()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/pushStudyImage.md)
+[`pushDockerImage()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/pushDockerImage.md)
 will tag `image_name:latest` and push it to a Docker Hub repository.
 
 ``` r
-pushStudyImage(
+pushDockerImage(
   image_name = "my-study",
   repo = "yourusername/my-study"
 )

@@ -33,8 +33,8 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/createStudy.html">createStudy</a></li>
-    <li><a class="dropdown-item" href="../articles/dockerWrapper.html">dockerWrapper</a></li>
+<li><a class="dropdown-item" href="../articles/dockerWrapper.html">dockerWrapper</a></li>
+    <li><a class="dropdown-item" href="../articles/initStudy.html">initStudy</a></li>
     <li><a class="dropdown-item" href="../articles/reviewStudy.html">reviewStudy</a></li>
   </ul>
 </li>
@@ -80,10 +80,10 @@ useful to quickly inspect:</p>
 <p><code>OmopStudyBuilder</code> provides two helpers:</p>
 <ul>
 <li>
-<code><a href="../reference/reviewStudyCode.html">reviewStudyCode()</a></code> summarises the contents of a
+<code>reviewStudyCode()</code> summarises the contents of a
 directory</li>
 <li>
-<code><a href="../reference/reviewStudyDependencies.html">reviewStudyDependencies()</a></code> summarises dependencies based
+<code>reviewStudyDependencies()</code> summarises dependencies based
 on <code>renv.lock</code>
 </li>
 </ul>
@@ -91,24 +91,24 @@ on <code>renv.lock</code>
 <div class="section level2">
 <h2 id="review-files-in-a-study-folder">Review files in a study folder<a class="anchor" aria-label="anchor" href="#review-files-in-a-study-folder"></a>
 </h2>
-<p>Point <code><a href="../reference/reviewStudyCode.html">reviewStudyCode()</a></code> at the folder you want to
+<p>Point <code>reviewStudyCode()</code> at the folder you want to
 inspect (often <code>study_code/</code> or
 <code>diagnostics_code/</code>).</p>
 <p>The simplest pattern is to run these commands from within the project
 you want to review (for example, open <code>StudyCode.Rproj</code> or
 <code>Diagnostics.Rproj</code>).</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/reviewStudyCode.html">reviewStudyCode</a></span><span class="op">(</span><span class="st">"."</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">reviewStudyCode</span><span class="op">(</span><span class="st">"."</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="review-dependencies">Review dependencies<a class="anchor" aria-label="anchor" href="#review-dependencies"></a>
 </h2>
-<p><code><a href="../reference/reviewStudyDependencies.html">reviewStudyDependencies()</a></code> expects a
+<p><code>reviewStudyDependencies()</code> expects a
 <code>renv.lock</code> file in the directory. Use
 <code>type = "analysis"</code> for analysis code, or
 <code>type = "reporting"</code> for reporting code.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/reviewStudyDependencies.html">reviewStudyDependencies</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="fu">reviewStudyDependencies</span><span class="op">(</span></span>
 <span>  dir <span class="op">=</span> <span class="st">"."</span>,</span>
 <span>  type <span class="op">=</span> <span class="st">"analysis"</span></span>
 <span><span class="op">)</span></span></code></pre></div>

@@ -2,16 +2,14 @@
 
 ## All functions
 
-- [`buildStudy()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/buildStudy.md)
+- [`dockeriseStudy()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/dockeriseStudy.md)
   : Build a Docker image for an OMOP study
-- [`createStudy()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/createStudy.md)
+- [`initStudy()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/initStudy.md)
   : Creates initial directory for an OMOP CDM network study
-- [`pushStudyImage()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/pushStudyImage.md)
+- [`pushDockerImage()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/pushDockerImage.md)
   : Push a Docker image to Docker Hub
-- [`reviewStudyCode()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/reviewStudyCode.md)
-  : Review study code
-- [`reviewStudyDependencies()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/reviewStudyDependencies.md)
-  : Summarise dependencies in renv lock file
+- [`reviewStudy()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/reviewStudy.md)
+  : Review a study directory
 - [`runRStudio()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/runRStudio.md)
   : Run RStudio Server for interactive study execution
 - [`runStudy()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/runStudy.md)

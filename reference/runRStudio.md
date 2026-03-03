@@ -1,8 +1,8 @@
 # Run RStudio Server for interactive study execution
 
 Note: The Docker image must include RStudio Server (i.e., be built with
-\`buildStudy(useRStudio = TRUE)\` which uses a \`rocker/rstudio\` base
-image).
+\`dockeriseStudy(useRStudio = TRUE)\` which uses a \`rocker/rstudio\`
+base image).
 
 ## Usage
 
