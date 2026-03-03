@@ -14,6 +14,16 @@
 #'   and `study_shiny/` folders using the package templates.
 #'   If FALSE, these study folders are not created.
 #'
+#' @param repository Optional GitHub repository name. If provided, creates a GitHub
+#'   repository and links it to the study. Requires the \code{gh} package and
+#'   GitHub authentication (GITHUB_PAT environment variable).
+#'
+#' @param organisation Optional GitHub organisation name. If NULL (default), creates
+#'   repository under your personal account. Only used when \code{repository} is provided.
+#'
+#' @param private Logical. If TRUE (default), creates a private GitHub repository.
+#'   Only used when \code{repository} is provided.
+#'
 #' @returns Project directory will be created
 #' @export
 #'
@@ -24,9 +34,22 @@
 #'
 #' # Inspect the top-level contents
 #' list.files(study_root)
+#'
+#' \dontrun{
+#' # Create study with GitHub integration
+#' initStudy(
+#'   directory = "MyStudy",
+#'   repository = "my-omop-study",
+#'   organisation = "oxford-pharmacoepi",
+#'   private = TRUE
+#' )
+#' }
 initStudy <- function(directory,
                         diagnostics = TRUE,
-                        study = TRUE) {
+                        study = TRUE,
+                        repository = NULL,
+                        organisation = NULL,
+                        private = TRUE) {
   validateRootDirectory(directory)
   omopgenerics::assertLogical(diagnostics, length = 1)
   omopgenerics::assertLogical(study, length = 1)
@@ -72,6 +95,15 @@ initStudy <- function(directory,
     cli::cli_alert_success("{.strong {directoryStudyShiny}} prepared for study shiny app")
   }
 
+  # GitHub integration (optional)
+  if (!is.null(repository)) {
+    linkGitHub(
+      directory = directory,
+      repository = repository,
+      organisation = organisation,
+      private = private
+    )
+  }
 
   return(invisible())
 }

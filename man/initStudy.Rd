@@ -4,7 +4,14 @@
 \alias{initStudy}
 \title{Creates initial directory for an OMOP CDM network study}
 \usage{
-initStudy(directory, diagnostics = TRUE, study = TRUE)
+initStudy(
+  directory,
+  diagnostics = TRUE,
+  study = TRUE,
+  repository = NULL,
+  organisation = NULL,
+  private = TRUE
+)
 }
 \arguments{
 \item{directory}{Path to a directory that will be used as the root folder
@@ -20,6 +27,16 @@ If FALSE, these diagnostics folders are not created.}
 If TRUE (the default), the function creates the `study_code/`
 and `study_shiny/` folders using the package templates.
 If FALSE, these study folders are not created.}
+
+\item{repository}{Optional GitHub repository name. If provided, creates a GitHub
+repository and links it to the study. Requires the \code{gh} package and
+GitHub authentication (GITHUB_PAT environment variable).}
+
+\item{organisation}{Optional GitHub organisation name. If NULL (default), creates
+repository under your personal account. Only used when \code{repository} is provided.}
+
+\item{private}{Logical. If TRUE (default), creates a private GitHub repository.
+Only used when \code{repository} is provided.}
 }
 \value{
 Project directory will be created
@@ -34,4 +51,14 @@ initStudy(study_root)
 
 # Inspect the top-level contents
 list.files(study_root)
+
+\dontrun{
+# Create study with GitHub integration
+initStudy(
+  directory = "MyStudy",
+  repository = "my-omop-study",
+  organisation = "oxford-pharmacoepi",
+  private = TRUE
+)
+}
 }

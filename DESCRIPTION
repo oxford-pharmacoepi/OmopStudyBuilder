@@ -27,6 +27,7 @@ Suggests:
     testthat,
     here,
     renv,
+    gh,
     knitr,
     rmarkdown
 VignetteBuilder: knitr
