@@ -14,6 +14,15 @@
 #'   and `study_shiny/` folders using the package templates.
 #'   If FALSE, these study folders are not created.
 #'
+#' @param studyTitle Character string with the study title. If NULL (default),
+#'   uses the directory basename.
+#'
+#' @param studyLeads Character string with study leads. If NULL (default),
+#'   leaves a placeholder.
+#'
+#' @param studyDescription Character string with study description. If NULL (default),
+#'   leaves a placeholder.
+#'
 #' @returns Project directory will be created
 #' @export
 #'
@@ -22,21 +31,68 @@
 #' study_root <- file.path(tempdir(), "SampleStudy")
 #' createStudy(study_root)
 #'
+#' # With metadata
+#' createStudy(study_root,
+#'             studyTitle = "Diabetes Prevalence Study",
+#'             studyLeads = "Dr. Smith, Dr. Jones")
+#'
 #' # Inspect the top-level contents
 #' list.files(study_root)
 createStudy <- function(directory,
                         diagnostics = TRUE,
-                        study = TRUE) {
+                        study = TRUE,
+                        studyTitle = NULL,
+                        studyLeads = NULL,
+                        studyDescription = NULL) {
   validateRootDirectory(directory)
   omopgenerics::assertLogical(diagnostics, length = 1)
   omopgenerics::assertLogical(study, length = 1)
 
+  # Set smart defaults for template variables
+  if (is.null(studyTitle)) {
+    studyTitle <- basename(normalizePath(directory, mustWork = FALSE))
+  }
+  if (is.null(studyLeads)) {
+    studyLeads <- "[Add study leads]"
+  }
+  if (is.null(studyDescription)) {
+    studyDescription <- "[Add study description here]"
+  }
 
-  # Add README file
-  invisible(file.copy(
-    from = system.file("README.md", package = "OmopStudyBuilder"),
-    to = directory
-  ))
+  # Build folder structure description dynamically
+  folderStructure <- c()
+  if (isTRUE(diagnostics)) {
+    folderStructure <- c(
+      folderStructure,
+      "- **[diagnostics_code/](diagnostics_code/)**: Contains diagnostic code needed before running the main study",
+      "- **[diagnostics_shiny/](diagnostics_shiny/)**: Shiny app for exploring diagnostic outputs"
+    )
+  }
+  if (isTRUE(study)) {
+    folderStructure <- c(
+      folderStructure,
+      "- **[study_code/](study_code/)**: Contains the main study analysis code",
+      "- **[study_shiny/](study_shiny/)**: Shiny app for exploring study results"
+    )
+  }
+  folderStructure <- paste(folderStructure, collapse = "\n")
+
+  # Prepare template data
+  templateData <- list(
+    STUDY_TITLE = studyTitle,
+    STUDY_LEADS = studyLeads,
+    STUDY_DESCRIPTION = studyDescription,
+    STUDY_START = as.character(Sys.Date()),
+    STUDY_END = "[Ongoing]",
+    STUDY_STATUS = "Started",
+    PUBLICATIONS = "[None yet]",
+    FOLDER_STRUCTURE = folderStructure
+  )
+
+  # Process README template
+  readmeTemplate <- readLines(system.file("README.md", package = "OmopStudyBuilder"))
+  readmeContent <- whisker::whisker.render(readmeTemplate, templateData)
+  writeLines(readmeContent, file.path(directory, "README.md"))
 
   cli::cli_alert_success("{.strong {directory}} prepared as root folder for study.")
 

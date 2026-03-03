@@ -1,17 +1,24 @@
-# Study Title
-<img src="https://img.shields.io/badge/Study%20Status-Started-blue.svg" alt="Study Status: Started">
+# {{STUDY_TITLE}}
+<img src="https://img.shields.io/badge/Study%20Status-{{STUDY_STATUS}}-blue.svg" alt="Study Status: {{STUDY_STATUS}}">
 
-- **Study title**: 
-- **Study start date**: 
-- **Study leads**:
-- **Study end date**:
-- **ShinyApp**:
-- **Report**:
-- **Publications**:
+- **Study title**: {{STUDY_TITLE}}
+- **Study start date**: {{STUDY_START}}
+- **Study leads**: {{STUDY_LEADS}}
+- **Study end date**: {{STUDY_END}}
+- **Publications**: {{PUBLICATIONS}}
+
+## Study Description
+
+{{STUDY_DESCRIPTION}}
 
 ---
 
-This repo is organized as follows:
-- [Documents](https://github.com/oxford-pharmacoepi/StudyTemplate/blob/main/Documents/): please find there the relevant documents related to the study.
-- [Study](https://github.com/oxford-pharmacoepi/StudyTemplate/blob/main/Study/): please find there the relevant code to obtain the study results.
-- [Report](https://github.com/oxford-pharmacoepi/StudyTemplate/blob/main/Report/): please find there the code to visualise the results with the shiny app and generate the report with the plots and tables.
+## Repository Organization
+
+This repository is organized as follows:
+
+{{FOLDER_STRUCTURE}}
+
+---
+
+*This study template was generated using [OmopStudyBuilder](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/).*
