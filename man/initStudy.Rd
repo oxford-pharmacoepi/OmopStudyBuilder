@@ -51,7 +51,7 @@ initStudy(study_root)
 # Inspect the top-level contents
 list.files(study_root)
 
-# Create another study with metadata
+# Create another study with custom metadata
 study_root2 <- file.path(tempdir(), "DiabetesStudy")
 initStudy(study_root2,
           studyTitle = "Diabetes Prevalence Study",
