@@ -95,6 +95,15 @@ initStudy <- function(directory,
   readmeContent <- whisker::whisker.render(readmeTemplate, templateData)
   writeLines(readmeContent, file.path(directory, "README.md"))
 
+  # Process INSTRUCTIONS template
+  instructionsTemplateData <- list(
+    HAS_DIAGNOSTICS = isTRUE(diagnostics),
+    HAS_STUDY = isTRUE(study)
+  )
+  instructionsTemplate <- readLines(system.file("INSTRUCTIONS.md", package = "OmopStudyBuilder"))
+  instructionsContent <- whisker::whisker.render(instructionsTemplate, instructionsTemplateData)
+  writeLines(instructionsContent, file.path(directory, "INSTRUCTIONS.md"))
+
   cli::cli_alert_success("{.strong {directory}} prepared as root folder for study.")
 
   if (isTRUE(diagnostics)) {
