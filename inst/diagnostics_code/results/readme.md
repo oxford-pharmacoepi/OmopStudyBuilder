@@ -1,1 +1,1 @@
-Results folder
+# Diagnostic Results
