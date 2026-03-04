@@ -8,6 +8,9 @@ initStudy(
   directory,
   diagnostics = TRUE,
   study = TRUE,
+  studyTitle = NULL,
+  studyLeads = NULL,
+  studyDescription = NULL,
   repository = NULL,
   organisation = NULL,
   private = TRUE
@@ -27,6 +30,15 @@ If FALSE, these diagnostics folders are not created.}
 If TRUE (the default), the function creates the `study_code/`
 and `study_shiny/` folders using the package templates.
 If FALSE, these study folders are not created.}
+
+\item{studyTitle}{Character string with the study title. If NULL (default),
+uses the directory basename.}
+
+\item{studyLeads}{Character string with study leads. If NULL (default),
+leaves a placeholder.}
+
+\item{studyDescription}{Character string with study description. If NULL (default),
+leaves a placeholder.}
 
 \item{repository}{Optional GitHub repository name. If provided, creates a GitHub
 repository and links it to the study. Requires the \code{gh} package and
@@ -51,6 +63,12 @@ initStudy(study_root)
 
 # Inspect the top-level contents
 list.files(study_root)
+
+# Create another study with custom metadata
+study_root2 <- file.path(tempdir(), "DiabetesStudy")
+initStudy(study_root2,
+          studyTitle = "Diabetes Prevalence Study",
+          studyLeads = "Dr. Smith, Dr. Jones")
 
 \dontrun{
 # Create study with GitHub integration

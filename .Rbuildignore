@@ -1,6 +1,6 @@
 ^renv$
 ^renv\.lock$
-^.*\.Rproj$
+^OmopStudyBuilder\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$
 ^\.github$

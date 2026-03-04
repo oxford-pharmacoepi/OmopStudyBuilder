@@ -22,7 +22,8 @@ Imports:
     omopgenerics,
     rlang,
     scales,
-    stringr
+    stringr,
+    whisker
 Suggests: 
     testthat,
     here,

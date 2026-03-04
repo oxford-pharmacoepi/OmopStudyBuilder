@@ -14,6 +14,14 @@
 #'   and `study_shiny/` folders using the package templates.
 #'   If FALSE, these study folders are not created.
 #'
+#' @param studyTitle Character string with the study title. If NULL (default),
+#'   uses the directory basename.
+#'
+#' @param studyLeads Character string with study leads. If NULL (default),
+#'   leaves a placeholder.
+#'
+#' @param studyDescription Character string with study description. If NULL (default),
+#'   leaves a placeholder.
 #' @param repository Optional GitHub repository name. If provided, creates a GitHub
 #'   repository and links it to the study. Requires the \code{gh} package and
 #'   GitHub authentication (GITHUB_PAT environment variable).
@@ -35,6 +43,12 @@
 #' # Inspect the top-level contents
 #' list.files(study_root)
 #'
+#' # Create another study with custom metadata
+#' study_root2 <- file.path(tempdir(), "DiabetesStudy")
+#' initStudy(study_root2,
+#'           studyTitle = "Diabetes Prevalence Study",
+#'           studyLeads = "Dr. Smith, Dr. Jones")
+#'
 #' \dontrun{
 #' # Create study with GitHub integration
 #' initStudy(
@@ -47,19 +61,79 @@
 initStudy <- function(directory,
                         diagnostics = TRUE,
                         study = TRUE,
+                        studyTitle = NULL,
+                        studyLeads = NULL,
+                        studyDescription = NULL,
                         repository = NULL,
                         organisation = NULL,
                         private = TRUE) {
   validateRootDirectory(directory)
   omopgenerics::assertLogical(diagnostics, length = 1)
   omopgenerics::assertLogical(study, length = 1)
+  
+  # Validate optional parameters
+  if (!is.null(studyTitle)) {
+    omopgenerics::assertCharacter(studyTitle, length = 1)
+  }
+  if (!is.null(studyLeads)) {
+    omopgenerics::assertCharacter(studyLeads, length = 1)
+  }
+  if (!is.null(studyDescription)) {
+    omopgenerics::assertCharacter(studyDescription, length = 1)
+  }
+  if (!is.null(repository)) {
+    omopgenerics::assertCharacter(repository, length = 1)
+  }
+  if (!is.null(organisation)) {
+    omopgenerics::assertCharacter(organisation, length = 1)
+  }
+  omopgenerics::assertLogical(private, length = 1)
 
+  # Set smart defaults for template variables
+  if (is.null(studyTitle)) {
+    studyTitle <- basename(normalizePath(directory, mustWork = FALSE))
+  }
+  if (is.null(studyLeads)) {
+    studyLeads <- "[Add study leads]"
+  }
+  if (is.null(studyDescription)) {
+    studyDescription <- "[Add study description here]"
+  }
 
-  # Add README file
-  invisible(file.copy(
-    from = system.file("README.md", package = "OmopStudyBuilder"),
-    to = directory
-  ))
+  # Build folder structure description dynamically
+  folderStructure <- c()
+  if (isTRUE(diagnostics)) {
+    folderStructure <- c(
+      folderStructure,
+      "- **[diagnostics_code/](diagnostics_code/)**: Contains diagnostic code needed before running the main study",
+      "- **[diagnostics_shiny/](diagnostics_shiny/)**: Shiny app for exploring diagnostic outputs"
+    )
+  }
+  if (isTRUE(study)) {
+    folderStructure <- c(
+      folderStructure,
+      "- **[study_code/](study_code/)**: Contains the main study analysis code",
+      "- **[study_shiny/](study_shiny/)**: Shiny app for exploring study results"
+    )
+  }
+  folderStructure <- paste(folderStructure, collapse = "\n")
+
+  # Prepare template data
+  templateData <- list(
+    STUDY_TITLE = studyTitle,
+    STUDY_LEADS = studyLeads,
+    STUDY_DESCRIPTION = studyDescription,
+    STUDY_START = as.character(Sys.Date()),
+    STUDY_END = "[Ongoing]",
+    STUDY_STATUS = "Started",
+    PUBLICATIONS = "[None yet]",
+    FOLDER_STRUCTURE = folderStructure
+  )
+
+  # Process README template
+  readmeTemplate <- readLines(system.file("README.md", package = "OmopStudyBuilder"))
+  readmeContent <- whisker::whisker.render(readmeTemplate, templateData)
+  writeLines(readmeContent, file.path(directory, "README.md"))
 
   cli::cli_alert_success("{.strong {directory}} prepared as root folder for study.")
 
