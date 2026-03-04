@@ -5,13 +5,13 @@
 #' must be empty if it already exists.
 #'
 #' @param diagnostics A single TRUE or FALSE value.
-#'   If TRUE (the default), the function creates the `diagnostics_code/`
-#'   and `diagnostics_shiny/` folders using the package templates.
+#'   If TRUE (the default), the function creates the `diagnosticsCode/`
+#'   and `diagnosticsShiny/` folders using the package templates.
 #'   If FALSE, these diagnostics folders are not created.
 #'
 #' @param study A single TRUE or FALSE value.
-#'   If TRUE (the default), the function creates the `study_code/`
-#'   and `study_shiny/` folders using the package templates.
+#'   If TRUE (the default), the function creates the `studyCode/`
+#'   and `studyShiny/` folders using the package templates.
 #'   If FALSE, these study folders are not created.
 #'
 #' @param studyTitle Character string with the study title. If NULL (default),
@@ -65,15 +65,15 @@ initStudy <- function(directory,
   if (isTRUE(diagnostics)) {
     folderStructure <- c(
       folderStructure,
-      "- **[diagnostics_code/](diagnostics_code/)**: Contains diagnostic code needed before running the main study",
-      "- **[diagnostics_shiny/](diagnostics_shiny/)**: Shiny app for exploring diagnostic outputs"
+      "- **[diagnosticsCode/](diagnosticsCode/)**: Contains diagnostic code needed before running the main study",
+      "- **[diagnosticsShiny/](diagnosticsShiny/)**: Shiny app for exploring diagnostic outputs"
     )
   }
   if (isTRUE(study)) {
     folderStructure <- c(
       folderStructure,
-      "- **[study_code/](study_code/)**: Contains the main study analysis code",
-      "- **[study_shiny/](study_shiny/)**: Shiny app for exploring study results"
+      "- **[studyCode/](studyCode/)**: Contains the main study analysis code",
+      "- **[studyShiny/](studyShiny/)**: Shiny app for exploring study results"
     )
   }
   folderStructure <- paste(folderStructure, collapse = "\n")
@@ -107,32 +107,32 @@ initStudy <- function(directory,
   cli::cli_alert_success("{.strong {directory}} prepared as root folder for study.")
 
   if (isTRUE(diagnostics)) {
-    directoryDiagnosticsCode <- file.path(directory, "diagnostics_code")
+    directoryDiagnosticsCode <- file.path(directory, "diagnosticsCode")
     copyDirectory(
-      from = system.file("diagnostics_code", package = "OmopStudyBuilder"),
+      from = system.file("diagnosticsCode", package = "OmopStudyBuilder"),
       to = directoryDiagnosticsCode
     )
     cli::cli_alert_success("{.strong {directoryDiagnosticsCode}} prepared for study diagnostics code")
 
-    directoryDiagnosticsShiny <- file.path(directory, "diagnostics_shiny")
+    directoryDiagnosticsShiny <- file.path(directory, "diagnosticsShiny")
     copyDirectory(
-      from = system.file("diagnostics_shiny", package = "OmopStudyBuilder"),
+      from = system.file("diagnosticsShiny", package = "OmopStudyBuilder"),
       to = directoryDiagnosticsShiny
     )
     cli::cli_alert_success("{.strong {directoryDiagnosticsShiny}} prepared for diagnostics shiny app")
   }
 
   if (isTRUE(study)) {
-    directoryStudyCode <- file.path(directory, "study_code")
+    directoryStudyCode <- file.path(directory, "studyCode")
     copyDirectory(
-      from = system.file("study_code", package = "OmopStudyBuilder"),
+      from = system.file("studyCode", package = "OmopStudyBuilder"),
       to = directoryStudyCode
     )
     cli::cli_alert_success("{.strong {directoryStudyCode}} prepared for study study code")
 
-    directoryStudyShiny <- file.path(directory, "study_shiny")
+    directoryStudyShiny <- file.path(directory, "studyShiny")
     copyDirectory(
-      from = system.file("study_shiny", package = "OmopStudyBuilder"),
+      from = system.file("studyShiny", package = "OmopStudyBuilder"),
       to = directoryStudyShiny
     )
     cli::cli_alert_success("{.strong {directoryStudyShiny}} prepared for study shiny app")
