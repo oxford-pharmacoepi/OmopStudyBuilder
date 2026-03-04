@@ -100,10 +100,10 @@ to be running.</p>
 renv activation files) in the directory you point it at. By default it
 will also snapshot your dependencies before building.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># From the study_code folder (or pass path=...)</span></span>
+<code class="sourceCode R"><span><span class="co"># From the studyCode folder (or pass path=...)</span></span>
 <span><span class="fu"><a href="../reference/dockeriseStudy.html">dockeriseStudy</a></span><span class="op">(</span></span>
 <span>  image_name <span class="op">=</span> <span class="st">"my-study"</span>,</span>
-<span>  path <span class="op">=</span> <span class="st">"./study_code"</span>,</span>
+<span>  path <span class="op">=</span> <span class="st">"./studyCode"</span>,</span>
 <span>  useRStudio <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>If you want <code><a href="../reference/runRStudio.html">runRStudio()</a></code>, build with an RStudio base
@@ -111,14 +111,14 @@ image:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/dockeriseStudy.html">dockeriseStudy</a></span><span class="op">(</span></span>
 <span>  image_name <span class="op">=</span> <span class="st">"my-study"</span>,</span>
-<span>  path <span class="op">=</span> <span class="st">"./study_code"</span>,</span>
+<span>  path <span class="op">=</span> <span class="st">"./studyCode"</span>,</span>
 <span>  useRStudio <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>If your <code>renv.lock</code> includes GitHub packages and you hit
 GitHub rate limits during the build, pass a token:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/dockeriseStudy.html">dockeriseStudy</a></span><span class="op">(</span></span>
-<span>  path <span class="op">=</span> <span class="st">"./study_code"</span>,</span>
+<span>  path <span class="op">=</span> <span class="st">"./studyCode"</span>,</span>
 <span>  github_token <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"GITHUB_PAT"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -141,14 +141,14 @@ provide <code>env_file = "path/to/.env"</code>).</p>
 <h2 id="run-in-automated-mode">Run in automated mode<a class="anchor" aria-label="anchor" href="#run-in-automated-mode"></a>
 </h2>
 <p><code><a href="../reference/runStudy.html">runStudy()</a></code> executes an R script in the container
-(default <code>code_to_run.R</code>) and streams stdout/stderr to your
+(default <code>codeToRun.R</code>) and streams stdout/stderr to your
 console.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/runStudy.html">runStudy</a></span><span class="op">(</span></span>
 <span>  image_name <span class="op">=</span> <span class="st">"my-study"</span>,</span>
 <span>  results_path <span class="op">=</span> <span class="st">"./results"</span>,</span>
 <span>  data_path <span class="op">=</span> <span class="st">"/path/to/cdm/data"</span>,</span>
-<span>  script_path <span class="op">=</span> <span class="st">"code_to_run.R"</span></span>
+<span>  script_path <span class="op">=</span> <span class="st">"codeToRun.R"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">

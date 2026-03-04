@@ -22,11 +22,11 @@ to quickly inspect:
 ## Review files in a study folder
 
 Point `reviewStudyCode()` at the folder you want to inspect (often
-`study_code/` or `diagnostics_code/`).
+`studyCode/` or `diagnosticsCode/`).
 
 The simplest pattern is to run these commands from within the project
-you want to review (for example, open `study_code.Rproj` or
-`diagnostics_code.Rproj`).
+you want to review (for example, open `studyCode.Rproj` or
+`diagnosticsCode.Rproj`).
 
 ``` r
 reviewStudyCode(".")

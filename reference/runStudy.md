@@ -10,7 +10,7 @@ runStudy(
   results_path = "./results",
   env_file = NULL,
   data_path = NULL,
-  script_path = "code_to_run.R"
+  script_path = "codeToRun.R"
 )
 ```
 
@@ -36,7 +36,7 @@ runStudy(
 
 - script_path:
 
-  Path to R script to execute (default: "code_to_run.R")
+  Path to R script to execute (default: "codeToRun.R")
 
 ## Value
 

@@ -32,10 +32,10 @@ point it at. By default it will also snapshot your dependencies before
 building.
 
 ``` r
-# From the study_code folder (or pass path=...)
+# From the studyCode folder (or pass path=...)
 dockeriseStudy(
   image_name = "my-study",
-  path = "./study_code",
+  path = "./studyCode",
   useRStudio = FALSE
 )
 ```
@@ -47,7 +47,7 @@ build with an RStudio base image:
 ``` r
 dockeriseStudy(
   image_name = "my-study",
-  path = "./study_code",
+  path = "./studyCode",
   useRStudio = TRUE
 )
 ```
@@ -57,7 +57,7 @@ limits during the build, pass a token:
 
 ``` r
 dockeriseStudy(
-  path = "./study_code",
+  path = "./studyCode",
   github_token = Sys.getenv("GITHUB_PAT")
 )
 ```
@@ -82,7 +82,7 @@ working directory and it will be used automatically (or provide
 ## Run in automated mode
 
 [`runStudy()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/runStudy.md)
-executes an R script in the container (default `code_to_run.R`) and
+executes an R script in the container (default `codeToRun.R`) and
 streams stdout/stderr to your console.
 
 ``` r
@@ -90,7 +90,7 @@ runStudy(
   image_name = "my-study",
   results_path = "./results",
   data_path = "/path/to/cdm/data",
-  script_path = "code_to_run.R"
+  script_path = "codeToRun.R"
 )
 ```
 

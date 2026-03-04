@@ -26,14 +26,14 @@ initStudy(
 - diagnostics:
 
   A single TRUE or FALSE value. If TRUE (the default), the function
-  creates the \`diagnostics_code/\` and \`diagnostics_shiny/\` folders
+  creates the \`diagnosticsCode/\` and \`diagnosticsShiny/\` folders
   using the package templates. If FALSE, these diagnostics folders are
   not created.
 
 - study:
 
   A single TRUE or FALSE value. If TRUE (the default), the function
-  creates the \`study_code/\` and \`study_shiny/\` folders using the
+  creates the \`studyCode/\` and \`studyShiny/\` folders using the
   package templates. If FALSE, these study folders are not created.
 
 - studyTitle:
@@ -61,25 +61,25 @@ Project directory will be created
 # Create a study called "SampleStudy" in a temporary directory
 study_root <- file.path(tempdir(), "SampleStudy")
 initStudy(study_root)
-#> ✔ /tmp/Rtmpk6i224/SampleStudy prepared as root folder for study.
-#> ✔ /tmp/Rtmpk6i224/SampleStudy/diagnostics_code prepared for study diagnostics code
-#> ✔ /tmp/Rtmpk6i224/SampleStudy/diagnostics_shiny prepared for diagnostics shiny app
-#> ✔ /tmp/Rtmpk6i224/SampleStudy/study_code prepared for study study code
-#> ✔ /tmp/Rtmpk6i224/SampleStudy/study_shiny prepared for study shiny app
+#> ✔ /tmp/Rtmpi0LsAe/SampleStudy prepared as root folder for study.
+#> ✔ /tmp/Rtmpi0LsAe/SampleStudy/diagnosticsCode prepared for study diagnostics code
+#> ✔ /tmp/Rtmpi0LsAe/SampleStudy/diagnosticsShiny prepared for diagnostics shiny app
+#> ✔ /tmp/Rtmpi0LsAe/SampleStudy/studyCode prepared for study study code
+#> ✔ /tmp/Rtmpi0LsAe/SampleStudy/studyShiny prepared for study shiny app
 
 # Inspect the top-level contents
 list.files(study_root)
-#> [1] "INSTRUCTIONS.md"   "README.md"         "diagnostics_code" 
-#> [4] "diagnostics_shiny" "study_code"        "study_shiny"      
+#> [1] "INSTRUCTIONS.md"  "README.md"        "diagnosticsCode"  "diagnosticsShiny"
+#> [5] "studyCode"        "studyShiny"      
 
 # Create another study with custom metadata
 study_root2 <- file.path(tempdir(), "DiabetesStudy")
 initStudy(study_root2,
           studyTitle = "Diabetes Prevalence Study",
           studyLeads = "Dr. Smith, Dr. Jones")
-#> ✔ /tmp/Rtmpk6i224/DiabetesStudy prepared as root folder for study.
-#> ✔ /tmp/Rtmpk6i224/DiabetesStudy/diagnostics_code prepared for study diagnostics code
-#> ✔ /tmp/Rtmpk6i224/DiabetesStudy/diagnostics_shiny prepared for diagnostics shiny app
-#> ✔ /tmp/Rtmpk6i224/DiabetesStudy/study_code prepared for study study code
-#> ✔ /tmp/Rtmpk6i224/DiabetesStudy/study_shiny prepared for study shiny app
+#> ✔ /tmp/Rtmpi0LsAe/DiabetesStudy prepared as root folder for study.
+#> ✔ /tmp/Rtmpi0LsAe/DiabetesStudy/diagnosticsCode prepared for study diagnostics code
+#> ✔ /tmp/Rtmpi0LsAe/DiabetesStudy/diagnosticsShiny prepared for diagnostics shiny app
+#> ✔ /tmp/Rtmpi0LsAe/DiabetesStudy/studyCode prepared for study study code
+#> ✔ /tmp/Rtmpi0LsAe/DiabetesStudy/studyShiny prepared for study shiny app
 ```

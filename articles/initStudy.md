@@ -51,45 +51,45 @@ initStudy(study_root)
 
 # Show top-level contents created by initStudy()
 list.files(study_root)
-#> [1] "diagnostics_code"  "diagnostics_shiny" "INSTRUCTIONS.md"  
-#> [4] "README.md"         "study_code"        "study_shiny"
+#> [1] "diagnosticsCode"  "diagnosticsShiny" "INSTRUCTIONS.md"  "README.md"       
+#> [5] "studyCode"        "studyShiny"
 ```
 
 You should see something like:
 
-- `diagnostics_code/` – diagnostic scripts and helpers
-- `diagnostics_shiny/` – skeleton diagnostics Shiny app
-- `study_code/` – scripts for running the main analyses
-- `study_shiny/` – skeleton reporting Shiny app
+- `diagnosticsCode/` – diagnostic scripts and helpers
+- `diagnosticsShiny/` – skeleton diagnostics Shiny app
+- `studyCode/` – scripts for running the main analyses
+- `studyShiny/` – skeleton reporting Shiny app
 - `README.md` – overview of the study project
 
 To inspect the full structure:
 
 ``` r
 list.files(study_root, recursive = TRUE)
-#>  [1] "diagnostics_code/code_to_run.R"                
-#>  [2] "diagnostics_code/cohorts/instantiate_cohorts.R"
-#>  [3] "diagnostics_code/diagnostics_code.Rproj"       
-#>  [4] "diagnostics_code/README.md"                    
-#>  [5] "diagnostics_code/results/README.md"            
-#>  [6] "diagnostics_code/run_study.R"                  
-#>  [7] "diagnostics_shiny/diagnostics_shiny.Rproj"     
-#>  [8] "diagnostics_shiny/README.md"                   
-#>  [9] "INSTRUCTIONS.md"                               
-#> [10] "README.md"                                     
-#> [11] "study_code/analyses/cohort_characteristics.R"  
-#> [12] "study_code/analyses/cohort_survival.R"         
-#> [13] "study_code/analyses/drug_utilisation.R"        
-#> [14] "study_code/analyses/incidence_prevalence.R"    
-#> [15] "study_code/code_to_run.R"                      
-#> [16] "study_code/codelist/codelist_creation.R"       
-#> [17] "study_code/cohorts/instantiate_cohorts.R"      
-#> [18] "study_code/README.md"                          
-#> [19] "study_code/Results/README.md"                  
-#> [20] "study_code/run_study.R"                        
-#> [21] "study_code/study_code.Rproj"                   
-#> [22] "study_shiny/README.md"                         
-#> [23] "study_shiny/study_shiny.Rproj"
+#>  [1] "diagnosticsCode/codeToRun.R"                 
+#>  [2] "diagnosticsCode/cohorts/instantiateCohorts.R"
+#>  [3] "diagnosticsCode/diagnosticsCode.Rproj"       
+#>  [4] "diagnosticsCode/README.md"                   
+#>  [5] "diagnosticsCode/results/README.md"           
+#>  [6] "diagnosticsCode/runStudy.R"                  
+#>  [7] "diagnosticsShiny/diagnosticsShiny.Rproj"     
+#>  [8] "diagnosticsShiny/README.md"                  
+#>  [9] "INSTRUCTIONS.md"                             
+#> [10] "README.md"                                   
+#> [11] "studyCode/analyses/cohortCharacteristics.R"  
+#> [12] "studyCode/analyses/cohortSurvival.R"         
+#> [13] "studyCode/analyses/drugUtilisation.R"        
+#> [14] "studyCode/analyses/incidencePrevalence.R"    
+#> [15] "studyCode/codelist/codelistCreation.R"       
+#> [16] "studyCode/codeToRun.R"                       
+#> [17] "studyCode/cohorts/instantiateCohorts.R"      
+#> [18] "studyCode/README.md"                         
+#> [19] "studyCode/Results/README.md"                 
+#> [20] "studyCode/runStudy.R"                        
+#> [21] "studyCode/studyCode.Rproj"                   
+#> [22] "studyShiny/README.md"                        
+#> [23] "studyShiny/studyShiny.Rproj"
 ```
 
 ------------------------------------------------------------------------
@@ -111,8 +111,7 @@ initStudy(
 )
 
 list.files(diag_root)
-#> [1] "diagnostics_code"  "diagnostics_shiny" "INSTRUCTIONS.md"  
-#> [4] "README.md"
+#> [1] "diagnosticsCode"  "diagnosticsShiny" "INSTRUCTIONS.md"  "README.md"
 ```
 
 ### Study-only project (no diagnostics templates)
@@ -127,7 +126,7 @@ initStudy(
 )
 
 list.files(study_only_root)
-#> [1] "INSTRUCTIONS.md" "README.md"       "study_code"      "study_shiny"
+#> [1] "INSTRUCTIONS.md" "README.md"       "studyCode"       "studyShiny"
 ```
 
 ------------------------------------------------------------------------
@@ -137,32 +136,32 @@ list.files(study_only_root)
 After generating the project structure, you will mainly work with these
 folders and files:
 
-- `study_code/`
-  - `study_code.Rproj`: open this in RStudio to work on the main
-    analysis code. It sets the working directory so all relative paths
-    behave correctly.  
-  - `code_to_run.R`: where you add database connection details, schemas,
+- `studyCode/`
+  - `studyCode.Rproj`: open this in RStudio to work on the main analysis
+    code. It sets the working directory so all relative paths behave
+    correctly.  
+  - `codeToRun.R`: where you add database connection details, schemas,
     and global settings
-  - `cohorts/instantiate_cohorts.R`: defines the study cohorts using
-    your codelists and cohort-building functions. You customise this to
-    match your phenotype definitions.  
-  - `run_study.R`: orchestrates the analysis steps (cohort creation,
+  - `cohorts/instantiateCohorts.R`: defines the study cohorts using your
+    codelists and cohort-building functions. You customise this to match
+    your phenotype definitions.  
+  - `runStudy.R`: orchestrates the analysis steps (cohort creation,
     summaries, analyses, export).
-- `diagnostics_code/`
-  - `diagnostics_code.Rproj`: open this project to work on diagnostics.
+- `diagnosticsCode/`
+  - `diagnosticsCode.Rproj`: open this project to work on diagnostics.
     It keeps diagnostics code separate from the main analysis project.  
-  - `code_to_run.R`: similar to the study version, but dedicated to
+  - `codeToRun.R`: similar to the study version, but dedicated to
     diagnostics. You set connection details and schemas used for running
     phenotype diagnostics.  
-  - `cohorts/instantiate_cohorts.R`: defines cohorts for diagnostic
+  - `cohorts/instantiateCohorts.R`: defines cohorts for diagnostic
     checking, often mirroring or simplifying the main study cohorts.  
-  - `run_study.R`: runs the PhenotypeDiagnostics workflow and exports
+  - `runStudy.R`: runs the PhenotypeDiagnostics workflow and exports
     diagnostic results. You might tweak options, but the overall flow is
     usually left intact.
-- `study_shiny/`
+- `studyShiny/`
   - For a shiny app to explore study results. You extend this with
     plots, tables, and filters built on top of your exported outputs.
-- `diagnostics_shiny/`
+- `diagnosticsShiny/`
   - Contains a minimal Shiny app for exploring diagnostic outputs. Use
     it to review cohort characteristics and diagnostic results
     interactively across data partners.
@@ -180,7 +179,7 @@ package it into a Docker image and distribute it to data partners.
 # Build a Docker image containing your study code
 dockeriseStudy(
   image_name = "omop-study-study-code",
-  path = file.path(study_root, "study_code")
+  path = file.path(study_root, "studyCode")
 )
 #> Building Docker image: omop-study-study-code
 #> This may take some minutes on first build...
@@ -233,7 +232,7 @@ runRStudio(
 )
 ```
 
-Partners edit credentials in `code_to_run.R` and run the study
+Partners edit credentials in `codeToRun.R` and run the study
 interactively.
 
 **Automated execution** (for programmatic workflows):
@@ -253,7 +252,7 @@ stopStudy(image_name = "omop-study-study-code")
 ```
 
 For more operational details, see the README files generated into your
-study folders (for example `study_code/README.md` and
-`diagnostics_code/README.md`).
+study folders (for example `studyCode/README.md` and
+`diagnosticsCode/README.md`).
 
 ------------------------------------------------------------------------
