@@ -2,9 +2,6 @@
 
 This folder is a scaffold for a Shiny app used to explore diagnostic outputs.
 
-## Instructions to run the shiny app
+## Instructions
 
-1)  Ensure your diagnostic results are placed in the `results/` folder
-2)  Open the project in RStudio
-3)  Restore the R environment using `renv::restore()`
-4)  Run the app using `shiny::runApp()`
+For detailed instructions on how to run the diagnostics shiny app, please see the [INSTRUCTIONS.md](../INSTRUCTIONS.md) file in the root directory of this repository.
