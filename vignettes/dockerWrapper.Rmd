@@ -36,10 +36,10 @@ All Docker calls require Docker to be installed and the Docker daemon to be runn
 By default it will also snapshot your dependencies before building.
 
 ```{r dockeriseStudy-example, eval=FALSE}
-# From the study_code folder (or pass path=...)
+# From the studyCode folder (or pass path=...)
 dockeriseStudy(
   image_name = "my-study",
-  path = "./study_code",
+  path = "./studyCode",
   useRStudio = FALSE
 )
 ```
@@ -49,7 +49,7 @@ If you want `runRStudio()`, build with an RStudio base image:
 ```{r dockeriseStudy-rstudio, eval=FALSE}
 dockeriseStudy(
   image_name = "my-study",
-  path = "./study_code",
+  path = "./studyCode",
   useRStudio = TRUE
 )
 ```
@@ -59,7 +59,7 @@ pass a token:
 
 ```{r dockeriseStudy-github-token, eval=FALSE}
 dockeriseStudy(
-  path = "./study_code",
+  path = "./studyCode",
   github_token = Sys.getenv("GITHUB_PAT")
 )
 ```
@@ -81,7 +81,7 @@ and it will be used automatically (or provide `env_file = "path/to/.env"`).
 
 ## Run in automated mode
 
-`runStudy()` executes an R script in the container (default `code_to_run.R`) and streams
+`runStudy()` executes an R script in the container (default `codeToRun.R`) and streams
 stdout/stderr to your console.
 
 ```{r runStudy-example, eval=FALSE}
@@ -89,7 +89,7 @@ runStudy(
   image_name = "my-study",
   results_path = "./results",
   data_path = "/path/to/cdm/data",
-  script_path = "code_to_run.R"
+  script_path = "codeToRun.R"
 )
 ```
 

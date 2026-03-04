@@ -19,13 +19,13 @@ for the study. If it does not exist, it will be created. The directory
 must be empty if it already exists.}
 
 \item{diagnostics}{A single TRUE or FALSE value.
-If TRUE (the default), the function creates the `diagnostics_code/`
-and `diagnostics_shiny/` folders using the package templates.
+If TRUE (the default), the function creates the `diagnosticsCode/`
+and `diagnosticsShiny/` folders using the package templates.
 If FALSE, these diagnostics folders are not created.}
 
 \item{study}{A single TRUE or FALSE value.
-If TRUE (the default), the function creates the `study_code/`
-and `study_shiny/` folders using the package templates.
+If TRUE (the default), the function creates the `studyCode/`
+and `studyShiny/` folders using the package templates.
 If FALSE, these study folders are not created.}
 
 \item{studyTitle}{Character string with the study title. If NULL (default),

@@ -29,10 +29,10 @@ test_that("directory set up", {
     study       = FALSE
   ))
   expect_true("README.md" %in% list.files(temp_dir_diag))
-  expect_true("diagnostics_code" %in% list.files(temp_dir_diag))
-  expect_true("diagnostics_shiny" %in% list.files(temp_dir_diag))
-  expect_false("study_code" %in% list.files(temp_dir_diag))
-  expect_false("study_shiny" %in% list.files(temp_dir_diag))
+  expect_true("diagnosticsCode" %in% list.files(temp_dir_diag))
+  expect_true("diagnosticsShiny" %in% list.files(temp_dir_diag))
+  expect_false("studyCode" %in% list.files(temp_dir_diag))
+  expect_false("studyShiny" %in% list.files(temp_dir_diag))
 
   # only study directories
   temp_dir_study <- here::here(tempdir(), omopgenerics::uniqueTableName())
@@ -43,10 +43,10 @@ test_that("directory set up", {
     study       = TRUE
   ))
   expect_true("README.md" %in% list.files(temp_dir_study))
-  expect_false("diagnostics_code" %in% list.files(temp_dir_study))
-  expect_false("diagnostics_shiny" %in% list.files(temp_dir_study))
-  expect_true("study_code" %in% list.files(temp_dir_study))
-  expect_true("study_shiny" %in% list.files(temp_dir_study))
+  expect_false("diagnosticsCode" %in% list.files(temp_dir_study))
+  expect_false("diagnosticsShiny" %in% list.files(temp_dir_study))
+  expect_true("studyCode" %in% list.files(temp_dir_study))
+  expect_true("studyShiny" %in% list.files(temp_dir_study))
 })
 
 test_that("INSTRUCTIONS.md is created with correct content", {
@@ -66,8 +66,8 @@ test_that("INSTRUCTIONS.md is created with correct content", {
   instructions_text <- paste(instructions_both, collapse = " ")
   expect_true(grepl("Running the Diagnostics Code", instructions_text))
   expect_true(grepl("Running the Study Code", instructions_text))
-  expect_true(grepl("diagnostics_code\\.Rproj", instructions_text))
-  expect_true(grepl("study_code\\.Rproj", instructions_text))
+  expect_true(grepl("diagnosticsCode\\.Rproj", instructions_text))
+  expect_true(grepl("studyCode\\.Rproj", instructions_text))
 
   # INSTRUCTIONS.md with only diagnostics
   temp_dir_diag_only <- here::here(tempdir(), omopgenerics::uniqueTableName())
@@ -106,7 +106,7 @@ test_that("README.md files point to INSTRUCTIONS.md", {
   initStudy(directory = temp_dir, diagnostics = TRUE, study = TRUE)
   
   # Check that subfolder READMEs reference the central instructions
-  study_readme <- readLines(file.path(temp_dir, "study_code", "README.md"))
+  study_readme <- readLines(file.path(temp_dir, "studyCode", "README.md"))
   expect_true(any(grepl("\\.\\./INSTRUCTIONS\\.md", study_readme)))
 })
 

@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# OmopStudyBuilder <img src="man/figures/image.jfif" align="right" height="138" alt="OmopStudyBuilder logo" />
+# OmopStudyBuilder <img src="man/figures/image.jfif" align="right" style="height:100px; background: var(--bs-body-bg, #fff); padding-left: 12px; position: relative; z-index: 1;" alt="OmopStudyBuilder logo" />
 
 <!-- badges: start -->
 
@@ -84,19 +84,19 @@ folder and reviewing what it contains:
 library(OmopStudyBuilder)
 initStudy(here::here("SampleStudy"))
 
-reviewStudyCode(here::here("SampleStudy", "study_code"))
-reviewStudyDependencies(here::here("SampleStudy", "study_code"))
+reviewStudyCode(here::here("SampleStudy", "studyCode"))
+reviewStudyDependencies(here::here("SampleStudy", "studyCode"))
 ```
 
 Lock package versions with renv so everyone runs the same environment,
 then build the study image from the study folder.
 
 ``` r
-renv::init(here::here("SampleStudy", "study_code"))
+renv::init(here::here("SampleStudy", "studyCode"))
 install.packages(c("dplyr", "CDMConnector", "IncidencePrevalence"))
-renv::snapshot(here::here("SampleStudy", "study_code"))
+renv::snapshot(here::here("SampleStudy", "studyCode"))
 
-dockeriseStudy(path = here::here("SampleStudy", "study_code"))
+dockeriseStudy(path = here::here("SampleStudy", "studyCode"))
 ```
 
 Run the study interactively in RStudio Server or as an automated script.
@@ -118,14 +118,14 @@ runStudy(
 ```
 
 To distribute the study, share the **study folder** created by
-`initStudy()` (including `study_code/` and `renv.lock`). Partners can
+`initStudy()` (including `studyCode/` and `renv.lock`). Partners can
 build and run using the same commands.
 
 ``` r
 install.packages("OmopStudyBuilder")
 library(OmopStudyBuilder)
 
-dockeriseStudy(path = here::here("SampleStudy", "study_code"))
+dockeriseStudy(path = here::here("SampleStudy", "studyCode"))
 runStudy()
 runRStudio()
 stopStudy()
