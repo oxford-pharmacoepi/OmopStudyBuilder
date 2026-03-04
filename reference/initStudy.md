@@ -61,25 +61,25 @@ Project directory will be created
 # Create a study called "SampleStudy" in a temporary directory
 study_root <- file.path(tempdir(), "SampleStudy")
 initStudy(study_root)
-#> ✔ /tmp/RtmponZ5qW/SampleStudy prepared as root folder for study.
-#> ✔ /tmp/RtmponZ5qW/SampleStudy/diagnostics_code prepared for study diagnostics code
-#> ✔ /tmp/RtmponZ5qW/SampleStudy/diagnostics_shiny prepared for diagnostics shiny app
-#> ✔ /tmp/RtmponZ5qW/SampleStudy/study_code prepared for study study code
-#> ✔ /tmp/RtmponZ5qW/SampleStudy/study_shiny prepared for study shiny app
+#> ✔ /tmp/Rtmpk6i224/SampleStudy prepared as root folder for study.
+#> ✔ /tmp/Rtmpk6i224/SampleStudy/diagnostics_code prepared for study diagnostics code
+#> ✔ /tmp/Rtmpk6i224/SampleStudy/diagnostics_shiny prepared for diagnostics shiny app
+#> ✔ /tmp/Rtmpk6i224/SampleStudy/study_code prepared for study study code
+#> ✔ /tmp/Rtmpk6i224/SampleStudy/study_shiny prepared for study shiny app
 
 # Inspect the top-level contents
 list.files(study_root)
-#> [1] "README.md"         "diagnostics_code"  "diagnostics_shiny"
-#> [4] "study_code"        "study_shiny"      
+#> [1] "INSTRUCTIONS.md"   "README.md"         "diagnostics_code" 
+#> [4] "diagnostics_shiny" "study_code"        "study_shiny"      
 
 # Create another study with custom metadata
 study_root2 <- file.path(tempdir(), "DiabetesStudy")
 initStudy(study_root2,
           studyTitle = "Diabetes Prevalence Study",
           studyLeads = "Dr. Smith, Dr. Jones")
-#> ✔ /tmp/RtmponZ5qW/DiabetesStudy prepared as root folder for study.
-#> ✔ /tmp/RtmponZ5qW/DiabetesStudy/diagnostics_code prepared for study diagnostics code
-#> ✔ /tmp/RtmponZ5qW/DiabetesStudy/diagnostics_shiny prepared for diagnostics shiny app
-#> ✔ /tmp/RtmponZ5qW/DiabetesStudy/study_code prepared for study study code
-#> ✔ /tmp/RtmponZ5qW/DiabetesStudy/study_shiny prepared for study shiny app
+#> ✔ /tmp/Rtmpk6i224/DiabetesStudy prepared as root folder for study.
+#> ✔ /tmp/Rtmpk6i224/DiabetesStudy/diagnostics_code prepared for study diagnostics code
+#> ✔ /tmp/Rtmpk6i224/DiabetesStudy/diagnostics_shiny prepared for diagnostics shiny app
+#> ✔ /tmp/Rtmpk6i224/DiabetesStudy/study_code prepared for study study code
+#> ✔ /tmp/Rtmpk6i224/DiabetesStudy/study_shiny prepared for study shiny app
 ```

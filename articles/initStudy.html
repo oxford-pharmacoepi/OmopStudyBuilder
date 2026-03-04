@@ -117,8 +117,8 @@ a temporary folder.</p>
 <span></span>
 <span><span class="co"># Show top-level contents created by initStudy()</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">study_root</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "diagnostics_code"  "diagnostics_shiny" "README.md"        </span></span>
-<span><span class="co">#&gt; [4] "study_code"        "study_shiny"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "diagnostics_code"  "diagnostics_shiny" "INSTRUCTIONS.md"  </span></span>
+<span><span class="co">#&gt; [4] "README.md"         "study_code"        "study_shiny"</span></span></code></pre></div>
 <p>You should see something like:</p>
 <ul>
 <li>
@@ -141,24 +141,25 @@ analyses</li>
 <span><span class="co">#&gt;  [2] "diagnostics_code/cohorts/instantiate_cohorts.R"</span></span>
 <span><span class="co">#&gt;  [3] "diagnostics_code/diagnostics_code.Rproj"       </span></span>
 <span><span class="co">#&gt;  [4] "diagnostics_code/README.md"                    </span></span>
-<span><span class="co">#&gt;  [5] "diagnostics_code/results/readme.md"            </span></span>
+<span><span class="co">#&gt;  [5] "diagnostics_code/results/README.md"            </span></span>
 <span><span class="co">#&gt;  [6] "diagnostics_code/run_study.R"                  </span></span>
 <span><span class="co">#&gt;  [7] "diagnostics_shiny/diagnostics_shiny.Rproj"     </span></span>
 <span><span class="co">#&gt;  [8] "diagnostics_shiny/README.md"                   </span></span>
-<span><span class="co">#&gt;  [9] "README.md"                                     </span></span>
-<span><span class="co">#&gt; [10] "study_code/analyses/cohort_characteristics.R"  </span></span>
-<span><span class="co">#&gt; [11] "study_code/analyses/cohort_survival.R"         </span></span>
-<span><span class="co">#&gt; [12] "study_code/analyses/drug_utilisation.R"        </span></span>
-<span><span class="co">#&gt; [13] "study_code/analyses/incidence_prevalence.R"    </span></span>
-<span><span class="co">#&gt; [14] "study_code/code_to_run.R"                      </span></span>
-<span><span class="co">#&gt; [15] "study_code/codelist/codelist_creation.R"       </span></span>
-<span><span class="co">#&gt; [16] "study_code/cohorts/instantiate_cohorts.R"      </span></span>
-<span><span class="co">#&gt; [17] "study_code/README.md"                          </span></span>
-<span><span class="co">#&gt; [18] "study_code/Results/README.md"                  </span></span>
-<span><span class="co">#&gt; [19] "study_code/run_study.R"                        </span></span>
-<span><span class="co">#&gt; [20] "study_code/study_code.Rproj"                   </span></span>
-<span><span class="co">#&gt; [21] "study_shiny/README.md"                         </span></span>
-<span><span class="co">#&gt; [22] "study_shiny/study_shiny.Rproj"</span></span></code></pre></div>
+<span><span class="co">#&gt;  [9] "INSTRUCTIONS.md"                               </span></span>
+<span><span class="co">#&gt; [10] "README.md"                                     </span></span>
+<span><span class="co">#&gt; [11] "study_code/analyses/cohort_characteristics.R"  </span></span>
+<span><span class="co">#&gt; [12] "study_code/analyses/cohort_survival.R"         </span></span>
+<span><span class="co">#&gt; [13] "study_code/analyses/drug_utilisation.R"        </span></span>
+<span><span class="co">#&gt; [14] "study_code/analyses/incidence_prevalence.R"    </span></span>
+<span><span class="co">#&gt; [15] "study_code/code_to_run.R"                      </span></span>
+<span><span class="co">#&gt; [16] "study_code/codelist/codelist_creation.R"       </span></span>
+<span><span class="co">#&gt; [17] "study_code/cohorts/instantiate_cohorts.R"      </span></span>
+<span><span class="co">#&gt; [18] "study_code/README.md"                          </span></span>
+<span><span class="co">#&gt; [19] "study_code/Results/README.md"                  </span></span>
+<span><span class="co">#&gt; [20] "study_code/run_study.R"                        </span></span>
+<span><span class="co">#&gt; [21] "study_code/study_code.Rproj"                   </span></span>
+<span><span class="co">#&gt; [22] "study_shiny/README.md"                         </span></span>
+<span><span class="co">#&gt; [23] "study_shiny/study_shiny.Rproj"</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
@@ -179,7 +180,8 @@ analyses</li>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">diag_root</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "diagnostics_code"  "diagnostics_shiny" "README.md"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "diagnostics_code"  "diagnostics_shiny" "INSTRUCTIONS.md"  </span></span>
+<span><span class="co">#&gt; [4] "README.md"</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="study-only-project-no-diagnostics-templates">Study-only project (no diagnostics templates)<a class="anchor" aria-label="anchor" href="#study-only-project-no-diagnostics-templates"></a>
@@ -194,7 +196,7 @@ analyses</li>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">study_only_root</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "README.md"   "study_code"  "study_shiny"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "INSTRUCTIONS.md" "README.md"       "study_code"      "study_shiny"</span></span></code></pre></div>
 <hr>
 </div>
 </div>

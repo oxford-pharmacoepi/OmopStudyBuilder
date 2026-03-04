@@ -51,8 +51,8 @@ initStudy(study_root)
 
 # Show top-level contents created by initStudy()
 list.files(study_root)
-#> [1] "diagnostics_code"  "diagnostics_shiny" "README.md"        
-#> [4] "study_code"        "study_shiny"
+#> [1] "diagnostics_code"  "diagnostics_shiny" "INSTRUCTIONS.md"  
+#> [4] "README.md"         "study_code"        "study_shiny"
 ```
 
 You should see something like:
@@ -71,24 +71,25 @@ list.files(study_root, recursive = TRUE)
 #>  [2] "diagnostics_code/cohorts/instantiate_cohorts.R"
 #>  [3] "diagnostics_code/diagnostics_code.Rproj"       
 #>  [4] "diagnostics_code/README.md"                    
-#>  [5] "diagnostics_code/results/readme.md"            
+#>  [5] "diagnostics_code/results/README.md"            
 #>  [6] "diagnostics_code/run_study.R"                  
 #>  [7] "diagnostics_shiny/diagnostics_shiny.Rproj"     
 #>  [8] "diagnostics_shiny/README.md"                   
-#>  [9] "README.md"                                     
-#> [10] "study_code/analyses/cohort_characteristics.R"  
-#> [11] "study_code/analyses/cohort_survival.R"         
-#> [12] "study_code/analyses/drug_utilisation.R"        
-#> [13] "study_code/analyses/incidence_prevalence.R"    
-#> [14] "study_code/code_to_run.R"                      
-#> [15] "study_code/codelist/codelist_creation.R"       
-#> [16] "study_code/cohorts/instantiate_cohorts.R"      
-#> [17] "study_code/README.md"                          
-#> [18] "study_code/Results/README.md"                  
-#> [19] "study_code/run_study.R"                        
-#> [20] "study_code/study_code.Rproj"                   
-#> [21] "study_shiny/README.md"                         
-#> [22] "study_shiny/study_shiny.Rproj"
+#>  [9] "INSTRUCTIONS.md"                               
+#> [10] "README.md"                                     
+#> [11] "study_code/analyses/cohort_characteristics.R"  
+#> [12] "study_code/analyses/cohort_survival.R"         
+#> [13] "study_code/analyses/drug_utilisation.R"        
+#> [14] "study_code/analyses/incidence_prevalence.R"    
+#> [15] "study_code/code_to_run.R"                      
+#> [16] "study_code/codelist/codelist_creation.R"       
+#> [17] "study_code/cohorts/instantiate_cohorts.R"      
+#> [18] "study_code/README.md"                          
+#> [19] "study_code/Results/README.md"                  
+#> [20] "study_code/run_study.R"                        
+#> [21] "study_code/study_code.Rproj"                   
+#> [22] "study_shiny/README.md"                         
+#> [23] "study_shiny/study_shiny.Rproj"
 ```
 
 ------------------------------------------------------------------------
@@ -110,7 +111,8 @@ initStudy(
 )
 
 list.files(diag_root)
-#> [1] "diagnostics_code"  "diagnostics_shiny" "README.md"
+#> [1] "diagnostics_code"  "diagnostics_shiny" "INSTRUCTIONS.md"  
+#> [4] "README.md"
 ```
 
 ### Study-only project (no diagnostics templates)
@@ -125,7 +127,7 @@ initStudy(
 )
 
 list.files(study_only_root)
-#> [1] "README.md"   "study_code"  "study_shiny"
+#> [1] "INSTRUCTIONS.md" "README.md"       "study_code"      "study_shiny"
 ```
 
 ------------------------------------------------------------------------
