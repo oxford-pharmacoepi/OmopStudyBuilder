@@ -1,7 +1,7 @@
 test_that("sanitizeRepoName converts names correctly", {
-  expect_equal(sanitizeRepoName("My Study"), "my-study")
-  expect_equal(sanitizeRepoName("-study-"), "study")
-  expect_equal(sanitizeRepoName("Special@#$Chars"), "specialchars")
+  expect_equal(OmopStudyBuilder:::sanitizeRepoName("My Study"), "my-study")
+  expect_equal(OmopStudyBuilder:::sanitizeRepoName("-study-"), "study")
+  expect_equal(OmopStudyBuilder:::sanitizeRepoName("Special@#$Chars"), "specialchars")
 })
 
 test_that("linkGitHub fails on non-existent directory", {
@@ -27,6 +27,6 @@ test_that("createStudyGitIgnore creates .gitignore file", {
   dir.create(temp_dir, showWarnings = FALSE, recursive = TRUE)
   on.exit(unlink(temp_dir, recursive = TRUE), add = TRUE)
   
-  createStudyGitIgnore(temp_dir)
+  OmopStudyBuilder:::createStudyGitIgnore(temp_dir)
   expect_true(file.exists(file.path(temp_dir, ".gitignore")))
 })

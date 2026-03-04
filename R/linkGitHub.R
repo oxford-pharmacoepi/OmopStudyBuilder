@@ -143,11 +143,14 @@ sanitizeRepoName <- function(name) {
   # Convert to lowercase
   name <- tolower(name)
   # Replace spaces and underscores with hyphens
-  name <- gsub("[\\s_]+", "-", name)
+  name <- gsub("\\s+", "-", name)
+  name <- gsub("_+", "-", name)
   # Remove invalid characters (keep only alphanumeric and hyphens)
-  name <- gsub("[^a-z0-9-]", "", name)
-  # Remove leading/trailing hyphens
-  name <- gsub("^-+|-+$", "", name)
+  name <- gsub("[^a-z0-9\\-]", "", name)
+  # Remove leading hyphens
+  name <- gsub("^-+", "", name)
+  # Remove trailing hyphens
+  name <- gsub("-+$", "", name)
   # Collapse multiple hyphens
   name <- gsub("-+", "-", name)
   # Truncate to 100 characters
