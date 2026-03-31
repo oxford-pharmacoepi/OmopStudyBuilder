@@ -9,7 +9,7 @@ runStudy(
   results_path = "./results",
   env_file = NULL,
   data_path = NULL,
-  script_path = "code_to_run.R"
+  script_path = "codeToRun.R"
 )
 }
 \arguments{
@@ -23,7 +23,7 @@ used automatically.}
 
 \item{data_path}{Optional path to data directory (mounted at /data)}
 
-\item{script_path}{Path to R script to execute (default: "code_to_run.R")}
+\item{script_path}{Path to R script to execute (default: "codeToRun.R")}
 }
 \value{
 Exit status (0 = success, non-zero = failure)

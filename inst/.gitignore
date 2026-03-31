@@ -4,6 +4,7 @@
 
 # Session Data files
 .RData
+*.DS_Store
 
 # User-specific files
 .Ruserdata
@@ -36,5 +37,7 @@
 .Renviron
 
 # Results
-Results/*.csv
-Results/*.zip
+diagnosticsCode/results/*.csv
+diagnosticsCode/results/*.zip
+studyCode/results/*.csv
+studyCode/results/*.zip

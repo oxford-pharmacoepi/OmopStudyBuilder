@@ -33,9 +33,9 @@ When you receive a study package (or before you ship one), it is useful to quick
 
 ## Review files in a study folder
 
-Point `reviewStudyCode()` at the folder you want to inspect (often `study_code/` or `diagnostics_code/`).
+Point `reviewStudyCode()` at the folder you want to inspect (often `studyCode/` or `diagnosticsCode/`).
 
-The simplest pattern is to run these commands from within the project you want to review (for example, open `study_code.Rproj` or `diagnostics_code.Rproj`).
+The simplest pattern is to run these commands from within the project you want to review (for example, open `studyCode.Rproj` or `diagnosticsCode.Rproj`).
 
 ```{r reviewStudyCode-example, eval=FALSE}
 reviewStudyCode(".")

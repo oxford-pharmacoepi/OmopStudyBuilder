@@ -1,5 +1,5 @@
 
-# Check code_to_run inputs ----
+# Check codeToRun inputs ----
 omopgenerics::validateCdmArgument(cdm,
                                   requiredTables = c("person",
                                                      "observation_period",
@@ -25,7 +25,7 @@ results[["obs_period"]] <- summariseObservationPeriod(cdm$observation_period)
 
 # Instantiate study cohorts ----
 logMessage("Instantiating study cohorts")
-source(here("cohorts", "instantiate_cohorts.R"))
+source(here("cohorts", "instantiateCohorts.R"))
 logMessage("Study cohorts instantiated")
 
 # Cohort counts and attrition ----
@@ -34,10 +34,10 @@ logMessage("Study cohorts instantiated")
 
 # Run analyses ----
 logMessage("Run study analyses")
-source(here("analyses", "cohort_characteristics.R"))
-source(here("analyses", "cohort_survival.R"))
-source(here("analyses", "drug_utilisation.R"))
-source(here("analyses", "incidence_prevalence.R"))
+source(here("analyses", "cohortCharacteristics.R"))
+source(here("analyses", "cohortSurvival.R"))
+source(here("analyses", "drugUtilisation.R"))
+source(here("analyses", "incidencePrevalence.R"))
 logMessage("Analyses finished")
 
 # Capture log file ----

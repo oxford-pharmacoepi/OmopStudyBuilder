@@ -622,11 +622,11 @@ runRStudio <- function(image_name = NULL, results_path = "./results", env_file =
 #'   If NULL and a `.env` file exists in the current working directory, it will be
 #'   used automatically.
 #' @param data_path Optional path to data directory (mounted at /data)
-#' @param script_path Path to R script to execute (default: "code_to_run.R")
+#' @param script_path Path to R script to execute (default: "codeToRun.R")
 #' @return Exit status (0 = success, non-zero = failure)
 #' @export
 runStudy <- function(image_name = NULL, results_path = "./results", env_file = NULL,
-                     data_path = NULL, script_path = "code_to_run.R") {
+                     data_path = NULL, script_path = "codeToRun.R") {
   ensureDocker()
   if (!requireNamespace("processx", quietly = TRUE)) {
     stop("Package 'processx' is required for runStudy().\nInstall it with: install.packages('processx')", call. = FALSE)
