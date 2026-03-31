@@ -7,24 +7,24 @@ test_that("sanitizeRepoName converts names correctly", {
 test_that("sanitizeRepoName handles edge cases", {
   # Empty string defaults to "study"
   expect_equal(OmopStudyBuilder:::sanitizeRepoName(""), "study")
-  
+
   # Only special characters defaults to "study"
   expect_equal(OmopStudyBuilder:::sanitizeRepoName("___"), "study")
   expect_equal(OmopStudyBuilder:::sanitizeRepoName("@#$%"), "study")
-  
+
   # Multiple spaces/underscores collapse to single hyphen
   expect_equal(OmopStudyBuilder:::sanitizeRepoName("my    study"), "my-study")
   expect_equal(OmopStudyBuilder:::sanitizeRepoName("my___study"), "my-study")
-  
+
   # Truncates long names to 100 characters
   long_name <- paste0(rep("a", 150), collapse = "")
   result <- OmopStudyBuilder:::sanitizeRepoName(long_name)
   expect_equal(nchar(result), 100)
   expect_equal(result, paste0(rep("a", 100), collapse = ""))
-  
+
   # Handles mixed case and preserves alphanumeric
   expect_equal(OmopStudyBuilder:::sanitizeRepoName("MyStudy123"), "mystudy123")
-  
+
   # Multiple hyphens collapse
   expect_equal(OmopStudyBuilder:::sanitizeRepoName("my---study"), "my-study")
 })
@@ -51,7 +51,7 @@ test_that("createStudyGitIgnore creates .gitignore file", {
   temp_dir <- file.path(tempdir(), "test_gitignore")
   dir.create(temp_dir, showWarnings = FALSE, recursive = TRUE)
   on.exit(unlink(temp_dir, recursive = TRUE), add = TRUE)
-  
+
   OmopStudyBuilder:::createStudyGitIgnore(temp_dir)
   expect_true(file.exists(file.path(temp_dir, ".gitignore")))
 })
@@ -60,10 +60,10 @@ test_that("createStudyGitIgnore has correct content", {
   temp_dir <- file.path(tempdir(), "test_gitignore_content")
   dir.create(temp_dir, showWarnings = FALSE, recursive = TRUE)
   on.exit(unlink(temp_dir, recursive = TRUE), add = TRUE)
-  
+
   OmopStudyBuilder:::createStudyGitIgnore(temp_dir)
   content <- readLines(file.path(temp_dir, ".gitignore"))
-  
+
   # Check for essential patterns
   expect_true(any(grepl("results/", content, fixed = TRUE)))
   expect_true(any(grepl(".Rproj.user", content, fixed = TRUE)))
@@ -71,7 +71,7 @@ test_that("createStudyGitIgnore has correct content", {
   expect_true(any(grepl("renv/library/", content, fixed = TRUE)))
   expect_true(any(grepl(".DS_Store", content, fixed = TRUE)))
   expect_true(any(grepl("Dockerfile", content, fixed = TRUE)))
-  
+
   # Check for comments
   expect_true(any(grepl("# R artifacts", content, fixed = TRUE)))
   expect_true(any(grepl("# Study outputs", content, fixed = TRUE)))
@@ -81,26 +81,26 @@ test_that("createStudyGitIgnore merges with existing .gitignore", {
   temp_dir <- file.path(tempdir(), "test_gitignore_merge")
   dir.create(temp_dir, showWarnings = FALSE, recursive = TRUE)
   on.exit(unlink(temp_dir, recursive = TRUE), add = TRUE)
-  
+
   # Create existing .gitignore with custom content
   existing_content <- c("custom_file.txt", "my_folder/", "*.log")
   writeLines(existing_content, file.path(temp_dir, ".gitignore"))
-  
+
   # Add study .gitignore
   OmopStudyBuilder:::createStudyGitIgnore(temp_dir)
-  
+
   # Read final content
   final_content <- readLines(file.path(temp_dir, ".gitignore"))
-  
+
   # Check custom content preserved
   expect_true("custom_file.txt" %in% final_content)
   expect_true("my_folder/" %in% final_content)
   expect_true("*.log" %in% final_content)
-  
+
   # Check study content added
   expect_true(any(grepl("results/", final_content, fixed = TRUE)))
   expect_true(any(grepl(".Rproj.user", final_content, fixed = TRUE)))
-  
+
   # Check no duplicates created
   expect_equal(sum(final_content == "custom_file.txt"), 1)
 })
@@ -109,21 +109,21 @@ test_that("createStudyGitIgnore handles duplicate entries gracefully", {
   temp_dir <- file.path(tempdir(), "test_gitignore_duplicates")
   dir.create(temp_dir, showWarnings = FALSE, recursive = TRUE)
   on.exit(unlink(temp_dir, recursive = TRUE), add = TRUE)
-  
+
   # Create existing .gitignore with some study patterns already present
   existing_content <- c(".RData", "results/", "custom.txt")
   writeLines(existing_content, file.path(temp_dir, ".gitignore"))
-  
+
   # Add study .gitignore
   OmopStudyBuilder:::createStudyGitIgnore(temp_dir)
-  
+
   # Read final content
   final_content <- readLines(file.path(temp_dir, ".gitignore"))
-  
+
   # Check no duplicates of existing entries
   expect_equal(sum(final_content == ".RData"), 1)
   expect_equal(sum(final_content == "results/"), 1)
-  
+
   # Check custom entry preserved
   expect_true("custom.txt" %in% final_content)
 })
@@ -133,7 +133,7 @@ test_that("linkGitHub validates directory parameter", {
     linkGitHub(directory = NULL, repository = "test"),
     class = "error"
   )
-  
+
   expect_error(
     linkGitHub(directory = "", repository = "test"),
     "Directory does not exist"
@@ -142,12 +142,12 @@ test_that("linkGitHub validates directory parameter", {
 
 test_that("linkGitHub validates repository parameter", {
   temp_dir <- tempdir()
-  
+
   expect_error(
     linkGitHub(directory = temp_dir, repository = NULL),
     "repository name is required"
   )
-  
+
   expect_error(
     linkGitHub(directory = temp_dir, repository = ""),
     "repository name is required"
@@ -164,17 +164,17 @@ test_that("linkGitHub full workflow (MANUAL TEST - requires GITHUB_PAT)", {
   skip("Manual test - requires GITHUB_PAT and creates real GitHub repo")
   skip_if_not(nzchar(Sys.getenv("GITHUB_PAT")), "GITHUB_PAT not set")
   skip_if_not_installed("gh")
-  
+
   # WARNING: This creates a real GitHub repository!
   # You'll need to delete it manually after testing
   test_repo_name <- paste0("test-omop-study-", format(Sys.time(), "%Y%m%d-%H%M%S"))
   temp_dir <- file.path(tempdir(), test_repo_name)
   dir.create(temp_dir, showWarnings = FALSE, recursive = TRUE)
   on.exit(unlink(temp_dir, recursive = TRUE), add = TRUE)
-  
+
   # Create a dummy file to commit
   writeLines("# Test Study", file.path(temp_dir, "README.md"))
-  
+
   # Run linkGitHub
   result <- linkGitHub(
     directory = temp_dir,
@@ -182,11 +182,11 @@ test_that("linkGitHub full workflow (MANUAL TEST - requires GITHUB_PAT)", {
     organisation = NULL,  # Creates under personal account
     private = TRUE
   )
-  
+
   # Verify result
   expect_true(grepl("github.com", result))
   expect_true(grepl(test_repo_name, result))
-  
+
   # Cleanup: Delete the test repository
   # NOTE: You may need to delete this manually from GitHub
   message("Test repository created: ", result)
@@ -197,11 +197,11 @@ test_that("initStudy with GitHub integration (MANUAL TEST)", {
   skip("Manual test - requires GITHUB_PAT and creates real GitHub repo")
   skip_if_not(nzchar(Sys.getenv("GITHUB_PAT")), "GITHUB_PAT not set")
   skip_if_not_installed("gh")
-  
+
   test_repo_name <- paste0("test-init-study-", format(Sys.time(), "%Y%m%d-%H%M%S"))
   temp_dir <- file.path(tempdir(), test_repo_name)
   on.exit(unlink(temp_dir, recursive = TRUE), add = TRUE)
-  
+
   # Create study with GitHub integration
   initStudy(
     directory = temp_dir,
@@ -211,13 +211,13 @@ test_that("initStudy with GitHub integration (MANUAL TEST)", {
     organisation = NULL,
     private = TRUE
   )
-  
+
   # Verify directory structure
   expect_true(dir.exists(temp_dir))
   expect_true(file.exists(file.path(temp_dir, "README.md")))
   expect_true(dir.exists(file.path(temp_dir, ".git")))
   expect_true(file.exists(file.path(temp_dir, ".gitignore")))
-  
+
   message("Test repository created: https://github.com/YOUR_USERNAME/", test_repo_name)
   message("Please delete manually from GitHub")
 })
