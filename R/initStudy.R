@@ -22,6 +22,7 @@
 #'
 #' @param studyDescription Character string with study description. If NULL (default),
 #'   leaves a placeholder.
+#' 
 #' @param repository Optional GitHub repository name. If provided, creates a GitHub
 #'   repository and links it to the study. Requires the \code{gh} package and
 #'   GitHub authentication (GITHUB_PAT environment variable).
