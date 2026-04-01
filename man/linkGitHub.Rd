@@ -49,14 +49,17 @@ GitHub account information from the PAT.
 To set up authentication:
 \enumerate{
   \item Create a PAT at \url{https://github.com/settings/tokens}
-  \item Add to .Renviron: \code{GITHUB_PAT='your_token_here'}
-  \item Restart R
+  \item Set for current session: \code{Sys.setenv(GITHUB_PAT = "your_token_here")}
+  \item Or add to .Renviron: \code{GITHUB_PAT='your_token_here'} and restart R
 }
 }
 
 \examples{
-\donttest{
+\dontrun{
 library(OmopStudyBuilder)
+
+# Set GitHub token for current session
+Sys.setenv(GITHUB_PAT = "your_token_here")
 
 # Create repo under personal account
 linkGitHub(

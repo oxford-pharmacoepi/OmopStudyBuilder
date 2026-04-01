@@ -37,8 +37,8 @@ ensureGit <- function() {
 #' To set up authentication:
 #' \enumerate{
 #'   \item Create a PAT at \url{https://github.com/settings/tokens}
-#'   \item Add to .Renviron: \code{GITHUB_PAT='your_token_here'}
-#'   \item Restart R
+#'   \item Set for current session: \code{Sys.setenv(GITHUB_PAT = "your_token_here")}
+#'   \item Or add to .Renviron: \code{GITHUB_PAT='your_token_here'} and restart R
 #' }
 #'
 #' @param directory Path to study directory
@@ -52,8 +52,11 @@ ensureGit <- function() {
 #' @export
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' library(OmopStudyBuilder)
+#' 
+#' # Set GitHub token for current session
+#' Sys.setenv(GITHUB_PAT = "your_token_here")
 #' 
 #' # Create repo under personal account
 #' linkGitHub(
@@ -149,8 +152,9 @@ checkGitHubAuth <- function() {
     cli::cli_abort(c(
       "GitHub authentication failed",
       "i" = "Set GITHUB_PAT environment variable with a personal access token",
-      "i" = "Create token at: https://github.com/settings/tokens",
-      "i" = "Add to .Renviron: GITHUB_PAT='your_token_here'"
+      "i" = "Create token at: {.url https://github.com/settings/tokens}",
+      "i" = "For current session, run: {.code Sys.setenv(GITHUB_PAT = \"your_token_here\")}",
+      "i" = "Or add to .Renviron: {.code GITHUB_PAT='your_token_here'}"
     ))
   }
   

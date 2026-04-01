@@ -72,6 +72,9 @@ initStudy(study_root2,
 
 \dontrun{
 # Create study with GitHub integration (requires GITHUB_PAT)
+# Set PAT for current session:
+Sys.setenv(GITHUB_PAT = "your_token_here")
+
 study_root3 <- file.path(tempdir(), "GitHubStudy")
 initStudy(
   directory = study_root3,
