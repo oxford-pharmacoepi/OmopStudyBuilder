@@ -1,32 +1,55 @@
-test_that("sanitizeRepoName converts names correctly", {
-  expect_equal(OmopStudyBuilder:::sanitizeRepoName("My Study"), "my-study")
-  expect_equal(OmopStudyBuilder:::sanitizeRepoName("-study-"), "study")
-  expect_equal(OmopStudyBuilder:::sanitizeRepoName("Special@#$Chars"), "specialchars")
+test_that("validateRepoName accepts valid names", {
+  # Valid names should not throw errors
+  expect_silent(OmopStudyBuilder:::validateRepoName("my-study"))
+  expect_silent(OmopStudyBuilder:::validateRepoName("MyStudy"))
+  expect_silent(OmopStudyBuilder:::validateRepoName("my_study"))
+  expect_silent(OmopStudyBuilder:::validateRepoName("my.study"))
+  expect_silent(OmopStudyBuilder:::validateRepoName("study-123"))
+  expect_silent(OmopStudyBuilder:::validateRepoName("Study_2024.v1"))
 })
 
-test_that("sanitizeRepoName handles edge cases", {
-  # Empty string defaults to "study"
-  expect_equal(OmopStudyBuilder:::sanitizeRepoName(""), "study")
+test_that("validateRepoName rejects invalid names", {
+  # Empty name
+  expect_error(
+    OmopStudyBuilder:::validateRepoName(""),
+    "Repository name cannot be empty"
+  )
 
-  # Only special characters defaults to "study"
-  expect_equal(OmopStudyBuilder:::sanitizeRepoName("___"), "study")
-  expect_equal(OmopStudyBuilder:::sanitizeRepoName("@#$%"), "study")
+  # Spaces
+  expect_error(
+    OmopStudyBuilder:::validateRepoName("My Study"),
+    "Repository name cannot contain spaces"
+  )
 
-  # Multiple spaces/underscores collapse to single hyphen
-  expect_equal(OmopStudyBuilder:::sanitizeRepoName("my    study"), "my-study")
-  expect_equal(OmopStudyBuilder:::sanitizeRepoName("my___study"), "my-study")
+  # Special characters
+  expect_error(
+    OmopStudyBuilder:::validateRepoName("study@2024"),
+    "Repository name contains invalid characters"
+  )
 
-  # Truncates long names to 100 characters
-  long_name <- paste0(rep("a", 150), collapse = "")
-  result <- OmopStudyBuilder:::sanitizeRepoName(long_name)
-  expect_equal(nchar(result), 100)
-  expect_equal(result, paste0(rep("a", 100), collapse = ""))
+  expect_error(
+    OmopStudyBuilder:::validateRepoName("study#test"),
+    "invalid characters"
+  )
 
-  # Handles mixed case and preserves alphanumeric
-  expect_equal(OmopStudyBuilder:::sanitizeRepoName("MyStudy123"), "mystudy123")
+  # Leading hyphen
+  expect_error(
+    OmopStudyBuilder:::validateRepoName("-study"),
+    "cannot start or end with hyphen"
+  )
 
-  # Multiple hyphens collapse
-  expect_equal(OmopStudyBuilder:::sanitizeRepoName("my---study"), "my-study")
+  # Trailing hyphen
+  expect_error(
+    OmopStudyBuilder:::validateRepoName("study-"),
+    "cannot start or end with hyphen"
+  )
+
+  # Too long (>100 chars)
+  long_name <- paste0(rep("a", 101), collapse = "")
+  expect_error(
+    OmopStudyBuilder:::validateRepoName(long_name),
+    "Repository name too long"
+  )
 })
 
 test_that("linkGitHub fails on non-existent directory", {

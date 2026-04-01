@@ -50,10 +50,10 @@
 #'           studyTitle = "Diabetes Prevalence Study",
 #'           studyLeads = "Dr. Smith, Dr. Jones")
 #'
-#' \dontrun{
+#' \donttest{
 #' # Create study with GitHub integration
 #' initStudy(
-#'   directory = "MyStudy",
+#'   directory = here::here(),
 #'   repository = "my-omop-study",
 #'   organisation = "oxford-pharmacoepi",
 #'   private = TRUE

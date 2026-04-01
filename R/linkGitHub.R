@@ -126,7 +126,15 @@ linkGitHub <- function(directory,
   
   # Setup remote and push
   cli::cli_alert_info("Pushing to GitHub...")
-  setupGitRemote(directory, repo_info$clone_url, default_branch, user_info)
+  result <- setupGitRemote(directory, repo_info$clone_url, default_branch, user_info)
+  
+  # Check if user cancelled
+  if (is.null(result)) {
+    cli::cli_alert_warning("GitHub repository created but not linked to local directory")
+    cli::cli_alert_info("Repository URL: {.url {repo_url}}")
+    cli::cli_alert_info("To link later, run: git remote add origin {repo_info$clone_url}")
+    return(invisible(NULL))
+  }
   
   cli::cli_alert_success("Study linked to GitHub: {.url {repo_url}}")
   return(invisible(repo_url))
@@ -136,42 +144,43 @@ linkGitHub <- function(directory,
 #' Check GitHub authentication
 #' @keywords internal
 checkGitHubAuth <- function() {
-  tryCatch(
-    {
-      user <- gh::gh("GET /user")
-      cli::cli_alert_success("Authenticated as: {.val {user$login}}")
-      return(user)
-    },
-    error = function(e) {
-      cli::cli_abort(c(
-        "GitHub authentication failed",
-        "i" = "Set GITHUB_PAT environment variable with a personal access token",
-        "i" = "Create token at: https://github.com/settings/tokens",
-        "i" = "Add to .Renviron: GITHUB_PAT='your_token_here'",
-        "x" = conditionMessage(e)
-      ))
-    }
-  )
+  # Check if GITHUB_PAT is set
+  if (!nzchar(Sys.getenv("GITHUB_PAT"))) {
+    cli::cli_abort(c(
+      "GitHub authentication failed",
+      "i" = "Set GITHUB_PAT environment variable with a personal access token",
+      "i" = "Create token at: https://github.com/settings/tokens",
+      "i" = "Add to .Renviron: GITHUB_PAT='your_token_here'"
+    ))
+  }
+  
+  user <- gh::gh("GET /user")
+  if (is.null(user) || is.null(user$login)) {
+    cli::cli_abort("Failed to fetch GitHub user information")
+  }
+  
+  cli::cli_alert_success("Authenticated as: {.val {user$login}}")
+  return(user)
 }
 
 
 #' Check if repository name is available
 #' @keywords internal
 checkRepoAvailable <- function(owner, repo) {
-  result <- tryCatch(
-    {
-      gh::gh("GET /repos/{owner}/{repo}", owner = owner, repo = repo)
-      FALSE  # Repo exists
-    },
-    error = function(e) {
-      if (grepl("404", conditionMessage(e))) {
-        TRUE  # Repo doesn't exist (available)
-      } else {
-        cli::cli_abort("Failed to check repository availability: {conditionMessage(e)}")
-      }
+  # Try to get the repo - if it exists, gh will return the repo info
+  # If it doesn't exist, gh will throw a 404 error
+  repo_check <- try(gh::gh("GET /repos/{owner}/{repo}", owner = owner, repo = repo), silent = TRUE)
+  
+  if (inherits(repo_check, "try-error")) {
+    error_msg <- attr(repo_check, "condition")$message
+    if (grepl("404", error_msg)) {
+      return(TRUE)  # Repo doesn't exist (available)
+    } else {
+      cli::cli_abort("Failed to check repository availability: {error_msg}")
     }
-  )
-  return(result)
+  }
+  
+  return(FALSE)  # Repo exists
 }
 
 
@@ -231,37 +240,32 @@ validateRepoName <- function(name) {
 #' Create GitHub repository via API
 #' @keywords internal
 createGitHubRepo <- function(repository, organisation, private, description) {
-  tryCatch(
-    {
-      if (is.null(organisation)) {
-        # Create under user account
-        repo <- gh::gh(
-          "POST /user/repos",
-          name = repository,
-          private = private,
-          description = description,
-          auto_init = FALSE
-        )
-      } else {
-        # Create under organisation
-        repo <- gh::gh(
-          "POST /orgs/{org}/repos",
-          org = organisation,
-          name = repository,
-          private = private,
-          description = description,
-          auto_init = FALSE
-        )
-      }
-      return(repo)
-    },
-    error = function(e) {
-      cli::cli_abort(c(
-        "Failed to create GitHub repository",
-        "x" = conditionMessage(e)
-      ))
-    }
-  )
+  if (is.null(organisation)) {
+    # Create under user account
+    repo <- gh::gh(
+      "POST /user/repos",
+      name = repository,
+      private = private,
+      description = description,
+      auto_init = FALSE
+    )
+  } else {
+    # Create under organisation
+    repo <- gh::gh(
+      "POST /orgs/{org}/repos",
+      org = organisation,
+      name = repository,
+      private = private,
+      description = description,
+      auto_init = FALSE
+    )
+  }
+  
+  if (is.null(repo) || is.null(repo$clone_url)) {
+    cli::cli_abort("Failed to create GitHub repository - invalid response")
+  }
+  
+  return(repo)
 }
 
 
@@ -352,11 +356,21 @@ ensureGitIdentity <- function(directory, user_info = NULL) {
   }
   
   # Get GitHub user info if not provided
-  if (is.null(user_info)) user_info <- tryCatch(gh::gh("GET /user"), error = function(e) NULL)
   if (is.null(user_info)) {
-    cli::cli_abort(c("Git identity not configured",
-                     "i" = "Run: git config --global user.name 'Your Name'",
-                     "i" = "Run: git config --global user.email 'your@email.com'"))
+    user_fetch <- try(gh::gh("GET /user"), silent = TRUE)
+    if (inherits(user_fetch, "try-error")) {
+      user_info <- NULL
+    } else {
+      user_info <- user_fetch
+    }
+  }
+  
+  if (is.null(user_info)) {
+    cli::cli_abort(c(
+      "Git identity not configured and could not fetch from GitHub",
+      "i" = "Run: git config --global user.name 'Your Name'",
+      "i" = "Run: git config --global user.email 'your@email.com'"
+    ))
   }
   
   # Configure user.name (use name or fallback to login)
@@ -367,11 +381,17 @@ ensureGitIdentity <- function(directory, user_info = NULL) {
     cli::cli_alert_info("Configured Git user.name: {.val {name}}")
   }
   
-  # Configure user.email
-  if (is.null(get_config("user.email")) && !is.null(user_info$email) && nzchar(user_info$email)) {
-    system2("git", c("-C", shQuote(directory), "config", "user.email", shQuote(user_info$email)), 
-            stdout = FALSE, stderr = FALSE)
-    cli::cli_alert_info("Configured Git user.email: {.val {user_info$email}}")
+  # Configure user.email (with warning if unavailable)
+  if (is.null(get_config("user.email"))) {
+    if (!is.null(user_info$email) && nzchar(user_info$email)) {
+      system2("git", c("-C", shQuote(directory), "config", "user.email", shQuote(user_info$email)), 
+              stdout = FALSE, stderr = FALSE)
+      cli::cli_alert_info("Configured Git user.email: {.val {user_info$email}}")
+    } else {
+      cli::cli_alert_warning("GitHub email is hidden or unavailable")
+      cli::cli_alert_warning("Git commits may fail without configured email")
+      cli::cli_alert_info("Run: git config --global user.email 'your@email.com'")
+    }
   }
   
   return(invisible(TRUE))
@@ -381,16 +401,15 @@ ensureGitIdentity <- function(directory, user_info = NULL) {
 #' Setup git remote and push
 #' @keywords internal
 setupGitRemote <- function(directory, clone_url, default_branch, user_info = NULL) {
-  orig_wd <- getwd()
-  on.exit(setwd(orig_wd), add = TRUE)
-  setwd(directory)
-  
   # Ensure Git identity is configured (uses GitHub account info if available)
   ensureGitIdentity(directory, user_info)
   
   # Setup remote (update if exists, add if new)
-  existing_remote <- system2("git", c("remote", "get-url", "origin"), 
-                            stdout = TRUE, stderr = FALSE)
+  existing_remote <- suppressWarnings(
+    system2("git", c("-C", shQuote(directory), "remote", "get-url", "origin"), 
+            stdout = TRUE, stderr = FALSE)
+  )
+  
   if (!is.null(existing_remote) && length(existing_remote) > 0 && nzchar(existing_remote[1])) {
     # Remote exists - ask user before updating
     cli::cli_alert_warning(
@@ -400,28 +419,38 @@ setupGitRemote <- function(directory, clone_url, default_branch, user_info = NUL
       "This will switch remote to: {.url {clone_url}}"
     )
     
+    # Check if running interactively
+    if (!interactive()) {
+      cli::cli_alert_info("Non-interactive session detected. Remote not changed.")
+      cli::cli_alert_info("To update, run interactively or use: git remote set-url origin {clone_url}")
+      return(invisible(NULL))
+    }
+    
     response <- readline("Continue? (y/n): ")
     if (!tolower(trimws(response)) %in% c("y", "yes")) {
       cli::cli_alert_info("Cancelled. Remote not changed.")
       return(invisible(NULL))
     }
     
-    system2("git", c("remote", "set-url", "origin", clone_url), stdout = FALSE, stderr = FALSE)
+    system2("git", c("-C", shQuote(directory), "remote", "set-url", "origin", clone_url), 
+            stdout = FALSE, stderr = FALSE)
     cli::cli_alert_success("Remote updated successfully")
   } else {
     # No remote - add it
-    system2("git", c("remote", "add", "origin", clone_url), stdout = FALSE, stderr = FALSE)
+    system2("git", c("-C", shQuote(directory), "remote", "add", "origin", clone_url), 
+            stdout = FALSE, stderr = FALSE)
   }
   
   # Stage all files
-  result <- system2("git", c("add", "-A"), stdout = TRUE, stderr = TRUE)
+  result <- system2("git", c("-C", shQuote(directory), "add", "-A"), stdout = TRUE, stderr = TRUE)
   if (!is.null(attr(result, "status")) && attr(result, "status") != 0) {
     cli::cli_abort("Failed to stage files: {paste(result, collapse = '\n')}")
   }
   
   # Commit
   commit_msg <- paste0("Initialize study: ", basename(directory))
-  result <- system2("git", c("commit", "-m", shQuote(commit_msg)), stdout = TRUE, stderr = TRUE)
+  result <- system2("git", c("-C", shQuote(directory), "commit", "-m", shQuote(commit_msg)), 
+                   stdout = TRUE, stderr = TRUE)
   status <- attr(result, "status")
   if (!is.null(status) && status != 0) {
     # Check if it's just "nothing to commit"
@@ -430,8 +459,39 @@ setupGitRemote <- function(directory, clone_url, default_branch, user_info = NUL
     }
   }
   
+  # Check if there are any commits to push
+  has_commits <- suppressWarnings(
+    system2("git", c("-C", shQuote(directory), "rev-parse", "HEAD"), 
+            stdout = FALSE, stderr = FALSE)
+  )
+  if (!is.null(attr(has_commits, "status")) && attr(has_commits, "status") != 0) {
+    # No commits yet - create a README to ensure there's something to commit
+    readme_path <- file.path(directory, "README.md")
+    if (!file.exists(readme_path)) {
+      readme_content <- c(
+        paste0("# ", basename(directory)),
+        "",
+        "This is an OMOP CDM study repository.",
+        "",
+        paste0("Created: ", Sys.Date())
+      )
+      writeLines(readme_content, readme_path)
+      
+      # Stage and commit the README
+      system2("git", c("-C", shQuote(directory), "add", "README.md"), 
+              stdout = FALSE, stderr = FALSE)
+      result <- system2("git", c("-C", shQuote(directory), "commit", "-m", 
+                                 "Initialize repository with README"), 
+                       stdout = TRUE, stderr = TRUE)
+      if (!is.null(attr(result, "status")) && attr(result, "status") != 0) {
+        cli::cli_abort("Failed to create initial commit: {paste(result, collapse = '\n')}")
+      }
+    }
+  }
+  
   # Push
-  result <- system2("git", c("push", "-u", "origin", default_branch), stdout = TRUE, stderr = TRUE)
+  result <- system2("git", c("-C", shQuote(directory), "push", "-u", "origin", default_branch), 
+                   stdout = TRUE, stderr = TRUE)
   if (!is.null(attr(result, "status")) && attr(result, "status") != 0) {
     cli::cli_abort("Failed to push to GitHub: {paste(result, collapse = '\n')}")
   }
@@ -443,13 +503,25 @@ setupGitRemote <- function(directory, clone_url, default_branch, user_info = NUL
 #' Get default branch name
 #' @keywords internal
 getDefaultBranch <- function(directory) {
-  # Try to get from git config
+  # First check if repo has commits and what branch we're on
+  current_branch <- suppressWarnings(
+    system2("git", c("-C", shQuote(directory), "branch", "--show-current"),
+            stdout = TRUE, stderr = FALSE)
+  )
+  
+  # If we have a current branch, use it
+  if (length(current_branch) > 0 && nzchar(current_branch[1])) {
+    return(trimws(current_branch[1]))
+  }
+  
+  # If no current branch (new repo), try to get from git config
   result <- suppressWarnings(
     system2("git", c("-C", shQuote(directory), "config", "--get", "init.defaultBranch"),
             stdout = TRUE, stderr = FALSE)
   )
   
   if (!is.null(attr(result, "status")) || length(result) == 0 || !nzchar(result[1])) {
+    cli::cli_alert_info("No configured default branch. Using: {.val main}")
     return("main")
   }
   
