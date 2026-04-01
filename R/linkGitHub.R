@@ -88,7 +88,7 @@ linkGitHub <- function(directory,
   
   # Setup remote and push
   cli::cli_alert_info("Pushing to GitHub...")
-  setupGitRemote(directory, repo_info$clone_url, default_branch)
+  setupGitRemote(directory, repo_info$clone_url, default_branch, user_info)
   
   cli::cli_alert_success("Study linked to GitHub: {.url {repo_url}}")
   return(invisible(repo_url))
@@ -262,12 +262,64 @@ createStudyGitIgnore <- function(directory) {
 }
 
 
+#' Ensure Git identity is configured
+#' 
+#' Checks if Git user.name and user.email are configured for commits.
+#' If not configured, automatically sets them using GitHub account info
+#' from the authenticated user (via GITHUB_PAT). This allows seamless
+#' Git operations without requiring manual `git config` setup.
+#' 
+#' @keywords internal
+ensureGitIdentity <- function(directory, user_info = NULL) {
+  # Get current git config (returns empty on failure)
+  get_config <- function(key) {
+    result <- suppressWarnings(system2("git", c("-C", shQuote(directory), "config", key), 
+                                       stdout = TRUE, stderr = FALSE))
+    if (length(result) > 0 && nzchar(result[1])) return(result[1])
+    return(NULL)
+  }
+  
+  # Check if already configured
+  if (!is.null(get_config("user.name")) && !is.null(get_config("user.email"))) {
+    return(invisible(TRUE))
+  }
+  
+  # Get GitHub user info if not provided
+  if (is.null(user_info)) user_info <- tryCatch(gh::gh("GET /user"), error = function(e) NULL)
+  if (is.null(user_info)) {
+    cli::cli_abort(c("Git identity not configured",
+                     "i" = "Run: git config --global user.name 'Your Name'",
+                     "i" = "Run: git config --global user.email 'your@email.com'"))
+  }
+  
+  # Configure user.name (use name or fallback to login)
+  if (is.null(get_config("user.name"))) {
+    name <- if (!is.null(user_info$name) && nzchar(user_info$name)) user_info$name else user_info$login
+    system2("git", c("-C", shQuote(directory), "config", "user.name", shQuote(name)), 
+            stdout = FALSE, stderr = FALSE)
+    cli::cli_alert_info("Configured Git user.name: {.val {name}}")
+  }
+  
+  # Configure user.email
+  if (is.null(get_config("user.email")) && !is.null(user_info$email) && nzchar(user_info$email)) {
+    system2("git", c("-C", shQuote(directory), "config", "user.email", shQuote(user_info$email)), 
+            stdout = FALSE, stderr = FALSE)
+    cli::cli_alert_info("Configured Git user.email: {.val {user_info$email}}")
+  }
+  
+  return(invisible(TRUE))
+}
+
+
 #' Setup git remote and push
 #' @keywords internal
-setupGitRemote <- function(directory, clone_url, default_branch) {
+setupGitRemote <- function(directory, clone_url, default_branch, user_info = NULL) {
   orig_wd <- getwd()
   on.exit(setwd(orig_wd), add = TRUE)
   setwd(directory)
+  
+  # Ensure Git identity is configured (uses GitHub account info if available)
+  ensureGitIdentity(directory, user_info)
   
   # Add remote
   system2("git", c("remote", "add", "origin", clone_url), stdout = FALSE, stderr = FALSE)
