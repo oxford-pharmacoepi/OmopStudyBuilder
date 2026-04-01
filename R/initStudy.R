@@ -50,10 +50,11 @@
 #'           studyTitle = "Diabetes Prevalence Study",
 #'           studyLeads = "Dr. Smith, Dr. Jones")
 #'
-#' \donttest{
-#' # Create study with GitHub integration
+#' \dontrun{
+#' # Create study with GitHub integration (requires GITHUB_PAT)
+#' study_root3 <- file.path(tempdir(), "GitHubStudy")
 #' initStudy(
-#'   directory = here::here(),
+#'   directory = study_root3,
 #'   repository = "my-omop-study",
 #'   organisation = "oxford-pharmacoepi",
 #'   private = TRUE
