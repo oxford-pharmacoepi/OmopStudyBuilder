@@ -52,16 +52,18 @@ ensureGit <- function() {
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
+#' library(OmopStudyBuilder)
+#' 
 #' # Create repo under personal account
 #' linkGitHub(
-#'   directory = "MyStudy",
-#'   repository = "my-study"
+#'   directory = here::here(),
+#'   repository = "my-omop-study"
 #' )
 #'
 #' # Create repo under organisation
 #' linkGitHub(
-#'   directory = "MyStudy",
+#'   directory = here::here(),
 #'   repository = "diabetes-study",
 #'   organisation = "oxford-pharmacoepi",
 #'   private = TRUE
