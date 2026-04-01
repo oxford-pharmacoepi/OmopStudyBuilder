@@ -364,9 +364,22 @@ setupGitRemote <- function(directory, clone_url, default_branch, user_info = NUL
   existing_remote <- system2("git", c("remote", "get-url", "origin"), 
                             stdout = TRUE, stderr = FALSE)
   if (!is.null(existing_remote) && length(existing_remote) > 0 && nzchar(existing_remote[1])) {
-    # Remote exists - update it
+    # Remote exists - ask user before updating
+    cli::cli_alert_warning(
+      "Directory already linked to: {.url {existing_remote[1]}}"
+    )
+    cli::cli_alert_warning(
+      "This will switch remote to: {.url {clone_url}}"
+    )
+    
+    response <- readline("Continue? (y/n): ")
+    if (!tolower(trimws(response)) %in% c("y", "yes")) {
+      cli::cli_alert_info("Cancelled. Remote not changed.")
+      return(invisible(NULL))
+    }
+    
     system2("git", c("remote", "set-url", "origin", clone_url), stdout = FALSE, stderr = FALSE)
-    cli::cli_alert_info("Updated existing git remote to: {.val {clone_url}}")
+    cli::cli_alert_success("Remote updated successfully")
   } else {
     # No remote - add it
     system2("git", c("remote", "add", "origin", clone_url), stdout = FALSE, stderr = FALSE)
