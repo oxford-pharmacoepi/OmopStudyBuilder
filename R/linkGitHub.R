@@ -47,6 +47,8 @@ ensureGit <- function() {
 #'   under your personal account
 #' @param private Logical. If TRUE (default), creates a private repository
 #' @param description Repository description. If NULL, auto-generated from directory name
+#' @param createIssue Logical. If TRUE (default), creates a code review checklist issue
+#'   in the newly created GitHub repository
 #'
 #' @return GitHub repository URL (invisibly)
 #' @export
@@ -76,7 +78,8 @@ linkGitHub <- function(directory,
                        repository,
                        organisation = NULL,
                        private = TRUE,
-                       description = NULL) {
+                       description = NULL,
+                       createIssue = TRUE) {
   
   # Check Git is installed
   ensureGit()
@@ -140,6 +143,18 @@ linkGitHub <- function(directory,
   }
   
   cli::cli_alert_success("Study linked to GitHub: {.url {repo_url}}")
+  
+  # Create code review checklist issue
+  if (isTRUE(createIssue)) {
+    cli::cli_alert_info("Creating code review checklist issue...")
+    issue_result <- try(createCodeReviewIssue(owner, repository), silent = TRUE)
+    
+    if (inherits(issue_result, "try-error")) {
+      cli::cli_alert_warning("Failed to create code review checklist issue")
+      cli::cli_alert_info("You can manually create an issue with the checklist later")
+    }
+  }
+  
   return(invisible(repo_url))
 }
 
@@ -530,4 +545,86 @@ getDefaultBranch <- function(directory) {
   }
   
   return(trimws(result[1]))
+}
+
+
+#' Get code review checklist template
+#' @keywords internal
+getCodeReviewChecklistBody <- function() {
+  paste0(
+    "## Code Review Checklist\n",
+    "\n",
+    "Complete these items before submitting study code for review.\n",
+    "\n",
+    "### Study Code Organisation\n",
+    "- [ ] The study code is organised as an R project\n",
+    "- [ ] There is a `code_to_run.R` file to run the study code\n",
+    "- [ ] There is a `run_analysis.R` file to coordinate the study code\n",
+    "- [ ] There is a `cohorts` directory with cohort definitions and `instantiate_cohorts.R` file\n",
+    "- [ ] Independent analyses are split up into separate files (e.g., `incidence_analysis.R`)\n",
+    "- [ ] There is a `results` directory for study results to be saved\n",
+    "- [ ] Code is formatted and styled using `styler::style_dir()` and `lintr::lint_dir()`\n",
+    "\n",
+    "### Standard Analyses\n",
+    "- [ ] Database snapshot using `OmopSketch::summariseOmopSnapshot()`\n",
+    "- [ ] Observation period summary using `OmopSketch::summariseObservationPeriod()`\n",
+    "- [ ] Cohort count summary using `CodelistGenerator::summariseCohortCodeUse()`\n",
+    "- [ ] Cohort attrition summary using `CohortCharacteristics::summariseCohortCounts()`\n",
+    "- [ ] Cohort attrition summary using `CohortCharacteristics::summariseCohortAttrition()`\n",
+    "\n",
+    "### Shiny App\n",
+    "- [ ] There is a shiny app to review results\n",
+    "- [ ] The app has sensible defaults for input choices\n",
+    "- [ ] The app does not have redundant UI inputs\n",
+    "- [ ] There is no particularly slow performance when generating tables or plots\n",
+    "\n",
+    "### Reproducibility\n",
+    "- [ ] Renv is used to list all dependencies needed\n",
+    "- [ ] Renv file only includes packages from CRAN\n",
+    "- [ ] Study code renv does not include MASS or Matrix (dependency conflicts with R version)\n",
+    "- [ ] Most recent versions of analytic packages are being used\n",
+    "\n",
+    "### Documentation\n",
+    "- [ ] There is a central README explaining how to run the study code and review the results\n",
+    "\n",
+    "### Efficient and Robust Study Code\n",
+    "- [ ] The code runs on synthetic test database\n",
+    "- [ ] Ensure any warning messages that could be resolved when running\n",
+    "- [ ] Check whether any code is repeated unnecessarily or could be simplified\n",
+    "- [ ] Review the SQL that gets executed for any obvious inefficiencies\n",
+    "- [ ] Review the renv lock - can any packages be removed?\n",
+    "- [ ] Use `readr::read_csv` for importing CSVs and specify column types\n",
+    "- [ ] Use `stringr` for string manipulation\n",
+    "- [ ] Study code doesn't have a lot of complex, custom code unless unavoidable\n",
+    "- [ ] Study code does not have if-else statements based on data partner names unless unavoidable\n",
+    "- [ ] Output of the study is saved as a CSV\n",
+    "\n",
+    "### Review Results for Plausibility\n",
+    "- [ ] Does the code and results shown match the protocol?\n",
+    "- [ ] Have any analyses been missed?\n",
+    "- [ ] For each analysis, are cohorts defined in the right way (e.g., typically no exclusion criteria for an incidence outcome)?\n",
+    "\n",
+    "---\n",
+    "\n",
+    "📚 **Reference:** [OxInfer Code Review Guide](https://oxford-pharmacoepi.github.io/Oxinfer/onboarding/code_review.html)\n"
+  )
+}
+
+
+#' Create code review checklist issue on GitHub
+#' @keywords internal
+createCodeReviewIssue <- function(owner, repo) {
+  checklist_body <- getCodeReviewChecklistBody()
+  
+  result <- gh::gh(
+    "POST /repos/{owner}/{repo}/issues",
+    owner = owner,
+    repo = repo,
+    title = "Code Review Checklist",
+    body = checklist_body,
+    labels = list("documentation", "code-review")
+  )
+  
+  cli::cli_alert_success("Code review checklist issue created: {.url {result$html_url}}")
+  return(invisible(result))
 }

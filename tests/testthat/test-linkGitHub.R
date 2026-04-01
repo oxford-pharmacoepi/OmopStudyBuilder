@@ -178,6 +178,34 @@ test_that("linkGitHub validates repository parameter", {
 })
 
 # ============================================================================
+# CODE REVIEW CHECKLIST TESTS
+# ============================================================================
+
+test_that("getCodeReviewChecklistBody returns valid markdown", {
+  checklist <- OmopStudyBuilder:::getCodeReviewChecklistBody()
+  
+  # Should be a single character string
+  expect_type(checklist, "character")
+  expect_length(checklist, 1)
+  
+  # Should contain key sections
+  expect_true(grepl("Code Review Checklist", checklist))
+  expect_true(grepl("Study Code Organisation", checklist))
+  expect_true(grepl("Standard Analyses", checklist))
+  expect_true(grepl("Shiny App", checklist))
+  expect_true(grepl("Reproducibility", checklist))
+  expect_true(grepl("Documentation", checklist))
+  expect_true(grepl("Efficient and Robust Study Code", checklist))
+  expect_true(grepl("Review Results for Plausibility", checklist))
+  
+  # Should contain checkboxes
+  expect_true(grepl("- \\[ \\]", checklist))
+  
+  # Should contain link to OxInfer guide
+  expect_true(grepl("oxford-pharmacoepi.github.io/Oxinfer", checklist))
+})
+
+# ============================================================================
 # MANUAL/INTEGRATION TESTS
 # These tests require real GitHub authentication and network access
 # Run manually with: testthat::test_file("test-linkGitHub.R", filter = "manual")
@@ -203,17 +231,27 @@ test_that("linkGitHub full workflow (MANUAL TEST - requires GITHUB_PAT)", {
     directory = temp_dir,
     repository = test_repo_name,
     organisation = NULL,  # Creates under personal account
-    private = TRUE
+    private = TRUE,
+    createIssue = TRUE    # Should create code review checklist issue
   )
 
   # Verify result
   expect_true(grepl("github.com", result))
   expect_true(grepl(test_repo_name, result))
 
+  # Verify issue was created (optional - requires additional API call)
+  # user <- gh::gh("GET /user")
+  # issues <- gh::gh("GET /repos/{owner}/{repo}/issues", 
+  #                  owner = user$login, 
+  #                  repo = test_repo_name)
+  # expect_true(length(issues) > 0)
+  # expect_true(any(sapply(issues, function(x) x$title == "Code Review Checklist")))
+
   # Cleanup: Delete the test repository
   # NOTE: You may need to delete this manually from GitHub
   message("Test repository created: ", result)
   message("Please delete manually from GitHub if needed")
+  message("Check that code review checklist issue was created")
 })
 
 test_that("initStudy with GitHub integration (MANUAL TEST)", {
