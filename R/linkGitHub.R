@@ -360,8 +360,17 @@ setupGitRemote <- function(directory, clone_url, default_branch, user_info = NUL
   # Ensure Git identity is configured (uses GitHub account info if available)
   ensureGitIdentity(directory, user_info)
   
-  # Add remote
-  system2("git", c("remote", "add", "origin", clone_url), stdout = FALSE, stderr = FALSE)
+  # Setup remote (update if exists, add if new)
+  existing_remote <- system2("git", c("remote", "get-url", "origin"), 
+                            stdout = TRUE, stderr = FALSE)
+  if (!is.null(existing_remote) && length(existing_remote) > 0 && nzchar(existing_remote[1])) {
+    # Remote exists - update it
+    system2("git", c("remote", "set-url", "origin", clone_url), stdout = FALSE, stderr = FALSE)
+    cli::cli_alert_info("Updated existing git remote to: {.val {clone_url}}")
+  } else {
+    # No remote - add it
+    system2("git", c("remote", "add", "origin", clone_url), stdout = FALSE, stderr = FALSE)
+  }
   
   # Stage all files
   result <- system2("git", c("add", "-A"), stdout = TRUE, stderr = TRUE)
