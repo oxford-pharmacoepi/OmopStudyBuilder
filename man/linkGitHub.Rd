@@ -31,6 +31,29 @@ GitHub repository URL (invisibly)
 Creates a new GitHub repository and connects it to an existing study directory.
 Initializes git, creates .gitignore, commits all files, and pushes to GitHub.
 }
+\section{Requirements}{
+
+\itemize{
+  \item \strong{Git must be installed}: Download from \url{https://git-scm.com/downloads}
+  \item \strong{GitHub Personal Access Token (PAT)}: Set \code{GITHUB_PAT} environment variable
+  \item \strong{R package 'gh'}: Install with \code{install.packages("gh")}
+}
+}
+
+\section{Authentication}{
+
+This function uses your GitHub Personal Access Token (PAT) for authentication.
+If Git user identity is not configured, it will automatically be set using your
+GitHub account information from the PAT.
+
+To set up authentication:
+\enumerate{
+  \item Create a PAT at \url{https://github.com/settings/tokens}
+  \item Add to .Renviron: \code{GITHUB_PAT='your_token_here'}
+  \item Restart R
+}
+}
+
 \examples{
 \dontrun{
 # Create repo under personal account

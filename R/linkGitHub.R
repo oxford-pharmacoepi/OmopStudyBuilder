@@ -1,9 +1,45 @@
 # GitHub Integration for OMOP Studies
 
+#' Check if Git is installed
+#' @return TRUE if Git is available, throws error otherwise
+#' @keywords internal
+ensureGit <- function() {
+  git_bin <- Sys.which("git")
+  if (!nzchar(git_bin)) {
+    cli::cli_abort(c(
+      "Git not found on PATH",
+      "i" = "Git is required for GitHub integration",
+      "i" = "Install Git from: {.url https://git-scm.com/downloads}",
+      "i" = "After installing, restart R"
+    ))
+  }
+  return(invisible(TRUE))
+}
+
+
 #' Link study directory to GitHub repository
 #'
 #' Creates a new GitHub repository and connects it to an existing study directory.
 #' Initializes git, creates .gitignore, commits all files, and pushes to GitHub.
+#' 
+#' @section Requirements:
+#' \itemize{
+#'   \item \strong{Git must be installed}: Download from \url{https://git-scm.com/downloads}
+#'   \item \strong{GitHub Personal Access Token (PAT)}: Set \code{GITHUB_PAT} environment variable
+#'   \item \strong{R package 'gh'}: Install with \code{install.packages("gh")}
+#' }
+#' 
+#' @section Authentication:
+#' This function uses your GitHub Personal Access Token (PAT) for authentication.
+#' If Git user identity is not configured, it will automatically be set using your
+#' GitHub account information from the PAT.
+#' 
+#' To set up authentication:
+#' \enumerate{
+#'   \item Create a PAT at \url{https://github.com/settings/tokens}
+#'   \item Add to .Renviron: \code{GITHUB_PAT='your_token_here'}
+#'   \item Restart R
+#' }
 #'
 #' @param directory Path to study directory
 #' @param repository GitHub repository name (will be sanitized if needed)
@@ -36,6 +72,9 @@ linkGitHub <- function(directory,
                        organisation = NULL,
                        private = TRUE,
                        description = NULL) {
+  
+  # Check Git is installed
+  ensureGit()
   
   # Validate inputs
   if (!dir.exists(directory)) {
