@@ -94,11 +94,8 @@ linkGitHub <- function(directory,
     ))
   }
   
-  # Sanitize repository name
-  repo_clean <- sanitizeRepoName(repository)
-  if (repo_clean != repository) {
-    cli::cli_alert_info("Repository name sanitized: {.val {repository}} -> {.val {repo_clean}}")
-  }
+  # Validate repository name
+  validateRepoName(repository)
   
   # Check authentication
   cli::cli_alert_info("Checking GitHub authentication...")
@@ -106,8 +103,8 @@ linkGitHub <- function(directory,
   owner <- if (!is.null(organisation)) organisation else user_info$login
   
   # Check if repo available
-  if (!checkRepoAvailable(owner, repo_clean)) {
-    cli::cli_abort("Repository {.val {owner}/{repo_clean}} already exists on GitHub")
+  if (!checkRepoAvailable(owner, repository)) {
+    cli::cli_abort("Repository {.val {owner}/{repository}} already exists on GitHub")
   }
   
   # Initialize git locally
@@ -118,11 +115,11 @@ linkGitHub <- function(directory,
   createStudyGitIgnore(directory)
   
   # Create GitHub repository
-  cli::cli_alert_info("Creating GitHub repository: {.val {owner}/{repo_clean}}")
+  cli::cli_alert_info("Creating GitHub repository: {.val {owner}/{repository}}")
   if (is.null(description)) {
     description <- paste("OMOP CDM study:", basename(directory))
   }
-  repo_info <- createGitHubRepo(repo_clean, organisation, private, description)
+  repo_info <- createGitHubRepo(repository, organisation, private, description)
   repo_url <- repo_info$html_url
   
   # Setup remote and push
@@ -176,27 +173,56 @@ checkRepoAvailable <- function(owner, repo) {
 }
 
 
-#' Sanitize repository name for GitHub
+#' Validate repository name for GitHub
+#'
+#' Checks if a repository name follows GitHub naming rules.
+#' Throws an error with helpful suggestions if invalid.
+#'
+#' @param name Repository name to validate
+#' @return TRUE if valid, throws error otherwise
 #' @keywords internal
-sanitizeRepoName <- function(name) {
-  # Convert to lowercase
-  name <- tolower(name)
-  # Replace spaces and underscores with hyphens
-  name <- gsub("\\s+", "-", name)
-  name <- gsub("_+", "-", name)
-  # Remove invalid characters (keep only alphanumeric and hyphens)
-  name <- gsub("[^a-z0-9\\-]", "", name)
-  # Remove leading hyphens
-  name <- gsub("^-+", "", name)
-  # Remove trailing hyphens
-  name <- gsub("-+$", "", name)
-  # Collapse multiple hyphens
-  name <- gsub("-+", "-", name)
-  # Truncate to 100 characters
-  if (nchar(name) > 100) name <- substr(name, 1, 100)
-  # Ensure not empty
-  if (!nzchar(name)) name <- "study"
-  return(name)
+validateRepoName <- function(name) {
+  # Check not empty
+  if (!nzchar(name)) {
+    cli::cli_abort(c(
+      "Repository name cannot be empty",
+      "i" = "Choose a descriptive name like 'my-study' or 'diabetes-analysis'"
+    ))
+  }
+  
+  # Check length
+  if (nchar(name) > 100) {
+    cli::cli_abort(c(
+      "Repository name too long: {nchar(name)} characters (max 100)",
+      "i" = "Shorten to: {.val {substr(name, 1, 100)}}"
+    ))
+  }
+  
+  # Check for spaces
+  if (grepl("\\s", name)) {
+    cli::cli_abort(c(
+      "Repository name cannot contain spaces: {.val {name}}",
+      "i" = "Use hyphens instead: {.val {gsub('\\\\s+', '-', name)}}"
+    ))
+  }
+  
+  # Check for invalid characters (allow letters, numbers, hyphens, underscores, dots)
+  if (grepl("[^a-zA-Z0-9._-]", name)) {
+    cli::cli_abort(c(
+      "Repository name contains invalid characters: {.val {name}}",
+      "i" = "Only letters, numbers, hyphens (-), underscores (_), and periods (.) are allowed"
+    ))
+  }
+  
+  # Check leading/trailing hyphens
+  if (grepl("^-|-$", name)) {
+    cli::cli_abort(c(
+      "Repository name cannot start or end with hyphen: {.val {name}}",
+      "i" = "Remove leading/trailing hyphens"
+    ))
+  }
+  
+  return(invisible(TRUE))
 }
 
 
