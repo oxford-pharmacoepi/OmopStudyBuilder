@@ -75,23 +75,11 @@ initStudy <- function(directory,
   validateRootDirectory(directory)
   omopgenerics::assertLogical(diagnostics, length = 1)
   omopgenerics::assertLogical(study, length = 1)
-  
-  # Validate optional parameters
-  if (!is.null(studyTitle)) {
-    omopgenerics::assertCharacter(studyTitle, length = 1)
-  }
-  if (!is.null(studyLeads)) {
-    omopgenerics::assertCharacter(studyLeads, length = 1)
-  }
-  if (!is.null(studyDescription)) {
-    omopgenerics::assertCharacter(studyDescription, length = 1)
-  }
-  if (!is.null(repository)) {
-    omopgenerics::assertCharacter(repository, length = 1)
-  }
-  if (!is.null(organisation)) {
-    omopgenerics::assertCharacter(organisation, length = 1)
-  }
+  omopgenerics::assertCharacter(studyTitle, length = 1, null = TRUE)
+  omopgenerics::assertCharacter(studyLeads, length = 1, null = TRUE)
+  omopgenerics::assertCharacter(studyDescription, length = 1, null = TRUE)
+  omopgenerics::assertCharacter(repository, length = 1, null = TRUE)
+  omopgenerics::assertCharacter(organisation, length = 1, null = TRUE)
   omopgenerics::assertLogical(private, length = 1)
 
   # Set smart defaults for template variables
