@@ -119,13 +119,7 @@ dockeriseStudy <- function(image_name = NULL,
   # Ensure Docker is running
   ensureDocker()
 
-  if (!requireNamespace("renv", quietly = TRUE)) {
-    stop(
-      "Package 'renv' is required for dockeriseStudy().\n",
-      "Install it with: install.packages('renv')",
-      call. = FALSE
-    )
-  }
+  rlang::check_installed("renv", reason = "for dockeriseStudy()")
   
   # Update renv.lock to capture all dependencies
   if (snapshot) {
@@ -628,9 +622,7 @@ runRStudio <- function(image_name = NULL, results_path = "./results", env_file =
 runStudy <- function(image_name = NULL, results_path = "./results", env_file = NULL,
                      data_path = NULL, script_path = "codeToRun.R") {
   ensureDocker()
-  if (!requireNamespace("processx", quietly = TRUE)) {
-    stop("Package 'processx' is required for runStudy().\nInstall it with: install.packages('processx')", call. = FALSE)
-  }
+  rlang::check_installed("processx", reason = "for runStudy()")
   
   image_name <- autoDetectImageName(image_name)
   verifyImageExists(image_name)
