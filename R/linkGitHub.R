@@ -320,7 +320,7 @@ createStudyGitIgnore <- function(directory) {
     "renv/local/",
     "",
     "# OS files",
-    ".DS_Store",
+    "*.DS_Store",
     "Thumbs.db",
     "",
     "# Docker (generated files)",
