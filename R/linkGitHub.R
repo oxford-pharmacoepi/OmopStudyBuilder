@@ -267,7 +267,12 @@ createGitHubRepo <- function(repository, organisation, private, description) {
   }
   
   if (is.null(repo) || is.null(repo$clone_url)) {
-    cli::cli_abort("Failed to create GitHub repository - invalid response")
+    cli::cli_abort(c(
+      "Failed to create GitHub repository - incomplete API response",
+      "i" = "Expected repository information with clone URL",
+      "i" = "This may be a temporary GitHub API issue. Please try again.",
+      "i" = "Check GitHub status: {.url https://www.githubstatus.com}"
+    ))
   }
   
   return(repo)
