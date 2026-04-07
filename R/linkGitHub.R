@@ -102,7 +102,7 @@ linkGitHub <- function(directory,
   # Check authentication
   cli::cli_alert_info("Checking GitHub authentication...")
   user_info <- checkGitHubAuth()
-  owner <- if (!is.null(organisation)) organisation else user_info$login
+  owner <- organisation %||% user_info$login
   
   # Check if repo available
   if (!checkRepoAvailable(owner, repository)) {
