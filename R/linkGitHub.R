@@ -180,9 +180,9 @@ checkRepoAvailable <- function(owner, repo) {
     error_msg <- attr(repo_check, "condition")$message
     if (grepl("404", error_msg)) {
       return(TRUE)  # Repo doesn't exist (available)
-    } else {
-      cli::cli_abort("Failed to check repository availability: {error_msg}")
     }
+    # If not 404, it's a real error (network issue, auth problem, etc.)
+    cli::cli_abort("Failed to check repository availability: {error_msg}")
   }
   
   return(FALSE)  # Repo exists
