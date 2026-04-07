@@ -478,13 +478,11 @@ setupGitRemote <- function(directory, clone_url, default_branch, user_info = NUL
     # No commits yet - create a README to ensure there's something to commit
     readme_path <- file.path(directory, "README.md")
     if (!file.exists(readme_path)) {
-      readme_content <- c(
-        paste0("# ", basename(directory)),
-        "",
-        "This is an OMOP CDM study repository.",
-        "",
-        paste0("Created: ", Sys.Date())
-      )
+      # Read README template and substitute placeholders
+      template_path <- system.file("templates", "README_GITHUB.md", package = "OmopStudyBuilder")
+      readme_content <- readLines(template_path, warn = FALSE)
+      readme_content <- gsub("{{REPO_NAME}}", basename(directory), readme_content)
+      readme_content <- gsub("{{DATE}}", as.character(Sys.Date()), readme_content)
       writeLines(readme_content, readme_path)
       
       # Stage and commit the README
