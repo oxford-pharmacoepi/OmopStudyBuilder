@@ -132,7 +132,6 @@ linkGitHub <- function(directory,
   if (is.null(result)) {
     cli::cli_alert_warning("GitHub repository created but not linked to local directory")
     cli::cli_alert_info("Repository URL: {.url {repo_url}}")
-    cli::cli_alert_info("To link later, run: git remote add origin {repo_info$clone_url}")
     return(invisible(NULL))
   }
   
