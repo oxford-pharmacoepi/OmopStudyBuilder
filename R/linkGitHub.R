@@ -436,8 +436,8 @@ setupGitRemote <- function(directory, clone_url, default_branch, user_info = NUL
       return(invisible(NULL))
     }
     
-    response <- readline("Continue? (y/n): ")
-    if (!tolower(trimws(response)) %in% c("y", "yes")) {
+    response <- utils::askYesNo("Continue?", default = FALSE)
+    if (isFALSE(response)) {
       cli::cli_alert_info("Cancelled. Remote not changed.")
       return(invisible(NULL))
     }
