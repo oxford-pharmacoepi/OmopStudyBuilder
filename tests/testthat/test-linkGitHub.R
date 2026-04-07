@@ -184,7 +184,8 @@ test_that("linkGitHub validates repository parameter", {
 # ============================================================================
 
 test_that("linkGitHub full workflow (MANUAL TEST - requires GITHUB_PAT)", {
-  skip("Manual test - requires GITHUB_PAT and creates real GitHub repo")
+  skip_if_not(Sys.getenv("RUN_MANUAL_TESTS") == "true", 
+              "Manual test - set RUN_MANUAL_TESTS=true to run (requires GITHUB_PAT)")
   skip_if_not(nzchar(Sys.getenv("GITHUB_PAT")), "GITHUB_PAT not set")
   skip_if_not_installed("gh")
 
@@ -217,7 +218,8 @@ test_that("linkGitHub full workflow (MANUAL TEST - requires GITHUB_PAT)", {
 })
 
 test_that("initStudy with GitHub integration (MANUAL TEST)", {
-  skip("Manual test - requires GITHUB_PAT and creates real GitHub repo")
+  skip_if_not(Sys.getenv("RUN_MANUAL_TESTS") == "true", 
+              "Manual test - set RUN_MANUAL_TESTS=true to run (requires GITHUB_PAT)")
   skip_if_not(nzchar(Sys.getenv("GITHUB_PAT")), "GITHUB_PAT not set")
   skip_if_not_installed("gh")
 
