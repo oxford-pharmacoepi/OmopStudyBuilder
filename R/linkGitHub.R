@@ -82,14 +82,16 @@ linkGitHub <- function(directory,
   ensureGit()
   
   # Validate inputs
+  omopgenerics::assertCharacter(directory, length = 1)
+  omopgenerics::assertCharacter(repository, length = 1)
+  omopgenerics::assertCharacter(organisation, length = 1, null = TRUE)
+  omopgenerics::assertLogical(private, length = 1)
+  omopgenerics::assertCharacter(description, length = 1, null = TRUE)
+  
   if (!dir.exists(directory)) {
     cli::cli_abort("Directory does not exist: {.path {directory}}")
   }
   directory <- normalizePath(directory, mustWork = TRUE)
-  
-  if (missing(repository) || is.null(repository) || !nzchar(repository)) {
-    cli::cli_abort("repository name is required")
-  }
   
   # Check gh package
   if (!requireNamespace("gh", quietly = TRUE)) {

@@ -66,7 +66,7 @@ test_that("linkGitHub requires repository parameter", {
   temp_dir <- tempdir()
   expect_error(
     linkGitHub(directory = temp_dir),
-    "repository name is required"
+    "missing, with no default"
   )
 })
 
@@ -168,12 +168,12 @@ test_that("linkGitHub validates repository parameter", {
 
   expect_error(
     linkGitHub(directory = temp_dir, repository = NULL),
-    "repository name is required"
+    "can not be NULL"
   )
 
   expect_error(
     linkGitHub(directory = temp_dir, repository = ""),
-    "repository name is required"
+    "Repository name cannot be empty"
   )
 })
 
