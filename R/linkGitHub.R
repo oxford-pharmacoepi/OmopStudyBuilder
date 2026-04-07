@@ -93,13 +93,8 @@ linkGitHub <- function(directory,
   }
   directory <- normalizePath(directory, mustWork = TRUE)
   
-  # Check gh package
-  if (!requireNamespace("gh", quietly = TRUE)) {
-    cli::cli_abort(c(
-      "Package {.pkg gh} is required for GitHub integration",
-      "i" = "Install it with: install.packages('gh')"
-    ))
-  }
+  # Check gh package is installed
+  rlang::check_installed("gh", reason = "for GitHub integration")
   
   # Validate repository name
   validateRepoName(repository)
