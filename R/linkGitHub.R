@@ -119,7 +119,7 @@ linkGitHub <- function(directory,
   # Create GitHub repository
   cli::cli_alert_info("Creating GitHub repository: {.val {owner}/{repository}}")
   if (is.null(description)) {
-    description <- paste("OMOP CDM study:", basename(directory))
+    description <- paste0("OMOP CDM study: ", basename(directory), " | Created with OmopStudyBuilder")
   }
   repo_info <- createGitHubRepo(repository, organisation, private, description)
   repo_url <- repo_info$html_url
