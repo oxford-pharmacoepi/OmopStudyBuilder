@@ -149,7 +149,7 @@ linkGitHub <- function(directory,
 #' Check GitHub authentication
 #' @keywords internal
 checkGitHubAuth <- function() {
-  user <- try(gh::gh("GET /user"), silent = TRUE)
+  user <- try(gh::gh_whoami(), silent = TRUE)
   
   if (inherits(user, "try-error")) {
     cli::cli_abort(c(
@@ -367,7 +367,7 @@ ensureGitIdentity <- function(directory, user_info = NULL) {
   
   # Get GitHub user info if not provided
   if (is.null(user_info)) {
-    user_fetch <- try(gh::gh("GET /user"), silent = TRUE)
+    user_fetch <- try(gh::gh_whoami(), silent = TRUE)
     if (inherits(user_fetch, "try-error")) {
       user_info <- NULL
     } else {
