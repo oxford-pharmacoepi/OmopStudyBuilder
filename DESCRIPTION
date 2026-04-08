@@ -38,6 +38,8 @@ Imports:
     whisker
 Suggests: 
     here,
+    renv,
+    gh,
     knitr,
     renv,
     rmarkdown,

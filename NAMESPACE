@@ -2,6 +2,7 @@
 
 export(dockeriseStudy)
 export(initStudy)
+export(linkGitHub)
 export(pushDockerImage)
 export(reviewStudy)
 export(runRStudio)

@@ -10,7 +10,10 @@ initStudy(
   study = TRUE,
   studyTitle = NULL,
   studyLeads = NULL,
-  studyDescription = NULL
+  studyDescription = NULL,
+  repository = NULL,
+  organisation = NULL,
+  private = TRUE
 )
 }
 \arguments{
@@ -36,6 +39,16 @@ leaves a placeholder.}
 
 \item{studyDescription}{Character string with study description. If NULL (default),
 leaves a placeholder.}
+
+\item{repository}{Optional GitHub repository name. If provided, creates a GitHub
+repository and links it to the study. Requires the \code{gh} package and
+GitHub authentication (GITHUB_PAT environment variable).}
+
+\item{organisation}{Optional GitHub organisation name. If NULL (default), creates
+repository under your personal account. Only used when \code{repository} is provided.}
+
+\item{private}{Logical. If TRUE (default), creates a private GitHub repository.
+Only used when \code{repository} is provided.}
 }
 \value{
 Project directory will be created
@@ -56,4 +69,18 @@ study_root2 <- file.path(tempdir(), "DiabetesStudy")
 initStudy(study_root2,
           studyTitle = "Diabetes Prevalence Study",
           studyLeads = "Dr. Smith, Dr. Jones")
+
+\dontrun{
+# Create study with GitHub integration (requires GITHUB_PAT)
+# Set PAT for current session:
+Sys.setenv(GITHUB_PAT = "your_token_here")
+
+study_root3 <- file.path(tempdir(), "GitHubStudy")
+initStudy(
+  directory = study_root3,
+  repository = "my-omop-study",
+  organisation = "oxford-pharmacoepi",
+  private = TRUE
+)
+}
 }

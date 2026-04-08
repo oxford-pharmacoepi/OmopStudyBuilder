@@ -22,6 +22,16 @@
 #'
 #' @param studyDescription Character string with study description. If NULL (default),
 #'   leaves a placeholder.
+#' 
+#' @param repository Optional GitHub repository name. If provided, creates a GitHub
+#'   repository and links it to the study. Requires the \code{gh} package and
+#'   GitHub authentication (GITHUB_PAT environment variable).
+#'
+#' @param organisation Optional GitHub organisation name. If NULL (default), creates
+#'   repository under your personal account. Only used when \code{repository} is provided.
+#'
+#' @param private Logical. If TRUE (default), creates a private GitHub repository.
+#'   Only used when \code{repository} is provided.
 #'
 #' @returns Project directory will be created
 #' @export
@@ -39,15 +49,38 @@
 #' initStudy(study_root2,
 #'           studyTitle = "Diabetes Prevalence Study",
 #'           studyLeads = "Dr. Smith, Dr. Jones")
+#'
+#' \dontrun{
+#' # Create study with GitHub integration (requires GITHUB_PAT)
+#' # Set PAT for current session:
+#' Sys.setenv(GITHUB_PAT = "your_token_here")
+#'
+#' study_root3 <- file.path(tempdir(), "GitHubStudy")
+#' initStudy(
+#'   directory = study_root3,
+#'   repository = "my-omop-study",
+#'   organisation = "oxford-pharmacoepi",
+#'   private = TRUE
+#' )
+#' }
 initStudy <- function(directory,
                         diagnostics = TRUE,
                         study = TRUE,
                         studyTitle = NULL,
                         studyLeads = NULL,
-                        studyDescription = NULL) {
+                        studyDescription = NULL,
+                        repository = NULL,
+                        organisation = NULL,
+                        private = TRUE) {
   validateRootDirectory(directory)
   omopgenerics::assertLogical(diagnostics, length = 1)
   omopgenerics::assertLogical(study, length = 1)
+  omopgenerics::assertCharacter(studyTitle, length = 1, null = TRUE)
+  omopgenerics::assertCharacter(studyLeads, length = 1, null = TRUE)
+  omopgenerics::assertCharacter(studyDescription, length = 1, null = TRUE)
+  omopgenerics::assertCharacter(repository, length = 1, null = TRUE)
+  omopgenerics::assertCharacter(organisation, length = 1, null = TRUE)
+  omopgenerics::assertLogical(private, length = 1)
 
   # Set smart defaults for template variables
   if (is.null(studyTitle)) {
@@ -138,6 +171,15 @@ initStudy <- function(directory,
     cli::cli_alert_success("{.strong {directoryStudyShiny}} prepared for study shiny app")
   }
 
+  # GitHub integration (optional)
+  if (!is.null(repository)) {
+    linkGitHub(
+      directory = directory,
+      repository = repository,
+      organisation = organisation,
+      private = private
+    )
+  }
 
   return(invisible())
 }
