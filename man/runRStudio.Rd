@@ -32,3 +32,21 @@ Container ID (invisibly)
 Note: The Docker image must include RStudio Server (i.e., be built with
 `dockeriseStudy(useRStudio = TRUE)` which uses a `rocker/rstudio` base image).
 }
+\examples{
+\dontrun{
+# Start RStudio Server (opens in browser)
+runRStudio()
+
+# Start with custom port and password
+runRStudio(port = 8888, password = "mysecurepass")
+
+# Start with custom results directory
+runRStudio(results_path = "./output")
+
+# Start with environment variables
+runRStudio(env_file = ".env")
+
+# Stop RStudio when done
+stopStudy(mode = "rstudio")
+}
+}

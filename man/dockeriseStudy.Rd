@@ -32,3 +32,24 @@ Image name (invisibly - already printed to console)
 \description{
 Build a Docker image for an OMOP study
 }
+\examples{
+\dontrun{
+# Build Docker image for current study
+dockeriseStudy()
+
+# Build with RStudio Server base image
+dockeriseStudy(useRStudio = TRUE)
+
+# Build with specific R version and custom image name
+dockeriseStudy(
+  image_name = "my-omop-study",
+  r_version = "4.3.1"
+)
+
+# Build without updating renv.lock
+dockeriseStudy(snapshot = FALSE)
+
+# Build with GitHub token for private packages
+dockeriseStudy(github_token = Sys.getenv("GITHUB_PAT"))
+}
+}

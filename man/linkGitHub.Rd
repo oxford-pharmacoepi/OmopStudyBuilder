@@ -35,20 +35,24 @@ Initializes git, creates .gitignore, commits all files, and pushes to GitHub.
 
 \itemize{
   \item \strong{Git must be installed}: Download from \url{https://git-scm.com/downloads}
-  \item \strong{GitHub Personal Access Token (PAT)}: Set \code{GITHUB_PAT} environment variable
+  \item \strong{GitHub authentication}: Set up via GITHUB_PAT, gh CLI, or git credentials
   \item \strong{R package 'gh'}: Install with \code{install.packages("gh")}
 }
 }
 
 \section{Authentication}{
 
-This function uses your GitHub Personal Access Token (PAT) for authentication.
-If Git user identity is not configured, it will automatically be set using your
-GitHub account information from the PAT.
+This function requires GitHub authentication. The \code{gh} package supports multiple methods:
+\itemize{
+  \item \strong{GITHUB_PAT environment variable}: \code{Sys.setenv(GITHUB_PAT = "your_token")}
+  \item \strong{gh CLI}: Run \code{gh auth login} in terminal
+  \item \strong{Git credentials}: Stored credentials from git credential helper
+}
 
-To set up authentication:
+To create a Personal Access Token (PAT):
 \enumerate{
-  \item Create a PAT at \url{https://github.com/settings/tokens}
+  \item Visit \url{https://github.com/settings/tokens}
+  \item Generate a token with \code{repo} scope
   \item Set for current session: \code{Sys.setenv(GITHUB_PAT = "your_token_here")}
   \item Or add to .Renviron: \code{GITHUB_PAT='your_token_here'} and restart R
 }
@@ -58,8 +62,10 @@ To set up authentication:
 \dontrun{
 library(OmopStudyBuilder)
 
-# Set GitHub token for current session
+# Authenticate (choose one method):
+# 1. Set GITHUB_PAT for current session
 Sys.setenv(GITHUB_PAT = "your_token_here")
+# 2. Or use gh CLI: gh auth login
 
 # Create repo under personal account
 linkGitHub(

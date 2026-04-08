@@ -24,3 +24,21 @@ Invisibly returns `NULL`. Called for its side effects of printing
 \description{
 Summarises the code and/or renv dependencies in a study directory.
 }
+\examples{
+\dontrun{
+# Review current study directory
+reviewStudy(".")
+
+# Review only code (no dependencies)
+reviewStudy(".", dependencies = FALSE)
+
+# Review only dependencies
+reviewStudy(".", code = FALSE)
+
+# Review reporting project dependencies
+reviewStudy(".", type = "reporting")
+
+# Review specific directory
+reviewStudy("/path/to/study")
+}
+}
