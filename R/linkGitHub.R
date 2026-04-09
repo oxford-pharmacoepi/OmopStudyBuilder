@@ -323,7 +323,7 @@ createStudyGitIgnore <- function(directory) {
   )
   
   if (file.exists(gitignore_path)) {
-    existing <- readLines(gitignore_path, warn = FALSE)
+    existing <- trimws(readLines(gitignore_path, warn = FALSE))
     # Only add missing lines
     to_add <- setdiff(gitignore_content, existing)
     if (length(to_add) > 0) {
