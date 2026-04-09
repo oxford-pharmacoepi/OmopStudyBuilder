@@ -89,7 +89,7 @@ linkGitHub <- function(directory,
   
   # Validate inputs
   omopgenerics::assertCharacter(directory, length = 1)
-  omopgenerics::assertCharacter(repository, length = 1)
+  omopgenerics::assertCharacter(repository, length = 1, minNumCharacter = 1)
   omopgenerics::assertCharacter(organisation, length = 1, null = TRUE)
   omopgenerics::assertLogical(private, length = 1)
   omopgenerics::assertCharacter(description, length = 1, null = TRUE)
@@ -198,14 +198,6 @@ checkRepoAvailable <- function(owner, repo) {
 #' @return TRUE if valid, throws error otherwise
 #' @keywords internal
 validateRepoName <- function(name) {
-  # Check not empty
-  if (!nzchar(name)) {
-    cli::cli_abort(c(
-      "Repository name cannot be empty",
-      "i" = "Choose a descriptive name like 'my-study' or 'diabetes-analysis'"
-    ))
-  }
-  
   # Check length
   if (nchar(name) > 100) {
     cli::cli_abort(c(
