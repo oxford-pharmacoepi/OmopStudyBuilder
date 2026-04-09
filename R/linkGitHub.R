@@ -155,8 +155,8 @@ checkGitHubAuth <- function() {
   if (inherits(user, "try-error")) {
     cli::cli_abort(c(
       "GitHub authentication failed",
-      "i" = "Set GITHUB_PAT environment variable: {.code Sys.setenv(GITHUB_PAT = \"your_token\")}",
-      "i" = "Or authenticate with gh CLI: {.code gh auth login}",
+      "i" = "In R console, set GITHUB_PAT: {.code Sys.setenv(GITHUB_PAT = \"your_token\")}",
+      "i" = "Or in terminal, authenticate with gh CLI: {.code gh auth login}",
       "i" = "Create token at: {.url https://github.com/settings/tokens}"
     ))
   }
