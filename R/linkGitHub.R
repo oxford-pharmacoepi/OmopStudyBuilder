@@ -198,11 +198,13 @@ checkRepoAvailable <- function(owner, repo) {
 #' @return TRUE if valid, throws error otherwise
 #' @keywords internal
 validateRepoName <- function(name) {
+  max_length <- 30
+  
   # Check length
-  if (nchar(name) > 30) {
+  if (nchar(name) > max_length) {
     cli::cli_abort(c(
-      "Repository name too long: {nchar(name)} characters (max 30)",
-      "i" = "Shorten to: {.val {substr(name, 1, 30)}}"
+      "Repository name too long: {nchar(name)} characters (max {max_length})",
+      "i" = "Shorten to: {.val {substr(name, 1, max_length)}}"
     ))
   }
   
