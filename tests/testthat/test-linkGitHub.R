@@ -203,6 +203,40 @@ test_that("ensureGitIdentity errors when git identity is missing and user info i
   )
 })
 
+test_that("setupGitRemote pushes the actual local branch to a bare remote", {
+  skip_if_not_installed("gert")
+
+  repo_dir <- tempfile("test-linkGitHub-local-")
+  remote_dir <- tempfile("test-linkGitHub-remote-")
+
+  on.exit({
+    unlink(repo_dir, recursive = TRUE)
+    unlink(remote_dir, recursive = TRUE)
+  }, add = TRUE)
+
+  dir.create(repo_dir, recursive = TRUE)
+  dir.create(remote_dir, recursive = TRUE)
+
+  gert::git_init(repo_dir)
+  gert::git_init(remote_dir, bare = TRUE)
+  gert::git_config_set("user.name", "Test User", repo = repo_dir)
+  gert::git_config_set("user.email", "test@example.com", repo = repo_dir)
+
+  writeLines("hello", file.path(repo_dir, "README.md"))
+
+  expect_no_error(
+    OmopStudyBuilder:::setupGitRemote(
+      directory = repo_dir,
+      clone_url = remote_dir,
+      default_branch = "master",
+      user_info = list(login = "test", name = "Test User", email = "test@example.com")
+    )
+  )
+
+  remote_branches <- gert::git_branch_list(repo = remote_dir)
+  expect_true("master" %in% remote_branches$name)
+})
+
 test_that("linkGitHub validates directory parameter", {
   expect_error(
     linkGitHub(directory = NULL, repository = "test"),

@@ -491,11 +491,14 @@ setupGitRemote <- function(directory, clone_url, default_branch, user_info = NUL
     }
   }
   
-  # Push
+  # Push the actual local branch using a full refspec accepted by gert.
+  local_branch <- gert::git_branch(repo = directory)
+  push_refspec <- paste0("refs/heads/", local_branch)
+
   gertCall(
     gert::git_push(
       remote = "origin",
-      refspec = default_branch,
+      refspec = push_refspec,
       set_upstream = TRUE,
       repo = directory,
       verbose = FALSE
