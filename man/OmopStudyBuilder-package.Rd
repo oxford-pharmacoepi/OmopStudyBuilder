@@ -4,14 +4,30 @@
 \name{OmopStudyBuilder-package}
 \alias{OmopStudyBuilder}
 \alias{OmopStudyBuilder-package}
-\title{OmopStudyBuilder: What the Package Does (Title Case)}
+\title{OmopStudyBuilder: Build reproducible network studies for OMOP common data model databases}
 \description{
-More about what it does (maybe more than one line) Use four spaces when indenting paragraphs within the Description.
+Streamlines the setup and execution of network studies using the Observational Medical Outcomes Partnership (OMOP) Common Data Model (CDM). Creates standardized project structures with template code, manages dependencies with 'renv', provides code review utilities, and supports containerized execution with 'Docker' for reproducible multi-site studies. Includes 'GitHub' integration for collaboration and version control.
 }
 \seealso{
 Useful links:
 \itemize{
   \item \url{https://oxford-pharmacoepi.github.io/OmopStudyBuilder/}
+  \item Report bugs at \url{https://github.com/oxford-pharmacoepi/OmopStudyBuilder/issues}
+}
+
+}
+\author{
+\strong{Maintainer}: Folu Akintola \email{folu.akintola@ndorms.ox.ac.uk} (\href{https://orcid.org/0000-0002-0588-2298}{ORCID})
+
+Authors:
+\itemize{
+  \item Edward Burn \email{edward.burn@ndorms.ox.ac.uk} (\href{https://orcid.org/0000-0002-9286-1128}{ORCID})
+  \item Martí Català \email{marti.catalasabate@ndorms.ox.ac.uk} (\href{https://orcid.org/0000-0003-3308-9905}{ORCID})
+}
+
+Other contributors:
+\itemize{
+  \item Marta Alcalde-Herraiz \email{marta.alcaldeherraiz@ndorms.ox.ac.uk} (\href{https://orcid.org/0009-0002-4405-1814}{ORCID}) [contributor]
 }
 
 }

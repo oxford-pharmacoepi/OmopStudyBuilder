@@ -155,9 +155,7 @@ checkGitHubAuth <- function() {
   if (inherits(user, "try-error")) {
     cli::cli_abort(c(
       "GitHub authentication failed",
-      "i" = "In R console, set GITHUB_PAT: {.code Sys.setenv(GITHUB_PAT = \"your_token\")}",
-      "i" = "Or in terminal, authenticate with gh CLI: {.code gh auth login}",
-      "i" = "Create token at: {.url https://github.com/settings/tokens}"
+      "i" = "See {.code ?linkGitHub} for authentication setup details"
     ))
   }
   
@@ -338,12 +336,32 @@ createStudyGitIgnore <- function(directory) {
 }
 
 
+#' Create git commit
+#' @keywords internal
+gitCommit <- function(directory, message, allow_nothing_to_commit = FALSE,
+                      error_message = "Failed to commit") {
+  result <- system2("git", c("-C", shQuote(directory), "commit", "-m", shQuote(message)),
+                   stdout = TRUE, stderr = TRUE)
+  status <- attr(result, "status")
+
+  if (!is.null(status) && status != 0) {
+    if (allow_nothing_to_commit && any(grepl("nothing to commit", result, ignore.case = TRUE))) {
+      return(invisible(FALSE))
+    }
+
+    cli::cli_abort("{error_message}: {paste(result, collapse = '\n')}")
+  }
+
+  return(invisible(TRUE))
+}
+
+
 #' Ensure Git identity is configured
 #' 
 #' Checks if Git user.name and user.email are configured for commits.
 #' If not configured, automatically sets them using GitHub account info
-#' from the authenticated user (via GITHUB_PAT). This allows seamless
-#' Git operations without requiring manual `git config` setup.
+#' provided by the caller. This allows seamless Git operations without
+#' requiring manual `git config` setup.
 #' 
 #' @keywords internal
 ensureGitIdentity <- function(directory, user_info = NULL) {
@@ -360,19 +378,9 @@ ensureGitIdentity <- function(directory, user_info = NULL) {
     return(invisible(TRUE))
   }
   
-  # Get GitHub user info if not provided
-  if (is.null(user_info)) {
-    user_fetch <- try(gh::gh_whoami(), silent = TRUE)
-    if (inherits(user_fetch, "try-error")) {
-      user_info <- NULL
-    } else {
-      user_info <- user_fetch
-    }
-  }
-  
   if (is.null(user_info)) {
     cli::cli_abort(c(
-      "Git identity not configured and could not fetch from GitHub",
+      "Git identity not configured and no GitHub user information was provided",
       "i" = "Run: git config --global user.name 'Your Name'",
       "i" = "Run: git config --global user.email 'your@email.com'"
     ))
@@ -406,7 +414,7 @@ ensureGitIdentity <- function(directory, user_info = NULL) {
 #' Setup git remote and push
 #' @keywords internal
 setupGitRemote <- function(directory, clone_url, default_branch, user_info = NULL) {
-  # Ensure Git identity is configured (uses GitHub account info if available)
+  # Ensure local Git identity is configured using caller-provided GitHub info
   ensureGitIdentity(directory, user_info)
   
   # Setup remote (update if exists, add if new)
@@ -454,15 +462,7 @@ setupGitRemote <- function(directory, clone_url, default_branch, user_info = NUL
   
   # Commit
   commit_msg <- paste0("Initialize study: ", basename(directory))
-  result <- system2("git", c("-C", shQuote(directory), "commit", "-m", shQuote(commit_msg)), 
-                   stdout = TRUE, stderr = TRUE)
-  status <- attr(result, "status")
-  if (!is.null(status) && status != 0) {
-    # Check if it's just "nothing to commit"
-    if (!any(grepl("nothing to commit", result, ignore.case = TRUE))) {
-      cli::cli_abort("Failed to commit: {paste(result, collapse = '\n')}")
-    }
-  }
+  gitCommit(directory, commit_msg, allow_nothing_to_commit = TRUE)
   
   # Check if there are any commits to push
   has_commits <- suppressWarnings(
@@ -483,12 +483,11 @@ setupGitRemote <- function(directory, clone_url, default_branch, user_info = NUL
       # Stage and commit the README
       system2("git", c("-C", shQuote(directory), "add", "README.md"), 
               stdout = FALSE, stderr = FALSE)
-      result <- system2("git", c("-C", shQuote(directory), "commit", "-m", 
-                                 "Initialize repository with README"), 
-                       stdout = TRUE, stderr = TRUE)
-      if (!is.null(attr(result, "status")) && attr(result, "status") != 0) {
-        cli::cli_abort("Failed to create initial commit: {paste(result, collapse = '\n')}")
-      }
+      gitCommit(
+        directory,
+        "Initialize repository with README",
+        error_message = "Failed to create initial commit"
+      )
     }
   }
   

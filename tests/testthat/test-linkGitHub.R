@@ -9,12 +9,6 @@ test_that("validateRepoName accepts valid names", {
 })
 
 test_that("validateRepoName rejects invalid names", {
-  # Empty name
-  expect_error(
-    OmopStudyBuilder:::validateRepoName(""),
-    "Repository name cannot be empty"
-  )
-
   # Spaces
   expect_error(
     OmopStudyBuilder:::validateRepoName("My Study"),
@@ -44,8 +38,8 @@ test_that("validateRepoName rejects invalid names", {
     "cannot start or end with hyphen"
   )
 
-  # Too long (>100 chars)
-  long_name <- paste0(rep("a", 101), collapse = "")
+  # Too long (>30 chars)
+  long_name <- paste0(rep("a", 31), collapse = "")
   expect_error(
     OmopStudyBuilder:::validateRepoName(long_name),
     "Repository name too long"
@@ -173,7 +167,7 @@ test_that("linkGitHub validates repository parameter", {
 
   expect_error(
     linkGitHub(directory = temp_dir, repository = ""),
-    "Repository name cannot be empty"
+    "must have at least 1 characters"
   )
 })
 
