@@ -37,9 +37,11 @@ Imports:
     stringr,
     whisker
 Suggests: 
+    gert,
     here,
-    knitr,
     renv,
+    gh,
+    knitr,
     rmarkdown,
     testthat
 VignetteBuilder: 
