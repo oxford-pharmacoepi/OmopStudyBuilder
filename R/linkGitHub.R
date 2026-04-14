@@ -1,22 +1,5 @@
 # GitHub Integration for OMOP Studies
 
-#' Check if Git is installed
-#' @return TRUE if Git is available, throws error otherwise
-#' @keywords internal
-ensureGit <- function() {
-  git_bin <- Sys.which("git")
-  if (!nzchar(git_bin)) {
-    cli::cli_abort(c(
-      "Git not found on PATH",
-      "i" = "Git is required for GitHub integration",
-      "i" = "Install Git from: {.url https://git-scm.com/downloads}",
-      "i" = "After installing, restart R"
-    ))
-  }
-  return(invisible(TRUE))
-}
-
-
 #' Link study directory to GitHub repository
 #'
 #' Creates a new GitHub repository and connects it to an existing study directory.
@@ -24,17 +7,24 @@ ensureGit <- function() {
 #' 
 #' @section Requirements:
 #' \itemize{
-#'   \item \strong{Git must be installed}: Download from \url{https://git-scm.com/downloads}
 #'   \item \strong{GitHub authentication}: Set up via GITHUB_PAT, gh CLI, or git credentials
 #'   \item \strong{R package 'gh'}: Install with \code{install.packages("gh")}
+#'   \item \strong{R package 'gert'}: Install with \code{install.packages("gert")}
 #' }
 #' 
 #' @section Authentication:
-#' This function requires GitHub authentication. The \code{gh} package supports multiple methods:
+#' This function needs credentials for both:
 #' \itemize{
-#'   \item \strong{GITHUB_PAT environment variable}: \code{Sys.setenv(GITHUB_PAT = "your_token")}
-#'   \item \strong{gh CLI}: Run \code{gh auth login} in terminal
-#'   \item \strong{Git credentials}: Stored credentials from git credential helper
+#'   \item \strong{GitHub API access}: used by \code{gh} to check your account and create the repository
+#'   \item \strong{Git transport authentication}: used by \code{gert} to push the local repository to GitHub
+#' }
+#' 
+#' Recommended setup:
+#' \itemize{
+#'   \item \strong{GITHUB_PAT environment variable}: recommended for HTTPS authentication and works for both GitHub API calls and Git pushes to GitHub
+#'   \item \strong{Stored Git credentials}: credentials in your OS credential store or Git credential helper can also work for both the API and push steps
+#'   \item \strong{gh CLI}: may help set up GitHub authentication, but you may still need Git credentials available for the final push
+#'   \item \strong{SSH}: supported when your remote/auth setup is configured accordingly
 #' }
 #' 
 #' To create a Personal Access Token (PAT):
@@ -84,10 +74,6 @@ linkGitHub <- function(directory,
                        organisation = NULL,
                        private = TRUE,
                        description = NULL) {
-  
-  # Check Git is installed
-  ensureGit()
-  
   # Validate inputs
   omopgenerics::assertCharacter(directory, length = 1)
   omopgenerics::assertCharacter(repository, length = 1, minNumCharacter = 1)
@@ -100,8 +86,9 @@ linkGitHub <- function(directory,
   }
   directory <- normalizePath(directory, mustWork = TRUE)
   
-  # Check gh package is installed
+  # Check required packages are installed
   rlang::check_installed("gh", reason = "for GitHub integration")
+  rlang::check_installed("gert", reason = "for local Git operations during GitHub integration")
   
   # Validate repository name
   validateRepoName(repository)
@@ -117,7 +104,7 @@ linkGitHub <- function(directory,
   }
   
   # Initialize git locally
-  cli::cli_alert_info("Initializing git repository...")
+  cli::cli_alert_info("Initialising git repository...")
   default_branch <- initializeGitRepo(directory)
   
   # Create .gitignore
@@ -272,17 +259,40 @@ createGitHubRepo <- function(repository, organisation, private, description) {
 }
 
 
+gertCall <- function(expr, error_message) {
+  tryCatch(
+    expr,
+    error = function(error) {
+      cli::cli_abort("{error_message}: {conditionMessage(error)}")
+    }
+  )
+}
+
+
+getGitConfigValue <- function(directory, key) {
+  config <- gert::git_config(repo = directory)
+  values <- config$value[config$name == tolower(key)]
+
+  if (length(values) == 0 || !nzchar(values[1])) {
+    return(NULL)
+  }
+
+  values[1]
+}
+
+
+hasStagedChanges <- function(directory) {
+  nrow(gert::git_status(staged = TRUE, repo = directory)) > 0
+}
+
+
 #' Initialize local git repository
 #' @keywords internal
 initializeGitRepo <- function(directory) {
   git_dir <- file.path(directory, ".git")
   
   if (!dir.exists(git_dir)) {
-    # Initialize git
-    result <- system2("git", c("init", shQuote(directory)), stdout = TRUE, stderr = TRUE)
-    if (!is.null(attr(result, "status")) && attr(result, "status") != 0) {
-      cli::cli_abort("Failed to initialize git repository: {paste(result, collapse = '\n')}")
-    }
+    gertCall(gert::git_init(path = directory), "Failed to initialize git repository")
   }
   
   # Get default branch name
@@ -340,19 +350,23 @@ createStudyGitIgnore <- function(directory) {
 #' @keywords internal
 gitCommit <- function(directory, message, allow_nothing_to_commit = FALSE,
                       error_message = "Failed to commit") {
-  result <- system2("git", c("-C", shQuote(directory), "commit", "-m", shQuote(message)),
-                   stdout = TRUE, stderr = TRUE)
-  status <- attr(result, "status")
-
-  if (!is.null(status) && status != 0) {
-    if (allow_nothing_to_commit && any(grepl("nothing to commit", result, ignore.case = TRUE))) {
-      return(invisible(FALSE))
-    }
-
-    cli::cli_abort("{error_message}: {paste(result, collapse = '\n')}")
+  if (allow_nothing_to_commit && !hasStagedChanges(directory)) {
+    return(invisible(FALSE))
   }
 
-  return(invisible(TRUE))
+  tryCatch(
+    {
+      gert::git_commit(message = message, repo = directory)
+      return(invisible(TRUE))
+    },
+    error = function(error) {
+      if (allow_nothing_to_commit && !hasStagedChanges(directory)) {
+        return(invisible(FALSE))
+      }
+
+      cli::cli_abort("{error_message}: {conditionMessage(error)}")
+    }
+  )
 }
 
 
@@ -365,16 +379,9 @@ gitCommit <- function(directory, message, allow_nothing_to_commit = FALSE,
 #' 
 #' @keywords internal
 ensureGitIdentity <- function(directory, user_info = NULL) {
-  # Get current git config (returns empty on failure)
-  get_config <- function(key) {
-    result <- suppressWarnings(system2("git", c("-C", shQuote(directory), "config", key), 
-                                       stdout = TRUE, stderr = FALSE))
-    if (length(result) > 0 && nzchar(result[1])) return(result[1])
-    return(NULL)
-  }
-  
   # Check if already configured
-  if (!is.null(get_config("user.name")) && !is.null(get_config("user.email"))) {
+  if (!is.null(getGitConfigValue(directory, "user.name")) &&
+      !is.null(getGitConfigValue(directory, "user.email"))) {
     return(invisible(TRUE))
   }
   
@@ -387,18 +394,16 @@ ensureGitIdentity <- function(directory, user_info = NULL) {
   }
   
   # Configure user.name (use name or fallback to login)
-  if (is.null(get_config("user.name"))) {
+  if (is.null(getGitConfigValue(directory, "user.name"))) {
     name <- if (!is.null(user_info$name) && nzchar(user_info$name)) user_info$name else user_info$login
-    system2("git", c("-C", shQuote(directory), "config", "user.name", shQuote(name)), 
-            stdout = FALSE, stderr = FALSE)
+    gert::git_config_set("user.name", name, repo = directory)
     cli::cli_alert_info("Configured Git user.name: {.val {name}}")
   }
   
   # Configure user.email (with warning if unavailable)
-  if (is.null(get_config("user.email"))) {
+  if (is.null(getGitConfigValue(directory, "user.email"))) {
     if (!is.null(user_info$email) && nzchar(user_info$email)) {
-      system2("git", c("-C", shQuote(directory), "config", "user.email", shQuote(user_info$email)), 
-              stdout = FALSE, stderr = FALSE)
+      gert::git_config_set("user.email", user_info$email, repo = directory)
       cli::cli_alert_info("Configured Git user.email: {.val {user_info$email}}")
     } else {
       cli::cli_alert_warning("GitHub email is hidden or unavailable")
@@ -418,10 +423,8 @@ setupGitRemote <- function(directory, clone_url, default_branch, user_info = NUL
   ensureGitIdentity(directory, user_info)
   
   # Setup remote (update if exists, add if new)
-  existing_remote <- suppressWarnings(
-    system2("git", c("-C", shQuote(directory), "remote", "get-url", "origin"), 
-            stdout = TRUE, stderr = FALSE)
-  )
+  remotes <- gert::git_remote_list(repo = directory)
+  existing_remote <- remotes$url[remotes$name == "origin"]
   
   if (!is.null(existing_remote) && length(existing_remote) > 0 && nzchar(existing_remote[1])) {
     # Remote exists - ask user before updating
@@ -445,31 +448,29 @@ setupGitRemote <- function(directory, clone_url, default_branch, user_info = NUL
       return(invisible(NULL))
     }
     
-    system2("git", c("-C", shQuote(directory), "remote", "set-url", "origin", clone_url), 
-            stdout = FALSE, stderr = FALSE)
+    gertCall(
+      gert::git_remote_set_url(url = clone_url, remote = "origin", repo = directory),
+      "Failed to update git remote"
+    )
     cli::cli_alert_success("Remote updated successfully")
   } else {
     # No remote - add it
-    system2("git", c("-C", shQuote(directory), "remote", "add", "origin", clone_url), 
-            stdout = FALSE, stderr = FALSE)
+    gertCall(
+      gert::git_remote_add(url = clone_url, name = "origin", repo = directory),
+      "Failed to add git remote"
+    )
   }
   
   # Stage all files
-  result <- system2("git", c("-C", shQuote(directory), "add", "-A"), stdout = TRUE, stderr = TRUE)
-  if (!is.null(attr(result, "status")) && attr(result, "status") != 0) {
-    cli::cli_abort("Failed to stage files: {paste(result, collapse = '\n')}")
-  }
+  gertCall(gert::git_add(files = ".", repo = directory), "Failed to stage files")
   
   # Commit
   commit_msg <- paste0("Initialize study: ", basename(directory))
-  gitCommit(directory, commit_msg, allow_nothing_to_commit = TRUE)
+  committed <- gitCommit(directory, commit_msg, allow_nothing_to_commit = TRUE)
   
   # Check if there are any commits to push
-  has_commits <- suppressWarnings(
-    system2("git", c("-C", shQuote(directory), "rev-parse", "HEAD"), 
-            stdout = FALSE, stderr = FALSE)
-  )
-  if (!is.null(attr(has_commits, "status")) && attr(has_commits, "status") != 0) {
+  repo_info <- gert::git_info(repo = directory)
+  if (isFALSE(committed) && is.na(repo_info$commit)) {
     # No commits yet - create a README to ensure there's something to commit
     readme_path <- file.path(directory, "README.md")
     if (!file.exists(readme_path)) {
@@ -481,8 +482,7 @@ setupGitRemote <- function(directory, clone_url, default_branch, user_info = NUL
       writeLines(readme_content, readme_path)
       
       # Stage and commit the README
-      system2("git", c("-C", shQuote(directory), "add", "README.md"), 
-              stdout = FALSE, stderr = FALSE)
+      gertCall(gert::git_add(files = "README.md", repo = directory), "Failed to stage README")
       gitCommit(
         directory,
         "Initialize repository with README",
@@ -492,11 +492,16 @@ setupGitRemote <- function(directory, clone_url, default_branch, user_info = NUL
   }
   
   # Push
-  result <- system2("git", c("-C", shQuote(directory), "push", "-u", "origin", default_branch), 
-                   stdout = TRUE, stderr = TRUE)
-  if (!is.null(attr(result, "status")) && attr(result, "status") != 0) {
-    cli::cli_abort("Failed to push to GitHub: {paste(result, collapse = '\n')}")
-  }
+  gertCall(
+    gert::git_push(
+      remote = "origin",
+      refspec = default_branch,
+      set_upstream = TRUE,
+      repo = directory,
+      verbose = FALSE
+    ),
+    "Failed to push to GitHub"
+  )
   
   return(invisible(TRUE))
 }
@@ -505,27 +510,20 @@ setupGitRemote <- function(directory, clone_url, default_branch, user_info = NUL
 #' Get default branch name
 #' @keywords internal
 getDefaultBranch <- function(directory) {
-  # First check if repo has commits and what branch we're on
-  current_branch <- suppressWarnings(
-    system2("git", c("-C", shQuote(directory), "branch", "--show-current"),
-            stdout = TRUE, stderr = FALSE)
-  )
+  repo_info <- gert::git_info(repo = directory)
   
   # If we have a current branch, use it
-  if (length(current_branch) > 0 && nzchar(current_branch[1])) {
-    return(trimws(current_branch[1]))
+  if (!is.na(repo_info$shorthand) && nzchar(repo_info$shorthand)) {
+    return(trimws(repo_info$shorthand))
   }
   
   # If no current branch (new repo), try to get from git config
-  result <- suppressWarnings(
-    system2("git", c("-C", shQuote(directory), "config", "--get", "init.defaultBranch"),
-            stdout = TRUE, stderr = FALSE)
-  )
+  default_branch <- getGitConfigValue(directory, "init.defaultBranch")
   
-  if (!is.null(attr(result, "status")) || length(result) == 0 || !nzchar(result[1])) {
+  if (is.null(default_branch)) {
     cli::cli_alert_info("No configured default branch. Using: {.val main}")
     return("main")
   }
   
-  return(trimws(result[1]))
+  return(trimws(default_branch))
 }

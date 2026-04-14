@@ -37,6 +37,7 @@ Imports:
     stringr,
     whisker
 Suggests: 
+    gert,
     here,
     renv,
     gh,

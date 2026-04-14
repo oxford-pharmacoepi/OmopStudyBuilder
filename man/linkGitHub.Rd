@@ -34,19 +34,26 @@ Initializes git, creates .gitignore, commits all files, and pushes to GitHub.
 \section{Requirements}{
 
 \itemize{
-  \item \strong{Git must be installed}: Download from \url{https://git-scm.com/downloads}
   \item \strong{GitHub authentication}: Set up via GITHUB_PAT, gh CLI, or git credentials
   \item \strong{R package 'gh'}: Install with \code{install.packages("gh")}
+  \item \strong{R package 'gert'}: Install with \code{install.packages("gert")}
 }
 }
 
 \section{Authentication}{
 
-This function requires GitHub authentication. The \code{gh} package supports multiple methods:
+This function needs credentials for both:
 \itemize{
-  \item \strong{GITHUB_PAT environment variable}: \code{Sys.setenv(GITHUB_PAT = "your_token")}
-  \item \strong{gh CLI}: Run \code{gh auth login} in terminal
-  \item \strong{Git credentials}: Stored credentials from git credential helper
+  \item \strong{GitHub API access}: used by \code{gh} to check your account and create the repository
+  \item \strong{Git transport authentication}: used by \code{gert} to push the local repository to GitHub
+}
+
+Recommended setup:
+\itemize{
+  \item \strong{GITHUB_PAT environment variable}: recommended for HTTPS authentication and works for both GitHub API calls and Git pushes to GitHub
+  \item \strong{Stored Git credentials}: credentials in your OS credential store or Git credential helper can also work for both the API and push steps
+  \item \strong{gh CLI}: may help set up GitHub authentication, but you may still need Git credentials available for the final push
+  \item \strong{SSH}: supported when your remote/auth setup is configured accordingly
 }
 
 To create a Personal Access Token (PAT):
