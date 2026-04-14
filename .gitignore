@@ -59,3 +59,17 @@ test_study_renv/
 *.tar
 
 docs
+
+# R artifacts
+.Rproj.user
+# Study outputs (don't commit results)
+results/
+# renv library (only commit lockfile)
+renv/library/
+renv/staging/
+renv/local/
+# OS files
+Thumbs.db
+# Docker (generated files)
+Dockerfile
+.dockerignore

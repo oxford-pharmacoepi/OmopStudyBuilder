@@ -1,5 +1,3 @@
-
-# Run lines below to use renv
 # renv::activate()
 # renv::restore()
 
@@ -22,7 +20,7 @@ library(purrr)
 
 # database metadata and connection details
 # The name/ acronym for the database
-dbName <- ""
+db_name <- ""
 
 # Database connection details
 # In this study we also use the DBI package to connect to the database
@@ -42,16 +40,16 @@ dbName <- ""
 db <- dbConnect()
 
 # The name of the schema that contains the OMOP CDM with patient-level data
-cdmSchema <- ""
+cdm_schema <- ""
 
 # A prefix for all permanent tables in the database
-writePrefix <- ""
+write_prefix <- ""
 
 # The name of the schema where results tables will be created
-writeSchema <- ""
+write_schema <- ""
 
 # The name of the schema where the achilles tables are
-achillesSchema <- ""
+achilles_schema <- ""
 
 # minimum counts that can be displayed according to data governance
 minCellCount <- 5
@@ -59,14 +57,12 @@ minCellCount <- 5
 # Create cdm object ----
 cdm <- cdmFromCon(
   con = db,
-  cdmSchema = cdmSchema,
-  writeSchema = writeSchema,
-  writePrefix = writePrefix,
-  cdmName = dbName,
-  achillesSchema = achillesSchema
+  cdmSchema = cdm_schema,
+  writeSchema = write_schema,
+  writePrefix = write_prefix,
+  cdmName = db_name,
+  achillesSchema = achilles_schema
 )
 
 # Run study ----
 source(here("run_study.R"))
-
-
