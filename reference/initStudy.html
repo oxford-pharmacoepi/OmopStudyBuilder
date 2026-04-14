@@ -50,7 +50,10 @@
 <span>  study <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  studyTitle <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  studyLeads <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  studyDescription <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  studyDescription <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  repository <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  organisation <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  private <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -92,6 +95,22 @@ leaves a placeholder.</p></dd>
 <dd><p>Character string with study description. If NULL (default),
 leaves a placeholder.</p></dd>
 
+
+<dt id="arg-repository">repository<a class="anchor" aria-label="anchor" href="#arg-repository"></a></dt>
+<dd><p>Optional GitHub repository name. If provided, creates a GitHub
+repository and links it to the study. Requires the <code>gh</code> and <code>gert</code>
+packages and GitHub authentication (for example via <code>GITHUB_PAT</code>).</p></dd>
+
+
+<dt id="arg-organisation">organisation<a class="anchor" aria-label="anchor" href="#arg-organisation"></a></dt>
+<dd><p>Optional GitHub organisation name. If NULL (default), creates
+repository under your personal account. Only used when <code>repository</code> is provided.</p></dd>
+
+
+<dt id="arg-private">private<a class="anchor" aria-label="anchor" href="#arg-private"></a></dt>
+<dd><p>Logical. If TRUE (default), creates a private GitHub repository.
+Only used when <code>repository</code> is provided.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -103,11 +122,11 @@ leaves a placeholder.</p></dd>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Create a study called "SampleStudy" in a temporary directory</span></span></span>
 <span class="r-in"><span><span class="va">study_root</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"SampleStudy"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">initStudy</span><span class="op">(</span><span class="va">study_root</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">/tmp/Rtmp3uD73Y/SampleStudy</span> prepared as root folder for study.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">/tmp/Rtmp3uD73Y/SampleStudy/diagnosticsCode</span> prepared for study diagnostics code</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">/tmp/Rtmp3uD73Y/SampleStudy/diagnosticsShiny</span> prepared for diagnostics shiny app</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">/tmp/Rtmp3uD73Y/SampleStudy/studyCode</span> prepared for study study code</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">/tmp/Rtmp3uD73Y/SampleStudy/studyShiny</span> prepared for study shiny app</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">/tmp/RtmpZ6nzqW/SampleStudy</span> prepared as root folder for study.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">/tmp/RtmpZ6nzqW/SampleStudy/diagnosticsCode</span> prepared for study diagnostics code</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">/tmp/RtmpZ6nzqW/SampleStudy/diagnosticsShiny</span> prepared for diagnostics shiny app</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">/tmp/RtmpZ6nzqW/SampleStudy/studyCode</span> prepared for study study code</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">/tmp/RtmpZ6nzqW/SampleStudy/studyShiny</span> prepared for study shiny app</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Inspect the top-level contents</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">study_root</span><span class="op">)</span></span></span>
@@ -119,11 +138,25 @@ leaves a placeholder.</p></dd>
 <span class="r-in"><span><span class="fu">initStudy</span><span class="op">(</span><span class="va">study_root2</span>,</span></span>
 <span class="r-in"><span>          studyTitle <span class="op">=</span> <span class="st">"Diabetes Prevalence Study"</span>,</span></span>
 <span class="r-in"><span>          studyLeads <span class="op">=</span> <span class="st">"Dr. Smith, Dr. Jones"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">/tmp/Rtmp3uD73Y/DiabetesStudy</span> prepared as root folder for study.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">/tmp/Rtmp3uD73Y/DiabetesStudy/diagnosticsCode</span> prepared for study diagnostics code</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">/tmp/Rtmp3uD73Y/DiabetesStudy/diagnosticsShiny</span> prepared for diagnostics shiny app</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">/tmp/Rtmp3uD73Y/DiabetesStudy/studyCode</span> prepared for study study code</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">/tmp/Rtmp3uD73Y/DiabetesStudy/studyShiny</span> prepared for study shiny app</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">/tmp/RtmpZ6nzqW/DiabetesStudy</span> prepared as root folder for study.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">/tmp/RtmpZ6nzqW/DiabetesStudy/diagnosticsCode</span> prepared for study diagnostics code</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">/tmp/RtmpZ6nzqW/DiabetesStudy/diagnosticsShiny</span> prepared for diagnostics shiny app</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">/tmp/RtmpZ6nzqW/DiabetesStudy/studyCode</span> prepared for study study code</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">/tmp/RtmpZ6nzqW/DiabetesStudy/studyShiny</span> prepared for study shiny app</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="co"># Create study with GitHub integration (requires GITHUB_PAT)</span></span></span>
+<span class="r-in"><span><span class="co"># Set PAT for current session:</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>GITHUB_PAT <span class="op">=</span> <span class="st">"your_token_here"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">study_root3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"GitHubStudy"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">initStudy</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  directory <span class="op">=</span> <span class="va">study_root3</span>,</span></span>
+<span class="r-in"><span>  repository <span class="op">=</span> <span class="st">"my-omop-study"</span>,</span></span>
+<span class="r-in"><span>  organisation <span class="op">=</span> <span class="st">"oxford-pharmacoepi"</span>,</span></span>
+<span class="r-in"><span>  private <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

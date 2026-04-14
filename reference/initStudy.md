@@ -11,7 +11,10 @@ initStudy(
   study = TRUE,
   studyTitle = NULL,
   studyLeads = NULL,
-  studyDescription = NULL
+  studyDescription = NULL,
+  repository = NULL,
+  organisation = NULL,
+  private = TRUE
 )
 ```
 
@@ -51,6 +54,23 @@ initStudy(
   Character string with study description. If NULL (default), leaves a
   placeholder.
 
+- repository:
+
+  Optional GitHub repository name. If provided, creates a GitHub
+  repository and links it to the study. Requires the `gh` and `gert`
+  packages and GitHub authentication (for example via `GITHUB_PAT`).
+
+- organisation:
+
+  Optional GitHub organisation name. If NULL (default), creates
+  repository under your personal account. Only used when `repository` is
+  provided.
+
+- private:
+
+  Logical. If TRUE (default), creates a private GitHub repository. Only
+  used when `repository` is provided.
+
 ## Value
 
 Project directory will be created
@@ -61,11 +81,11 @@ Project directory will be created
 # Create a study called "SampleStudy" in a temporary directory
 study_root <- file.path(tempdir(), "SampleStudy")
 initStudy(study_root)
-#> ✔ /tmp/Rtmp3uD73Y/SampleStudy prepared as root folder for study.
-#> ✔ /tmp/Rtmp3uD73Y/SampleStudy/diagnosticsCode prepared for study diagnostics code
-#> ✔ /tmp/Rtmp3uD73Y/SampleStudy/diagnosticsShiny prepared for diagnostics shiny app
-#> ✔ /tmp/Rtmp3uD73Y/SampleStudy/studyCode prepared for study study code
-#> ✔ /tmp/Rtmp3uD73Y/SampleStudy/studyShiny prepared for study shiny app
+#> ✔ /tmp/RtmpZ6nzqW/SampleStudy prepared as root folder for study.
+#> ✔ /tmp/RtmpZ6nzqW/SampleStudy/diagnosticsCode prepared for study diagnostics code
+#> ✔ /tmp/RtmpZ6nzqW/SampleStudy/diagnosticsShiny prepared for diagnostics shiny app
+#> ✔ /tmp/RtmpZ6nzqW/SampleStudy/studyCode prepared for study study code
+#> ✔ /tmp/RtmpZ6nzqW/SampleStudy/studyShiny prepared for study shiny app
 
 # Inspect the top-level contents
 list.files(study_root)
@@ -77,9 +97,23 @@ study_root2 <- file.path(tempdir(), "DiabetesStudy")
 initStudy(study_root2,
           studyTitle = "Diabetes Prevalence Study",
           studyLeads = "Dr. Smith, Dr. Jones")
-#> ✔ /tmp/Rtmp3uD73Y/DiabetesStudy prepared as root folder for study.
-#> ✔ /tmp/Rtmp3uD73Y/DiabetesStudy/diagnosticsCode prepared for study diagnostics code
-#> ✔ /tmp/Rtmp3uD73Y/DiabetesStudy/diagnosticsShiny prepared for diagnostics shiny app
-#> ✔ /tmp/Rtmp3uD73Y/DiabetesStudy/studyCode prepared for study study code
-#> ✔ /tmp/Rtmp3uD73Y/DiabetesStudy/studyShiny prepared for study shiny app
+#> ✔ /tmp/RtmpZ6nzqW/DiabetesStudy prepared as root folder for study.
+#> ✔ /tmp/RtmpZ6nzqW/DiabetesStudy/diagnosticsCode prepared for study diagnostics code
+#> ✔ /tmp/RtmpZ6nzqW/DiabetesStudy/diagnosticsShiny prepared for diagnostics shiny app
+#> ✔ /tmp/RtmpZ6nzqW/DiabetesStudy/studyCode prepared for study study code
+#> ✔ /tmp/RtmpZ6nzqW/DiabetesStudy/studyShiny prepared for study shiny app
+
+if (FALSE) { # \dontrun{
+# Create study with GitHub integration (requires GITHUB_PAT)
+# Set PAT for current session:
+Sys.setenv(GITHUB_PAT = "your_token_here")
+
+study_root3 <- file.path(tempdir(), "GitHubStudy")
+initStudy(
+  directory = study_root3,
+  repository = "my-omop-study",
+  organisation = "oxford-pharmacoepi",
+  private = TRUE
+)
+} # }
 ```

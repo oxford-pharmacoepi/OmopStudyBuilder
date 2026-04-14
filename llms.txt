@@ -60,6 +60,25 @@ using the Docker-based workflow.
 - If you want to run Docker without `sudo`, follow:
   <https://docs.docker.com/engine/install/linux-postinstall/>
 
+## Installing renv
+
+This package uses `renv` to lock study package versions for reproducible
+execution. Install `renv` before initialising or restoring a study
+environment.
+
+``` r
+install.packages("renv")
+```
+
+Common `renv` workflows:
+
+- Start a new project library:
+  `renv::init(here::here("SampleStudy", "studyCode"))`
+- Save the current package state to `renv.lock`:
+  `renv::snapshot(here::here("SampleStudy", "studyCode"))`
+- Restore packages from an existing `renv.lock`:
+  `renv::restore(here::here("SampleStudy", "studyCode"))`
+
 # Example Usage
 
 To illustrate how OmopStudyBuilder works, start by creating the study
@@ -135,6 +154,8 @@ pushDockerImage(
   : Build a Docker image for an OMOP study
 - [`initStudy()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/initStudy.md)
   : Creates initial directory for an OMOP CDM network study
+- [`linkGitHub()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/linkGitHub.md)
+  : Link study directory to GitHub repository
 - [`pushDockerImage()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/pushDockerImage.md)
   : Push a Docker image to Docker Hub
 - [`reviewStudy()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/reviewStudy.md)
