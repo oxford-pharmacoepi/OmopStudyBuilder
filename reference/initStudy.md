@@ -61,11 +61,11 @@ Project directory will be created
 # Create a study called "SampleStudy" in a temporary directory
 study_root <- file.path(tempdir(), "SampleStudy")
 initStudy(study_root)
-#> ✔ /tmp/Rtmp3F2ipm/SampleStudy prepared as root folder for study.
-#> ✔ /tmp/Rtmp3F2ipm/SampleStudy/diagnosticsCode prepared for study diagnostics code
-#> ✔ /tmp/Rtmp3F2ipm/SampleStudy/diagnosticsShiny prepared for diagnostics shiny app
-#> ✔ /tmp/Rtmp3F2ipm/SampleStudy/studyCode prepared for study study code
-#> ✔ /tmp/Rtmp3F2ipm/SampleStudy/studyShiny prepared for study shiny app
+#> ✔ /tmp/Rtmp3uD73Y/SampleStudy prepared as root folder for study.
+#> ✔ /tmp/Rtmp3uD73Y/SampleStudy/diagnosticsCode prepared for study diagnostics code
+#> ✔ /tmp/Rtmp3uD73Y/SampleStudy/diagnosticsShiny prepared for diagnostics shiny app
+#> ✔ /tmp/Rtmp3uD73Y/SampleStudy/studyCode prepared for study study code
+#> ✔ /tmp/Rtmp3uD73Y/SampleStudy/studyShiny prepared for study shiny app
 
 # Inspect the top-level contents
 list.files(study_root)
@@ -77,9 +77,9 @@ study_root2 <- file.path(tempdir(), "DiabetesStudy")
 initStudy(study_root2,
           studyTitle = "Diabetes Prevalence Study",
           studyLeads = "Dr. Smith, Dr. Jones")
-#> ✔ /tmp/Rtmp3F2ipm/DiabetesStudy prepared as root folder for study.
-#> ✔ /tmp/Rtmp3F2ipm/DiabetesStudy/diagnosticsCode prepared for study diagnostics code
-#> ✔ /tmp/Rtmp3F2ipm/DiabetesStudy/diagnosticsShiny prepared for diagnostics shiny app
-#> ✔ /tmp/Rtmp3F2ipm/DiabetesStudy/studyCode prepared for study study code
-#> ✔ /tmp/Rtmp3F2ipm/DiabetesStudy/studyShiny prepared for study shiny app
+#> ✔ /tmp/Rtmp3uD73Y/DiabetesStudy prepared as root folder for study.
+#> ✔ /tmp/Rtmp3uD73Y/DiabetesStudy/diagnosticsCode prepared for study diagnostics code
+#> ✔ /tmp/Rtmp3uD73Y/DiabetesStudy/diagnosticsShiny prepared for diagnostics shiny app
+#> ✔ /tmp/Rtmp3uD73Y/DiabetesStudy/studyCode prepared for study study code
+#> ✔ /tmp/Rtmp3uD73Y/DiabetesStudy/studyShiny prepared for study shiny app
 ```
