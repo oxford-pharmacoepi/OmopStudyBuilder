@@ -30,7 +30,7 @@ The package is highly opinionated and designed to align with the OxInfer
 study code checklist. For further details, please refer to the
 [documentation](https://oxford-pharmacoepi.github.io/Oxinfer/onboarding/code_review.html).
 
-# Installation
+## Installation
 
 You can install the development version of the package from GitHub:
 
@@ -39,7 +39,7 @@ You can install the development version of the package from GitHub:
 remotes::install_github("oxford-pharmacoepi/OmopStudyBuilder")
 ```
 
-# Quick Start
+## Quick Start
 
 The main entry point is `initStudy()`, which creates the study folder
 structure and template files.
@@ -104,7 +104,7 @@ and confirm it is running before using the Docker-based functions.
 - If you want to run Docker without `sudo`, follow:
   <https://docs.docker.com/engine/install/linux-postinstall/>
 
-# Example Usage
+### Example Usage
 
 After the study has been created and configured, you can optionally
 build a Docker image from the study folder:
