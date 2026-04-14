@@ -39,11 +39,40 @@ You can install the development version of the package from GitHub:
 remotes::install_github("oxford-pharmacoepi/OmopStudyBuilder")
 ```
 
-## Installing Docker
+# Quick Start
+
+The main entry point is `initStudy()`, which creates the study folder
+structure and template files.
+
+``` r
+library(OmopStudyBuilder)
+
+initStudy(here::here("SampleStudy"))
+```
+
+Once the study has been created, you can review the generated code and
+dependencies:
+
+``` r
+reviewStudyCode(here::here("SampleStudy", "studyCode"))
+reviewStudyDependencies(here::here("SampleStudy", "studyCode"))
+```
+
+If you want reproducible package versions, initialise `renv` in the
+study folder and snapshot the environment:
+
+``` r
+renv::init(here::here("SampleStudy", "studyCode"))
+install.packages(c("dplyr", "CDMConnector", "IncidencePrevalence"))
+renv::snapshot(here::here("SampleStudy", "studyCode"))
+```
+
+## Optional: Docker for reproducible execution
 
 This package supports building and running study code in Docker for
-reproducible execution. Install Docker and confirm it is running before
-using the Docker-based workflow.
+reproducible execution. Docker is optional and only needed if you want
+to build and run the study in a containerised workflow. Install Docker
+and confirm it is running before using the Docker-based functions.
 
 **General checks (all operating systems)**
 
@@ -77,25 +106,10 @@ using the Docker-based workflow.
 
 # Example Usage
 
-To illustrate how OmopStudyBuilder works, start by creating the study
-folder and reviewing what it contains:
+After the study has been created and configured, you can optionally
+build a Docker image from the study folder:
 
 ``` r
-library(OmopStudyBuilder)
-initStudy(here::here("SampleStudy"))
-
-reviewStudyCode(here::here("SampleStudy", "studyCode"))
-reviewStudyDependencies(here::here("SampleStudy", "studyCode"))
-```
-
-Lock package versions with renv so everyone runs the same environment,
-then build the study image from the study folder.
-
-``` r
-renv::init(here::here("SampleStudy", "studyCode"))
-install.packages(c("dplyr", "CDMConnector", "IncidencePrevalence"))
-renv::snapshot(here::here("SampleStudy", "studyCode"))
-
 dockeriseStudy(path = here::here("SampleStudy", "studyCode"))
 ```
 
