@@ -19,7 +19,7 @@ library(RPostgres)
 
 # database metadata and connection details
 # The name/ acronym for the database
-dbName <- "..."
+db_name <- "..."
 
 # Database connection details
 # db <- dbConnect(
@@ -30,7 +30,7 @@ dbName <- "..."
 #   user = user,
 #   password = password
 # )
-db <- dbConnect(...)
+db <- dbConnect()
 
 # The name of the schema that contains the OMOP CDM with patient-level data
 cdm_schema <- "..."

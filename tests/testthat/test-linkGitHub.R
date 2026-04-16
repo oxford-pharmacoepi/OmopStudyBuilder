@@ -9,12 +9,6 @@ test_that("validateRepoName accepts valid names", {
 })
 
 test_that("validateRepoName rejects invalid names", {
-  # Empty name
-  expect_error(
-    OmopStudyBuilder:::validateRepoName(""),
-    "Repository name cannot be empty"
-  )
-
   # Spaces
   expect_error(
     OmopStudyBuilder:::validateRepoName("My Study"),
@@ -44,8 +38,8 @@ test_that("validateRepoName rejects invalid names", {
     "cannot start or end with hyphen"
   )
 
-  # Too long (>100 chars)
-  long_name <- paste0(rep("a", 101), collapse = "")
+  # Too long (>30 chars)
+  long_name <- paste0(rep("a", 31), collapse = "")
   expect_error(
     OmopStudyBuilder:::validateRepoName(long_name),
     "Repository name too long"
@@ -151,6 +145,98 @@ test_that("createStudyGitIgnore handles duplicate entries gracefully", {
   expect_true("custom.txt" %in% final_content)
 })
 
+test_that("createStudyGitIgnore trims whitespace before checking duplicates", {
+  temp_dir <- file.path(tempdir(), "test_gitignore_trimws")
+  dir.create(temp_dir, showWarnings = FALSE, recursive = TRUE)
+  on.exit(unlink(temp_dir, recursive = TRUE), add = TRUE)
+
+  existing_content <- c(".RData   ", "  results/**/*.csv", "custom.txt  ")
+  writeLines(existing_content, file.path(temp_dir, ".gitignore"))
+
+  OmopStudyBuilder:::createStudyGitIgnore(temp_dir)
+
+  final_content <- readLines(file.path(temp_dir, ".gitignore"))
+
+  expect_equal(sum(final_content == ".RData"), 1)
+  expect_equal(sum(final_content == "results/**/*.csv"), 1)
+  expect_true("custom.txt" %in% final_content)
+})
+
+test_that("ensureGitIdentity errors when git identity is missing and user info is absent", {
+  skip_if_not_installed("gert")
+
+  temp_dir <- tempfile("test_git_identity_missing-")
+  temp_home <- tempfile("git-home-")
+  old_home <- Sys.getenv("HOME", unset = NA_character_)
+  old_userprofile <- Sys.getenv("USERPROFILE", unset = NA_character_)
+
+  on.exit({
+    unlink(temp_dir, recursive = TRUE)
+    unlink(temp_home, recursive = TRUE)
+    Sys.unsetenv(c("GIT_CONFIG_NOSYSTEM", "XDG_CONFIG_HOME", "HOME", "USERPROFILE"))
+
+    if (!is.na(old_home)) {
+      Sys.setenv(HOME = old_home)
+    }
+
+    if (!is.na(old_userprofile)) {
+      Sys.setenv(USERPROFILE = old_userprofile)
+    }
+  }, add = TRUE)
+
+  dir.create(temp_dir, showWarnings = FALSE, recursive = TRUE)
+  dir.create(temp_home, showWarnings = FALSE, recursive = TRUE)
+  Sys.setenv(
+    GIT_CONFIG_NOSYSTEM = "1",
+    XDG_CONFIG_HOME = temp_home,
+    HOME = temp_home,
+    USERPROFILE = temp_home
+  )
+
+  try(gert::git_config_global_set("user.name", NULL), silent = TRUE)
+  try(gert::git_config_global_set("user.email", NULL), silent = TRUE)
+  gert::git_init(temp_dir)
+
+  expect_error(
+    OmopStudyBuilder:::ensureGitIdentity(temp_dir, NULL),
+    "Git identity not configured and no GitHub user information was provided"
+  )
+})
+
+test_that("setupGitRemote pushes the actual local branch to a bare remote", {
+  skip_if_not_installed("gert")
+
+  repo_dir <- tempfile("test-linkGitHub-local-")
+  remote_dir <- tempfile("test-linkGitHub-remote-")
+
+  on.exit({
+    unlink(repo_dir, recursive = TRUE)
+    unlink(remote_dir, recursive = TRUE)
+  }, add = TRUE)
+
+  dir.create(repo_dir, recursive = TRUE)
+  dir.create(remote_dir, recursive = TRUE)
+
+  gert::git_init(repo_dir)
+  gert::git_init(remote_dir, bare = TRUE)
+  gert::git_config_set("user.name", "Test User", repo = repo_dir)
+  gert::git_config_set("user.email", "test@example.com", repo = repo_dir)
+
+  writeLines("hello", file.path(repo_dir, "README.md"))
+
+  expect_no_error(
+    OmopStudyBuilder:::setupGitRemote(
+      directory = repo_dir,
+      clone_url = remote_dir,
+      default_branch = "master",
+      user_info = list(login = "test", name = "Test User", email = "test@example.com")
+    )
+  )
+
+  remote_branches <- gert::git_branch_list(repo = remote_dir)
+  expect_true("master" %in% remote_branches$name)
+})
+
 test_that("linkGitHub validates directory parameter", {
   expect_error(
     linkGitHub(directory = NULL, repository = "test"),
@@ -173,7 +259,7 @@ test_that("linkGitHub validates repository parameter", {
 
   expect_error(
     linkGitHub(directory = temp_dir, repository = ""),
-    "Repository name cannot be empty"
+    "must have at least 1 characters"
   )
 })
 

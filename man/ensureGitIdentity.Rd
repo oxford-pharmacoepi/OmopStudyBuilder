@@ -9,7 +9,7 @@ ensureGitIdentity(directory, user_info = NULL)
 \description{
 Checks if Git user.name and user.email are configured for commits.
 If not configured, automatically sets them using GitHub account info
-from the authenticated user (via GITHUB_PAT). This allows seamless
-Git operations without requiring manual `git config` setup.
+provided by the caller. This allows seamless Git operations without
+requiring manual `git config` setup.
 }
 \keyword{internal}

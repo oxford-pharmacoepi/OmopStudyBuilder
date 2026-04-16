@@ -41,8 +41,8 @@ leaves a placeholder.}
 leaves a placeholder.}
 
 \item{repository}{Optional GitHub repository name. If provided, creates a GitHub
-repository and links it to the study. Requires the \code{gh} package and
-GitHub authentication (GITHUB_PAT environment variable).}
+repository and links it to the study. Requires the \code{gh} and \code{gert}
+packages and GitHub authentication (for example via \code{GITHUB_PAT}).}
 
 \item{organisation}{Optional GitHub organisation name. If NULL (default), creates
 repository under your personal account. Only used when \code{repository} is provided.}
