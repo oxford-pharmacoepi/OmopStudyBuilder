@@ -110,3 +110,19 @@ test_that("README.md files point to INSTRUCTIONS.md", {
   expect_true(any(grepl("\\.\\./INSTRUCTIONS\\.md", study_readme)))
 })
 
+test_that("README.md folder labels do not include trailing slashes", {
+  temp_dir <- here::here(tempdir(), omopgenerics::uniqueTableName())
+  dir.create(path = temp_dir, recursive = TRUE)
+  initStudy(directory = temp_dir, diagnostics = TRUE, study = TRUE)
+
+  readme_lines <- readLines(file.path(temp_dir, "README.md"))
+  readme_text <- paste(readme_lines, collapse = "\n")
+
+  expect_true(grepl("\\*\\*\\[diagnosticsCode\\]\\(diagnosticsCode/\\)\\*\\*", readme_text))
+  expect_true(grepl("\\*\\*\\[diagnosticsShiny\\]\\(diagnosticsShiny/\\)\\*\\*", readme_text))
+  expect_true(grepl("\\*\\*\\[studyCode\\]\\(studyCode/\\)\\*\\*", readme_text))
+  expect_true(grepl("\\*\\*\\[studyShiny\\]\\(studyShiny/\\)\\*\\*", readme_text))
+
+  expect_false(grepl("\\*\\*\\[(diagnosticsCode|diagnosticsShiny|studyCode|studyShiny)/\\]", readme_text))
+})
+

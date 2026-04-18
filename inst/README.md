@@ -15,9 +15,13 @@
 
 ## Repository Organization
 
-This repository is organized as follows:
+This repository is organised as follows:
 
 {{FOLDER_STRUCTURE}}
+
+---
+
+For detailed instructions on how to run the study, please see the [INSTRUCTIONS.md](./INSTRUCTIONS.md) file.
 
 ---
 
