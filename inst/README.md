@@ -15,7 +15,7 @@
 
 ## Repository Organization
 
-This repository is organized as follows:
+This repository is organised as follows:
 
 {{FOLDER_STRUCTURE}}
 

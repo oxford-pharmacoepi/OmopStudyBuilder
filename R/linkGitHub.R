@@ -36,7 +36,7 @@
 #' }
 #'
 #' @param directory Path to study directory
-#' @param repository GitHub repository name (will be sanitized if needed)
+#' @param repository GitHub repository name (will be sanitised if needed)
 #' @param organisation GitHub organisation name. If NULL (default), creates repo
 #'   under your personal account
 #' @param private Logical. If TRUE (default), creates a private repository

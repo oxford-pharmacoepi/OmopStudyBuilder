@@ -98,15 +98,15 @@ initStudy <- function(directory,
   if (isTRUE(diagnostics)) {
     folderStructure <- c(
       folderStructure,
-      "- **[diagnosticsCode/](diagnosticsCode/)**: Contains diagnostic code needed before running the main study",
-      "- **[diagnosticsShiny/](diagnosticsShiny/)**: Shiny app for exploring diagnostic outputs"
+        "- **[diagnosticsCode](diagnosticsCode/)**: Contains diagnostic code needed before running the main study",
+        "- **[diagnosticsShiny](diagnosticsShiny/)**: Shiny app for exploring diagnostic outputs"
     )
   }
   if (isTRUE(study)) {
     folderStructure <- c(
       folderStructure,
-      "- **[studyCode/](studyCode/)**: Contains the main study analysis code",
-      "- **[studyShiny/](studyShiny/)**: Shiny app for exploring study results"
+        "- **[studyCode](studyCode/)**: Contains the main study analysis code",
+        "- **[studyShiny](studyShiny/)**: Shiny app for exploring study results"
     )
   }
   folderStructure <- paste(folderStructure, collapse = "\n")
