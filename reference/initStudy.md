@@ -81,11 +81,11 @@ Project directory will be created
 # Create a study called "SampleStudy" in a temporary directory
 study_root <- file.path(tempdir(), "SampleStudy")
 initStudy(study_root)
-#> ✔ /tmp/RtmpZ6nzqW/SampleStudy prepared as root folder for study.
-#> ✔ /tmp/RtmpZ6nzqW/SampleStudy/diagnosticsCode prepared for study diagnostics code
-#> ✔ /tmp/RtmpZ6nzqW/SampleStudy/diagnosticsShiny prepared for diagnostics shiny app
-#> ✔ /tmp/RtmpZ6nzqW/SampleStudy/studyCode prepared for study study code
-#> ✔ /tmp/RtmpZ6nzqW/SampleStudy/studyShiny prepared for study shiny app
+#> ✔ /tmp/RtmpKtUZ9R/SampleStudy prepared as root folder for study.
+#> ✔ /tmp/RtmpKtUZ9R/SampleStudy/diagnosticsCode prepared for study diagnostics code
+#> ✔ /tmp/RtmpKtUZ9R/SampleStudy/diagnosticsShiny prepared for diagnostics shiny app
+#> ✔ /tmp/RtmpKtUZ9R/SampleStudy/studyCode prepared for study study code
+#> ✔ /tmp/RtmpKtUZ9R/SampleStudy/studyShiny prepared for study shiny app
 
 # Inspect the top-level contents
 list.files(study_root)
@@ -97,11 +97,11 @@ study_root2 <- file.path(tempdir(), "DiabetesStudy")
 initStudy(study_root2,
           studyTitle = "Diabetes Prevalence Study",
           studyLeads = "Dr. Smith, Dr. Jones")
-#> ✔ /tmp/RtmpZ6nzqW/DiabetesStudy prepared as root folder for study.
-#> ✔ /tmp/RtmpZ6nzqW/DiabetesStudy/diagnosticsCode prepared for study diagnostics code
-#> ✔ /tmp/RtmpZ6nzqW/DiabetesStudy/diagnosticsShiny prepared for diagnostics shiny app
-#> ✔ /tmp/RtmpZ6nzqW/DiabetesStudy/studyCode prepared for study study code
-#> ✔ /tmp/RtmpZ6nzqW/DiabetesStudy/studyShiny prepared for study shiny app
+#> ✔ /tmp/RtmpKtUZ9R/DiabetesStudy prepared as root folder for study.
+#> ✔ /tmp/RtmpKtUZ9R/DiabetesStudy/diagnosticsCode prepared for study diagnostics code
+#> ✔ /tmp/RtmpKtUZ9R/DiabetesStudy/diagnosticsShiny prepared for diagnostics shiny app
+#> ✔ /tmp/RtmpKtUZ9R/DiabetesStudy/studyCode prepared for study study code
+#> ✔ /tmp/RtmpKtUZ9R/DiabetesStudy/studyShiny prepared for study shiny app
 
 if (FALSE) { # \dontrun{
 # Create study with GitHub integration (requires GITHUB_PAT)
