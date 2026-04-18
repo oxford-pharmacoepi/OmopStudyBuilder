@@ -36,6 +36,20 @@ dockerQuery <- function(args) {
 #' @param all If TRUE, stops all running containers started by OmopStudyBuilder.
 #' @return TRUE if at least one container was stopped (invisibly)
 #' @export
+#' @examples
+#' \dontrun{
+#' # Stop all containers for current study
+#' stopStudy()
+#'
+#' # Stop only RStudio containers
+#' stopStudy(mode = "rstudio")
+#'
+#' # Stop all OmopStudyBuilder containers
+#' stopStudy(all = TRUE)
+#'
+#' # Stop a specific container by ID
+#' stopStudy(container = "abc123def456")
+#' }
 stopStudy <- function(container = NULL, image_name = NULL, mode = c("any", "rstudio", "run"), all = FALSE) {
   ensureDocker()
   mode <- match.arg(mode)
@@ -110,6 +124,26 @@ ensureDocker <- function() {
 #' @param github_token Optional GitHub token for installing GitHub packages during build
 #' @return Image name (invisibly - already printed to console)
 #' @export
+#' @examples
+#' \dontrun{
+#' # Build Docker image for current study
+#' dockeriseStudy()
+#'
+#' # Build with RStudio Server base image
+#' dockeriseStudy(useRStudio = TRUE)
+#'
+#' # Build with specific R version and custom image name
+#' dockeriseStudy(
+#'   image_name = "my-omop-study",
+#'   r_version = "4.3.1"
+#' )
+#'
+#' # Build without updating renv.lock
+#' dockeriseStudy(snapshot = FALSE)
+#'
+#' # Build with GitHub token for private packages
+#' dockeriseStudy(github_token = Sys.getenv("GITHUB_PAT"))
+#' }
 dockeriseStudy <- function(image_name = NULL, 
                           path = ".", 
                           useRStudio = FALSE,
@@ -328,6 +362,24 @@ dockeriseStudy <- function(image_name = NULL,
 #' @param logout If TRUE, logs out after pushing
 #' @return Pushed image reference (invisibly)
 #' @export
+#' @examples
+#' \dontrun{
+#' # Push to Docker Hub (will prompt for credentials)
+#' pushDockerImage(repo = "username/my-study")
+#'
+#' # Push with credentials provided
+#' pushDockerImage(
+#'   repo = "oxfordpharma/diabetes-study",
+#'   username = "myuser",
+#'   password = Sys.getenv("DOCKER_TOKEN")
+#' )
+#'
+#' # Push specific tag
+#' pushDockerImage(
+#'   repo = "username/my-study",
+#'   tag = "v1.0.0"
+#' )
+#' }
 pushDockerImage <- function(image_name = NULL,
                            repo,
                            tag = "latest",
@@ -540,6 +592,23 @@ verifyImageExists <- function(image_name, check_rstudio = FALSE) {
 #' @return Container ID (invisibly)
 #' @importFrom utils browseURL
 #' @export
+#' @examples
+#' \dontrun{
+#' # Start RStudio Server (opens in browser)
+#' runRStudio()
+#'
+#' # Start with custom port and password
+#' runRStudio(port = 8888, password = "mysecurepass")
+#'
+#' # Start with custom results directory
+#' runRStudio(results_path = "./output")
+#'
+#' # Start with environment variables
+#' runRStudio(env_file = ".env")
+#'
+#' # Stop RStudio when done
+#' stopStudy(mode = "rstudio")
+#' }
 runRStudio <- function(image_name = NULL, results_path = "./results", env_file = NULL,
                        port = 8787, password = NULL) {
   ensureDocker()
@@ -619,6 +688,26 @@ runRStudio <- function(image_name = NULL, results_path = "./results", env_file =
 #' @param script_path Path to R script to execute (default: "codeToRun.R")
 #' @return Exit status (0 = success, non-zero = failure)
 #' @export
+#' @examples
+#' \dontrun{
+#' # Run study with default settings
+#' runStudy()
+#'
+#' # Run with custom results directory
+#' runStudy(results_path = "./output")
+#'
+#' # Run with environment variables from file
+#' runStudy(env_file = ".env")
+#'
+#' # Run with data directory mounted
+#' runStudy(
+#'   results_path = "./results",
+#'   data_path = "./data"
+#' )
+#'
+#' # Run custom script
+#' runStudy(script_path = "analyses/main.R")
+#' }
 runStudy <- function(image_name = NULL, results_path = "./results", env_file = NULL,
                      data_path = NULL, script_path = "codeToRun.R") {
   ensureDocker()

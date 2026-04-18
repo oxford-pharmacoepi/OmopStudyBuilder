@@ -32,3 +32,22 @@ Pushed image reference (invisibly)
 \description{
 Push a Docker image to Docker Hub
 }
+\examples{
+\dontrun{
+# Push to Docker Hub (will prompt for credentials)
+pushDockerImage(repo = "username/my-study")
+
+# Push with credentials provided
+pushDockerImage(
+  repo = "oxfordpharma/diabetes-study",
+  username = "myuser",
+  password = Sys.getenv("DOCKER_TOKEN")
+)
+
+# Push specific tag
+pushDockerImage(
+  repo = "username/my-study",
+  tag = "v1.0.0"
+)
+}
+}
