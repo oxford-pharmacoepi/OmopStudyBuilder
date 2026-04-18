@@ -21,4 +21,8 @@ This repository is organised as follows:
 
 ---
 
+For detailed instructions on how to run the study, please see the [INSTRUCTIONS.md](./INSTRUCTIONS.md) file.
+
+---
+
 *This study template was generated using [OmopStudyBuilder](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/).*
