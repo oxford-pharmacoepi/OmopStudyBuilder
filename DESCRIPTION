@@ -26,23 +26,23 @@ Depends:
     R (>= 4.1.0)
 Imports: 
     cli,
-    dplyr,
-    getPass,
-    jsonlite,
     omopgenerics,
-    processx,
-    purrr,
     rlang,
-    scales,
-    stringr,
     whisker
 Suggests: 
+    dplyr,
     gert,
-    here,
-    renv,
+    getPass,
     gh,
+    here,
+    jsonlite,
     knitr,
+    processx,
+    purrr,
+    renv,
     rmarkdown,
+    scales,
+    stringr,
     testthat
 VignetteBuilder: 
     knitr
