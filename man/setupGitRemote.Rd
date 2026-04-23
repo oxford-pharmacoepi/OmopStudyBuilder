@@ -4,7 +4,7 @@
 \alias{setupGitRemote}
 \title{Setup git remote and push}
 \usage{
-setupGitRemote(directory, clone_url, default_branch, user_info = NULL)
+setupGitRemote(directory, clone_url, user_info = NULL, created_repo = FALSE)
 }
 \description{
 Setup git remote and push
