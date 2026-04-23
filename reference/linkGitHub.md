@@ -24,7 +24,7 @@ linkGitHub(
 
 - repository:
 
-  GitHub repository name (will be sanitized if needed)
+  GitHub repository name (will be sanitised if needed)
 
 - organisation:
 
