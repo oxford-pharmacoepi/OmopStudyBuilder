@@ -105,7 +105,8 @@ linkGitHub <- function(directory,
   
   # Initialize git locally
   cli::cli_alert_info("Initialising git repository...")
-  default_branch <- initializeGitRepo(directory)
+  created_repo <- !dir.exists(file.path(directory, ".git"))
+  initializeGitRepo(directory)
   
   # Create .gitignore
   createStudyGitIgnore(directory)
@@ -120,7 +121,12 @@ linkGitHub <- function(directory,
   
   # Setup remote and push
   cli::cli_alert_info("Pushing to GitHub...")
-  result <- setupGitRemote(directory, repo_info$clone_url, default_branch, user_info)
+  result <- setupGitRemote(
+    directory = directory,
+    clone_url = repo_info$clone_url,
+    user_info = user_info,
+    created_repo = created_repo
+  )
   
   # Check if user cancelled
   if (is.null(result)) {
@@ -148,6 +154,12 @@ checkGitHubAuth <- function() {
   
   if (is.null(user) || is.null(user$login)) {
     cli::cli_abort("Failed to fetch GitHub user information")
+  }
+  
+  # gh_whoami() doesn't include id, so fetch complete user info from API
+  user_full <- try(gh::gh("GET /user"), silent = TRUE)
+  if (!inherits(user_full, "try-error") && !is.null(user_full$id)) {
+    user$id <- user_full$id
   }
   
   cli::cli_alert_success("Authenticated as: {.val {user$login}}")
@@ -295,10 +307,7 @@ initializeGitRepo <- function(directory) {
     gertCall(gert::git_init(path = directory), "Failed to initialize git repository")
   }
   
-  # Get default branch name
-  default_branch <- getDefaultBranch(directory)
-  
-  return(default_branch)
+  return(invisible(NULL))
 }
 
 
@@ -400,15 +409,25 @@ ensureGitIdentity <- function(directory, user_info = NULL) {
     cli::cli_alert_info("Configured Git user.name: {.val {name}}")
   }
   
-  # Configure user.email (with warning if unavailable)
+  # Configure user.email (required for commits)
   if (is.null(getGitConfigValue(directory, "user.email"))) {
     if (!is.null(user_info$email) && nzchar(user_info$email)) {
+      # Use public email from GitHub
       gert::git_config_set("user.email", user_info$email, repo = directory)
       cli::cli_alert_info("Configured Git user.email: {.val {user_info$email}}")
+    } else if (!is.null(user_info$id) && !is.null(user_info$login)) {
+      # Construct GitHub noreply email when privacy is enabled
+      noreply_email <- paste0(user_info$id, "+", user_info$login, "@users.noreply.github.com")
+      gert::git_config_set("user.email", noreply_email, repo = directory)
+      cli::cli_alert_info("Configured Git user.email: {.val {noreply_email}}")
     } else {
-      cli::cli_alert_warning("GitHub email is hidden or unavailable")
-      cli::cli_alert_warning("Git commits may fail without configured email")
-      cli::cli_alert_info("Run: git config --global user.email 'your@email.com'")
+      # Last resort: fail with helpful message
+      cli::cli_abort(c(
+        "Git email is required for commits but could not be determined from GitHub",
+        "i" = "Configure your Git email globally:",
+        "i" = "  git config --global user.email 'your@email.com'",
+        "i" = "Or make your GitHub email public in your GitHub settings"
+      ))
     }
   }
   
@@ -418,7 +437,10 @@ ensureGitIdentity <- function(directory, user_info = NULL) {
 
 #' Setup git remote and push
 #' @keywords internal
-setupGitRemote <- function(directory, clone_url, default_branch, user_info = NULL) {
+setupGitRemote <- function(directory,
+                           clone_url,
+                           user_info = NULL,
+                           created_repo = FALSE) {
   # Ensure local Git identity is configured using caller-provided GitHub info
   ensureGitIdentity(directory, user_info)
   
@@ -491,7 +513,27 @@ setupGitRemote <- function(directory, clone_url, default_branch, user_info = NUL
     }
   }
   
-  # Push the actual local branch using a full refspec accepted by gert.
+  # For fresh repos, rename branch to "main" (or git config setting)
+  # For existing repos, keep the current branch
+  if (isTRUE(created_repo)) {
+    current_branch <- gert::git_branch(repo = directory)
+    desired_branch <- getGitConfigValue(directory, "init.defaultBranch")
+    if (is.null(desired_branch)) {
+      desired_branch <- "main"
+    }
+    
+    if (!identical(current_branch, desired_branch)) {
+      gertCall(
+        gert::git_branch_move(
+          branch = current_branch,
+          new_branch = desired_branch,
+          repo = directory
+        ),
+        "Failed to rename branch to {desired_branch}"
+      )
+    }
+  }
+
   local_branch <- gert::git_branch(repo = directory)
   push_refspec <- paste0("refs/heads/", local_branch)
 
@@ -507,26 +549,4 @@ setupGitRemote <- function(directory, clone_url, default_branch, user_info = NUL
   )
   
   return(invisible(TRUE))
-}
-
-
-#' Get default branch name
-#' @keywords internal
-getDefaultBranch <- function(directory) {
-  repo_info <- gert::git_info(repo = directory)
-  
-  # If we have a current branch, use it
-  if (!is.na(repo_info$shorthand) && nzchar(repo_info$shorthand)) {
-    return(trimws(repo_info$shorthand))
-  }
-  
-  # If no current branch (new repo), try to get from git config
-  default_branch <- getGitConfigValue(directory, "init.defaultBranch")
-  
-  if (is.null(default_branch)) {
-    cli::cli_alert_info("No configured default branch. Using: {.val main}")
-    return("main")
-  }
-  
-  return(trimws(default_branch))
 }
