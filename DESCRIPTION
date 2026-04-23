@@ -26,6 +26,7 @@ Depends:
     R (>= 4.1.0)
 Imports: 
     cli,
+    jsonlite,
     omopgenerics,
     rlang,
     whisker
@@ -35,7 +36,6 @@ Suggests:
     getPass,
     gh,
     here,
-    jsonlite,
     knitr,
     processx,
     purrr,
