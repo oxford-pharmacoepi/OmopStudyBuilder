@@ -513,23 +513,19 @@ setupGitRemote <- function(directory,
     }
   }
   
-  # For fresh repos, rename branch to "main" (or git config setting)
+  # For new repos, always use "main" branch
   # For existing repos, keep the current branch
   if (isTRUE(created_repo)) {
     current_branch <- gert::git_branch(repo = directory)
-    desired_branch <- getGitConfigValue(directory, "init.defaultBranch")
-    if (is.null(desired_branch)) {
-      desired_branch <- "main"
-    }
     
-    if (!identical(current_branch, desired_branch)) {
+    if (!identical(current_branch, "main")) {
       gertCall(
         gert::git_branch_move(
           branch = current_branch,
-          new_branch = desired_branch,
+          new_branch = "main",
           repo = directory
         ),
-        "Failed to rename branch to {desired_branch}"
+        "Failed to rename branch to main"
       )
     }
   }

@@ -238,7 +238,7 @@ test_that("setupGitRemote pushes the actual local branch to a bare remote", {
   expect_true(local_branch %in% remote_branches$name)
 })
 
-test_that("setupGitRemote uses requested default branch for fresh repos", {
+test_that("setupGitRemote uses main branch for fresh repos", {
   skip_if_not_installed("gert")
 
   repo_dir <- tempfile("test-linkGitHub-local-main-")
@@ -256,7 +256,6 @@ test_that("setupGitRemote uses requested default branch for fresh repos", {
   gert::git_init(remote_dir, bare = TRUE)
   gert::git_config_set("user.name", "Test User", repo = repo_dir)
   gert::git_config_set("user.email", "test@example.com", repo = repo_dir)
-  gert::git_config_set("init.defaultBranch", "main", repo = repo_dir)
 
   writeLines("hello", file.path(repo_dir, "README.md"))
 

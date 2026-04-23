@@ -15,7 +15,7 @@ linkGitHub(
 \arguments{
 \item{directory}{Path to study directory}
 
-\item{repository}{GitHub repository name (will be sanitized if needed)}
+\item{repository}{GitHub repository name (will be sanitised if needed)}
 
 \item{organisation}{GitHub organisation name. If NULL (default), creates repo
 under your personal account}
