@@ -166,36 +166,19 @@ test_that("ensureGitIdentity errors when git identity is missing and user info i
   skip_if_not_installed("gert")
 
   temp_dir <- tempfile("test_git_identity_missing-")
-  temp_home <- tempfile("git-home-")
-  old_home <- Sys.getenv("HOME", unset = NA_character_)
-  old_userprofile <- Sys.getenv("USERPROFILE", unset = NA_character_)
-
-  on.exit({
-    unlink(temp_dir, recursive = TRUE)
-    unlink(temp_home, recursive = TRUE)
-    Sys.unsetenv(c("GIT_CONFIG_NOSYSTEM", "XDG_CONFIG_HOME", "HOME", "USERPROFILE"))
-
-    if (!is.na(old_home)) {
-      Sys.setenv(HOME = old_home)
-    }
-
-    if (!is.na(old_userprofile)) {
-      Sys.setenv(USERPROFILE = old_userprofile)
-    }
-  }, add = TRUE)
-
   dir.create(temp_dir, showWarnings = FALSE, recursive = TRUE)
-  dir.create(temp_home, showWarnings = FALSE, recursive = TRUE)
-  Sys.setenv(
-    GIT_CONFIG_NOSYSTEM = "1",
-    XDG_CONFIG_HOME = temp_home,
-    HOME = temp_home,
-    USERPROFILE = temp_home
-  )
+  on.exit(unlink(temp_dir, recursive = TRUE), add = TRUE)
 
-  try(gert::git_config_global_set("user.name", NULL), silent = TRUE)
-  try(gert::git_config_global_set("user.email", NULL), silent = TRUE)
   gert::git_init(temp_dir)
+
+  # Mock getGitConfigValue to always return NULL, simulating a machine with no
+  # git identity configured. This is more reliable than trying to clear
+  # environment variables, which does not work consistently across platforms
+  # (e.g. libgit2 on Fedora Linux ignores GIT_CONFIG_NOSYSTEM).
+  local_mocked_bindings(
+    getGitConfigValue = function(...) NULL,
+    .package = "OmopStudyBuilder"
+  )
 
   expect_error(
     OmopStudyBuilder:::ensureGitIdentity(temp_dir, NULL),
