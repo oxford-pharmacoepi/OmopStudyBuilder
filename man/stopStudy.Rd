@@ -28,3 +28,18 @@ Stops containers started by \code{runStudy()} and/or \code{runRStudio()}.
 By default it stops containers for the image inferred from the current
 directory name.
 }
+\examples{
+\dontrun{
+# Stop all containers for current study
+stopStudy()
+
+# Stop only RStudio containers
+stopStudy(mode = "rstudio")
+
+# Stop all OmopStudyBuilder containers
+stopStudy(all = TRUE)
+
+# Stop a specific container by ID
+stopStudy(container = "abc123def456")
+}
+}

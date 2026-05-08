@@ -12,7 +12,23 @@
 #' @returns Invisibly returns `NULL`. Called for its side effects of printing
 #'   summaries to the console.
 #' @export
+#' @examples
+#' \dontrun{
+#' # Review current study directory
+#' reviewStudy(".")
 #'
+#' # Review only code (no dependencies)
+#' reviewStudy(".", dependencies = FALSE)
+#'
+#' # Review only dependencies
+#' reviewStudy(".", code = FALSE)
+#'
+#' # Review reporting project dependencies
+#' reviewStudy(".", type = "reporting")
+#'
+#' # Review specific directory
+#' reviewStudy("/path/to/study")
+#' }
 reviewStudy <- function(dir, code = TRUE, dependencies = TRUE, type = "analysis") {
 
   dir <- normalizePath(dir, mustWork = TRUE)

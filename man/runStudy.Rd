@@ -31,3 +31,24 @@ Exit status (0 = success, non-zero = failure)
 \description{
 Run study in automated mode with real-time log streaming
 }
+\examples{
+\dontrun{
+# Run study with default settings
+runStudy()
+
+# Run with custom results directory
+runStudy(results_path = "./output")
+
+# Run with environment variables from file
+runStudy(env_file = ".env")
+
+# Run with data directory mounted
+runStudy(
+  results_path = "./results",
+  data_path = "./data"
+)
+
+# Run custom script
+runStudy(script_path = "analyses/main.R")
+}
+}
