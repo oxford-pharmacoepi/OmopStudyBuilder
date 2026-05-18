@@ -124,7 +124,7 @@ initStudy <- function(directory,
   )
 
   # Process README template
-  readmeTemplate <- readLines(system.file("README.md", package = "OmopStudyBuilder"))
+  readmeTemplate <- readLines(system.file("study-README.md", package = "OmopStudyBuilder"))
   readmeContent <- whisker::whisker.render(readmeTemplate, templateData)
   writeLines(readmeContent, file.path(directory, "README.md"))
 

@@ -171,14 +171,12 @@ test_that("ensureGitIdentity errors when git identity is missing and user info i
 
   gert::git_init(temp_dir)
 
-  # Mock getGitConfigValue to always return NULL, simulating a machine with no
-  # git identity configured. This is more reliable than trying to clear
-  # environment variables, which does not work consistently across platforms
-  # (e.g. libgit2 on Fedora Linux ignores GIT_CONFIG_NOSYSTEM).
-  local_mocked_bindings(
-    getGitConfigValue = function(...) NULL,
-    .package = "OmopStudyBuilder"
+  original_getter <- getOption("OmopStudyBuilder.git_config_getter")
+  on.exit(
+    options(OmopStudyBuilder.git_config_getter = original_getter),
+    add = TRUE
   )
+  options(OmopStudyBuilder.git_config_getter = function(directory, key) NULL)
 
   expect_error(
     OmopStudyBuilder:::ensureGitIdentity(temp_dir, NULL),

@@ -4,7 +4,7 @@
 \name{OmopStudyBuilder-package}
 \alias{OmopStudyBuilder}
 \alias{OmopStudyBuilder-package}
-\title{OmopStudyBuilder: Build reproducible network studies for OMOP common data model databases}
+\title{OmopStudyBuilder: Build Reproducible Network Studies for OMOP Common Data Model}
 \description{
 Streamlines the setup and execution of network studies using the Observational Medical Outcomes Partnership (OMOP) Common Data Model (CDM). Creates standardised project structures with template code, manages dependencies with 'renv', provides code review utilities, and supports containerised execution with 'Docker' for reproducible multi-site studies. Includes 'GitHub' integration for collaboration and version control.
 }

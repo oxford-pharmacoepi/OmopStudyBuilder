@@ -282,6 +282,11 @@ gertCall <- function(expr, error_message) {
 
 
 getGitConfigValue <- function(directory, key) {
+  override <- getOption("OmopStudyBuilder.git_config_getter")
+  if (is.function(override)) {
+    return(override(directory, key))
+  }
+
   config <- gert::git_config(repo = directory)
   values <- config$value[config$name == tolower(key)]
 
