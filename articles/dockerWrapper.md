@@ -1,6 +1,7 @@
 # dockerWrapper
 
 ``` r
+
 library(OmopStudyBuilder)
 ```
 
@@ -32,6 +33,7 @@ point it at. By default it will also snapshot your dependencies before
 building.
 
 ``` r
+
 # From the studyCode folder (or pass path=...)
 dockeriseStudy(
   image_name = "my-study",
@@ -45,6 +47,7 @@ If you want
 build with an RStudio base image:
 
 ``` r
+
 dockeriseStudy(
   image_name = "my-study",
   path = "./studyCode",
@@ -56,6 +59,7 @@ If your `renv.lock` includes GitHub packages and you hit GitHub rate
 limits during the build, pass a token:
 
 ``` r
+
 dockeriseStudy(
   path = "./studyCode",
   github_token = Sys.getenv("GITHUB_PAT")
@@ -69,6 +73,7 @@ runs the Docker image and opens a browser to the RStudio Server URL.
 Results are written to `results_path` on your host.
 
 ``` r
+
 runRStudio(
   image_name = "my-study",
   results_path = "./results"
@@ -86,6 +91,7 @@ executes an R script in the container (default `codeToRun.R`) and
 streams stdout/stderr to your console.
 
 ``` r
+
 runStudy(
   image_name = "my-study",
   results_path = "./results",
@@ -104,6 +110,7 @@ and/or
 [`runStudy()`](https://oxford-pharmacoepi.github.io/OmopStudyBuilder/reference/runStudy.md).
 
 ``` r
+
 stopStudy(image_name = "my-study")
 ```
 
@@ -113,6 +120,7 @@ stopStudy(image_name = "my-study")
 will tag `image_name:latest` and push it to a Docker Hub repository.
 
 ``` r
+
 pushDockerImage(
   image_name = "my-study",
   repo = "yourusername/my-study"

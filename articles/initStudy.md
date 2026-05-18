@@ -44,6 +44,7 @@ To avoid modifying your real project directories, this vignette uses a
 temporary folder.
 
 ``` r
+
 # Create a temporary root for this vignette
 study_root <- file.path(tempdir(), "SampleStudy")
 
@@ -66,6 +67,7 @@ You should see something like:
 To inspect the full structure:
 
 ``` r
+
 list.files(study_root, recursive = TRUE)
 #>  [1] "diagnosticsCode/codeToRun.R"                 
 #>  [2] "diagnosticsCode/cohorts/instantiateCohorts.R"
@@ -102,6 +104,7 @@ You can control which parts of the template are created with the
 ### Diagnostics-only project
 
 ``` r
+
 diag_root <- file.path(tempdir(), "DiagnosticsOnly")
 
 initStudy(
@@ -117,6 +120,7 @@ list.files(diag_root)
 ### Study-only project (no diagnostics templates)
 
 ``` r
+
 study_only_root <- file.path(tempdir(), "StudyOnly")
 
 initStudy(
@@ -176,6 +180,7 @@ package it into a Docker image and distribute it to data partners.
 ### Building the Docker Image
 
 ``` r
+
 # Build a Docker image containing your study code
 dockeriseStudy(
   image_name = "omop-study-study-code",
@@ -197,6 +202,7 @@ dependencies
 Push to Docker Hub for easy sharing with connected partners:
 
 ``` r
+
 pushDockerImage(
   image_name = "omop-study-study-code",
   repo = "yourusername/myomopstudy"
@@ -210,6 +216,7 @@ They can then run either an interactive RStudio Server session, or run
 the study in automated mode.
 
 ``` r
+
 library(OmopStudyBuilder)
 
 # Interactive (requires image built with dockeriseStudy(useRStudio = TRUE)):
@@ -225,6 +232,7 @@ runRStudio(
 RStudio Server URL:
 
 ``` r
+
 # Requires image built with dockeriseStudy(useRStudio = TRUE)
 runRStudio(
   image_name = "omop-study-study-code",
@@ -238,6 +246,7 @@ interactively.
 **Automated execution** (for programmatic workflows):
 
 ``` r
+
 runStudy(
   image_name = "omop-study-study-code",
   results_path = "./results",
@@ -248,6 +257,7 @@ runStudy(
 To stop any running OmopStudyBuilder containers, use:
 
 ``` r
+
 stopStudy(image_name = "omop-study-study-code")
 ```
 

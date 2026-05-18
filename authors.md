@@ -18,14 +18,13 @@ Source:
 [`DESCRIPTION`](https://github.com/oxford-pharmacoepi/OmopStudyBuilder/blob/main/DESCRIPTION)
 
 Akintola F, Burn E, Català M (2026). *OmopStudyBuilder: Build
-reproducible network studies for OMOP common data model databases*. R
-package version 0.1.0,
-<https://oxford-pharmacoepi.github.io/OmopStudyBuilder/>.
+Reproducible Network Studies for OMOP Common Data Model*. R package
+version 0.1.1, <https://oxford-pharmacoepi.github.io/OmopStudyBuilder/>.
 
     @Manual{,
-      title = {OmopStudyBuilder: Build reproducible network studies for OMOP common data model databases},
+      title = {OmopStudyBuilder: Build Reproducible Network Studies for OMOP Common Data Model},
       author = {Folu Akintola and Edward Burn and Martí Català},
       year = {2026},
-      note = {R package version 0.1.0},
+      note = {R package version 0.1.1},
       url = {https://oxford-pharmacoepi.github.io/OmopStudyBuilder/},
     }

@@ -1,4 +1,4 @@
-# OmopStudyBuilder: Build reproducible network studies for OMOP common data model databases
+# OmopStudyBuilder: Build Reproducible Network Studies for OMOP Common Data Model
 
 Streamlines the setup and execution of network studies using the
 Observational Medical Outcomes Partnership (OMOP) Common Data Model

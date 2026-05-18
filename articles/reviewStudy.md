@@ -1,6 +1,7 @@
 # reviewStudy
 
 ``` r
+
 library(OmopStudyBuilder)
 ```
 
@@ -29,6 +30,7 @@ you want to review (for example, open `studyCode.Rproj` or
 `diagnosticsCode.Rproj`).
 
 ``` r
+
 reviewStudyCode(".")
 ```
 
@@ -39,6 +41,7 @@ Use `type = "analysis"` for analysis code, or `type = "reporting"` for
 reporting code.
 
 ``` r
+
 reviewStudyDependencies(
   dir = ".",
   type = "analysis"

@@ -20,6 +20,7 @@ study code checklist. For further details, please refer to the
 You can install the development version of the package from GitHub:
 
 ``` r
+
 # install.packages("remotes")
 remotes::install_github("oxford-pharmacoepi/OmopStudyBuilder")
 ```
@@ -31,6 +32,7 @@ The main entry point is
 which creates the study folder structure and template files.
 
 ``` r
+
 library(OmopStudyBuilder)
 
 initStudy(here::here("SampleStudy"))
@@ -40,6 +42,7 @@ Once the study has been created, you can review the generated code and
 dependencies:
 
 ``` r
+
 reviewStudyCode(here::here("SampleStudy", "studyCode"))
 reviewStudyDependencies(here::here("SampleStudy", "studyCode"))
 ```
@@ -48,6 +51,7 @@ If you want reproducible package versions, initialise `renv` in the
 study folder and snapshot the environment:
 
 ``` r
+
 renv::init(here::here("SampleStudy", "studyCode"))
 install.packages(c("dplyr", "CDMConnector", "IncidencePrevalence"))
 renv::snapshot(here::here("SampleStudy", "studyCode"))
@@ -96,6 +100,7 @@ After the study has been created and configured, you can optionally
 build a Docker image from the study folder:
 
 ``` r
+
 dockeriseStudy(path = here::here("SampleStudy", "studyCode"))
 ```
 
@@ -103,6 +108,7 @@ Run the study interactively in RStudio Server or as an automated script.
 If you use a `.env` file for credentials, pass `env_file = ".env"`.
 
 ``` r
+
 runRStudio()
 runStudy()
 ```
@@ -110,6 +116,7 @@ runStudy()
 Use optional inputs only if you need them:
 
 ``` r
+
 runStudy(
   image_name = "omop-study-study-code",
   data_path = "path/to/data",
@@ -123,6 +130,7 @@ To distribute the study, share the **study folder** created by
 using the same commands.
 
 ``` r
+
 install.packages("OmopStudyBuilder")
 library(OmopStudyBuilder)
 
@@ -137,6 +145,7 @@ credentials when prompted (the tag defaults to `latest`, and the image
 name defaults to the current folder name):
 
 ``` r
+
 pushDockerImage(
   repo = "yourname/omop-study-study-code"
 )
