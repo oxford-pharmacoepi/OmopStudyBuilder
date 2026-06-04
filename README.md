@@ -32,7 +32,13 @@ study code checklist. For further details, please refer to the
 
 ## Installation
 
-You can install the development version of the package from GitHub:
+You can install OmopStudyBuilder from CRAN:
+
+``` r
+install.packages("OmopStudyBuilder")
+```
+
+Or you can install the development version from GitHub:
 
 ``` r
 # install.packages("remotes")
