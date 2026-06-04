@@ -65,8 +65,11 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the development version of the package from GitHub:</p>
+<p>You can install OmopStudyBuilder from CRAN:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"OmopStudyBuilder"</span><span class="op">)</span></span></code></pre></div>
+<p>Or you can install the development version from GitHub:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"oxford-pharmacoepi/OmopStudyBuilder"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -74,16 +77,16 @@
 <h2 id="quick-start">Quick Start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
 </h2>
 <p>The main entry point is <code><a href="reference/initStudy.html">initStudy()</a></code>, which creates the study folder structure and template files.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://oxford-pharmacoepi.github.io/OmopStudyBuilder/">OmopStudyBuilder</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="reference/initStudy.html">initStudy</a></span><span class="op">(</span><span class="fu">here</span><span class="fu">::</span><span class="fu"><a href="https://here.r-lib.org/reference/here.html" class="external-link">here</a></span><span class="op">(</span><span class="st">"SampleStudy"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Once the study has been created, you can review the generated code and dependencies:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">reviewStudyCode</span><span class="op">(</span><span class="fu">here</span><span class="fu">::</span><span class="fu"><a href="https://here.r-lib.org/reference/here.html" class="external-link">here</a></span><span class="op">(</span><span class="st">"SampleStudy"</span>, <span class="st">"studyCode"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu">reviewStudyDependencies</span><span class="op">(</span><span class="fu">here</span><span class="fu">::</span><span class="fu"><a href="https://here.r-lib.org/reference/here.html" class="external-link">here</a></span><span class="op">(</span><span class="st">"SampleStudy"</span>, <span class="st">"studyCode"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>If you want reproducible package versions, initialise <code>renv</code> in the study folder and snapshot the environment:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/init.html" class="external-link">init</a></span><span class="op">(</span><span class="fu">here</span><span class="fu">::</span><span class="fu"><a href="https://here.r-lib.org/reference/here.html" class="external-link">here</a></span><span class="op">(</span><span class="st">"SampleStudy"</span>, <span class="st">"studyCode"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dplyr"</span>, <span class="st">"CDMConnector"</span>, <span class="st">"IncidencePrevalence"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/snapshot.html" class="external-link">snapshot</a></span><span class="op">(</span><span class="fu">here</span><span class="fu">::</span><span class="fu"><a href="https://here.r-lib.org/reference/here.html" class="external-link">here</a></span><span class="op">(</span><span class="st">"SampleStudy"</span>, <span class="st">"studyCode"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -128,21 +131,21 @@
 <h3 id="example-usage">Example Usage<a class="anchor" aria-label="anchor" href="#example-usage"></a>
 </h3>
 <p>After the study has been created and configured, you can optionally build a Docker image from the study folder:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/dockeriseStudy.html">dockeriseStudy</a></span><span class="op">(</span>path <span class="op">=</span> <span class="fu">here</span><span class="fu">::</span><span class="fu"><a href="https://here.r-lib.org/reference/here.html" class="external-link">here</a></span><span class="op">(</span><span class="st">"SampleStudy"</span>, <span class="st">"studyCode"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Run the study interactively in RStudio Server or as an automated script. If you use a <code>.env</code> file for credentials, pass <code>env_file = ".env"</code>.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/runRStudio.html">runRStudio</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/runStudy.html">runStudy</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Use optional inputs only if you need them:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/runStudy.html">runStudy</a></span><span class="op">(</span></span>
 <span>  image_name <span class="op">=</span> <span class="st">"omop-study-study-code"</span>,</span>
 <span>  data_path <span class="op">=</span> <span class="st">"path/to/data"</span>,</span>
 <span>  results_path <span class="op">=</span> <span class="st">"./results"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>To distribute the study, share the <strong>study folder</strong> created by <code><a href="reference/initStudy.html">initStudy()</a></code> (including <code>studyCode/</code> and <code>renv.lock</code>). Partners can build and run using the same commands.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"OmopStudyBuilder"</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://oxford-pharmacoepi.github.io/OmopStudyBuilder/">OmopStudyBuilder</a></span><span class="op">)</span></span>
 <span></span>
@@ -151,7 +154,7 @@
 <span><span class="fu"><a href="reference/runRStudio.html">runRStudio</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/stopStudy.html">stopStudy</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>To push a built image to Docker Hub, use the helper and enter your credentials when prompted (the tag defaults to <code>latest</code>, and the image name defaults to the current folder name):</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/pushDockerImage.html">pushDockerImage</a></span><span class="op">(</span></span>
 <span>  repo <span class="op">=</span> <span class="st">"yourname/omop-study-study-code"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
