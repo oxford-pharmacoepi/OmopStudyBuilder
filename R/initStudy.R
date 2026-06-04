@@ -37,6 +37,8 @@
 #' @export
 #'
 #' @examples
+#' library(OmopStudyBuilder)
+#'
 #' # Create a study called "SampleStudy" in a temporary directory
 #' study_root <- file.path(tempdir(), "SampleStudy")
 #' initStudy(study_root)
