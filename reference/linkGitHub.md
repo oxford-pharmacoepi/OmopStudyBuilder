@@ -93,7 +93,6 @@ To create a Personal Access Token (PAT):
 ``` r
 if (FALSE) { # \dontrun{
 library(OmopStudyBuilder)
-library(here)
 
 # Authenticate (choose one method):
 # 1. Set GITHUB_PAT for current session
