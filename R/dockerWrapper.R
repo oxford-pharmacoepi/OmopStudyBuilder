@@ -120,7 +120,6 @@ dockeriseStudy <- function(image_name = NULL,
   ensureDocker()
 
   rlang::check_installed("renv", reason = "for dockeriseStudy()")
-  rlang::check_installed("jsonlite", reason = "for dockeriseStudy()")
   
   # Update renv.lock to capture all dependencies
   if (snapshot) {
