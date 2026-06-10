@@ -57,6 +57,8 @@ Project directory will be created
 Creates initial directory for an OMOP CDM network study
 }
 \examples{
+library(OmopStudyBuilder)
+
 # Create a study called "SampleStudy" in a temporary directory
 study_root <- file.path(tempdir(), "SampleStudy")
 initStudy(study_root)
