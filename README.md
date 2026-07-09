@@ -56,12 +56,11 @@ library(OmopStudyBuilder)
 initStudy(here::here("SampleStudy"))
 ```
 
-Once the study has been created, you can review the generated code and
-dependencies:
+Once the study has been created, you can review the generated code
+(`code` argument) and dependencies (`dependencies` argument):
 
 ``` r
-reviewStudyCode(here::here("SampleStudy", "studyCode"))
-reviewStudyDependencies(here::here("SampleStudy", "studyCode"))
+reviewStudy(here::here("SampleStudy", "studyCode"), code = TRUE, dependencies = TRUE)
 ```
 
 If you want reproducible package versions, initialise `renv` in the
