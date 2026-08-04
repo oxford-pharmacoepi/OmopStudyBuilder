@@ -4,6 +4,8 @@
 library(DBI)
 library(dplyr)
 library(here)
+library(purrr)
+library(cli)
 library(CDMConnector)
 library(omopgenerics)
 library(OmopSketch)
