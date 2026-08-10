@@ -116,6 +116,78 @@ list.files(study_only_root)
 
 ---
 
+## Generating study code from a statistical analysis plan (SAP)
+
+By default the analysis files in `studyCode/` are created empty, for you to
+fill in. If the study already has a **statistical analysis plan** written with
+the shinySAP application, you can pass its exported file to `initStudy()` with
+the `sap` argument (a `.json` or `.jsonl` file, or the SAP already parsed as a
+list):
+
+* The study title, leads and description in the README default to the SAP's
+  study information (explicit arguments still take precedence)
+* `codelist/codelistCreation.R`, `cohorts/instantiateCohorts.R` and
+  `analyses/incidencePrevalence.R` are generated from the SAP's codelists,
+  cohorts and analyses
+* `codeToRun.R` and `runStudy.R` are left untouched: they hold site-specific
+  connection details
+
+```{r sap, message=FALSE}
+sap <- list(
+  study = list(title = "Asthma prevalence", version = "1.0"),
+  codelists = list(list(name = "cs_asthma", category = "Index event")),
+  cohorts = list(
+    list(
+      name = "Asthma", kind = "outcome",
+      operations = list(
+        list(op = "concept_cohort", codelist = "cs_asthma"),
+        list(op = "require_first_entry")
+      )
+    ),
+    list(
+      name = "General population", kind = "denominator",
+      ageGroup = list(c(0, 150)), sex = "Both", daysPriorObservation = 365
+    )
+  ),
+  proposed_analyses = list(
+    list(
+      name = "Asthma period prevalence",
+      analysis_type = "estimatePeriodPrevalence",
+      parameters = list(
+        denominatorTable = "General population",
+        outcomeTable = "Asthma",
+        interval = "years"
+      )
+    )
+  )
+)
+
+sap_root <- file.path(tempdir(), "SapStudy")
+
+initStudy(sap_root, diagnostics = FALSE, sap = sap)
+```
+
+The cohort file is now filled in from the plan:
+
+```{r sap-cohorts}
+cat(readLines(file.path(sap_root, "studyCode", "cohorts", "instantiateCohorts.R")),
+    sep = "\n")
+```
+
+The SAP names its codelists but does not carry their codes, so
+`codelistCreation.R` reads each one from a CSV (`concept_id`, `concept_name`)
+that you place under `codelist/<Category>/<name>.csv`; the folders are created
+and each expected path is stated in the script.
+
+If the SAP changes after the study has been created, regenerate the analysis
+files in place with `generateStudyCode()`:
+
+```{r sap-regenerate, message=FALSE}
+generateStudyCode(sap, file.path(sap_root, "studyCode"))
+```
+
+---
+
 ## What to do after `initStudy()`
 
 After generating the project structure, you will mainly work with these folders and files:

@@ -33,6 +33,18 @@
 #' @param private Logical. If TRUE (default), creates a private GitHub repository.
 #'   Only used when \code{repository} is provided.
 #'
+#' @param sap Optional statistical analysis plan (SAP): a path to a SAP file
+#'   (as exported by the shinySAP application) or the already-parsed SAP as a
+#'   list. The file may be \code{.json} (one SAP object) or
+#'   \code{.jsonl}/\code{.ndjson} (one JSON object per line, where the last
+#'   record is used). If provided, the study metadata (\code{studyTitle},
+#'   \code{studyLeads}, \code{studyDescription}) defaults to the SAP's study
+#'   information and the \code{studyCode/} analysis files
+#'   (\code{codelist/codelistCreation.R}, \code{cohorts/instantiateCohorts.R},
+#'   \code{analyses/incidencePrevalence.R}) are generated from the SAP via
+#'   \code{\link{generateStudyCode}}. Requires \code{study = TRUE}. If NULL
+#'   (default), the behaviour is unchanged and these files are left empty.
+#'
 #' @returns Project directory will be created
 #' @export
 #'
@@ -73,7 +85,8 @@ initStudy <- function(directory,
                         studyDescription = NULL,
                         repository = NULL,
                         organisation = NULL,
-                        private = TRUE) {
+                        private = TRUE,
+                        sap = NULL) {
   validateRootDirectory(directory)
   omopgenerics::assertLogical(diagnostics, length = 1)
   omopgenerics::assertLogical(study, length = 1)
@@ -83,6 +96,29 @@ initStudy <- function(directory,
   omopgenerics::assertCharacter(repository, length = 1, null = TRUE)
   omopgenerics::assertCharacter(organisation, length = 1, null = TRUE)
   omopgenerics::assertLogical(private, length = 1)
+
+  if (!is.null(sap)) {
+    if (!isTRUE(study)) {
+      cli::cli_abort("`sap` generates the study code, so it requires {.code study = TRUE}.")
+    }
+    sap <- read_sap_plan(sap)
+
+    # The SAP already states the study metadata; explicit arguments still win.
+    sapStudy <- sap$study
+    if (is.null(studyTitle)) {
+      title <- as.character(sapStudy$title %|||% NA)[1]
+      if (!is.na(title) && nzchar(title)) studyTitle <- title
+    }
+    if (is.null(studyLeads)) {
+      authors <- as.character(unlist(sapStudy$authors %|||% character(0)))
+      authors <- authors[!is.na(authors) & nzchar(authors)]
+      if (length(authors)) studyLeads <- paste(authors, collapse = ", ")
+    }
+    if (is.null(studyDescription)) {
+      description <- as.character(sapStudy$background %|||% sapStudy$aim %|||% NA)[1]
+      if (!is.na(description) && nzchar(description)) studyDescription <- description
+    }
+  }
 
   # Set smart defaults for template variables
   if (is.null(studyTitle)) {
@@ -164,6 +200,10 @@ initStudy <- function(directory,
       to = directoryStudyCode
     )
     cli::cli_alert_success("{.strong {directoryStudyCode}} prepared for study study code")
+
+    if (!is.null(sap)) {
+      generateStudyCode(sap = sap, directory = directoryStudyCode)
+    }
 
     directoryStudyShiny <- file.path(directory, "studyShiny")
     copyDirectory(
