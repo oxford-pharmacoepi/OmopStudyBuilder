@@ -13,8 +13,7 @@ initStudy(
   studyDescription = NULL,
   repository = NULL,
   organisation = NULL,
-  private = TRUE,
-  sap = NULL
+  private = TRUE
 )
 }
 \arguments{
@@ -50,18 +49,6 @@ repository under your personal account. Only used when \code{repository} is prov
 
 \item{private}{Logical. If TRUE (default), creates a private GitHub repository.
 Only used when \code{repository} is provided.}
-
-\item{sap}{Optional statistical analysis plan (SAP): a path to a SAP file
-(as exported by the shinySAP application) or the already-parsed SAP as a
-list. The file may be \code{.json} (one SAP object) or
-\code{.jsonl}/\code{.ndjson} (one JSON object per line, where the last
-record is used). If provided, the study metadata (\code{studyTitle},
-\code{studyLeads}, \code{studyDescription}) defaults to the SAP's study
-information and the \code{studyCode/} analysis files
-(\code{codelist/codelistCreation.R}, \code{cohorts/instantiateCohorts.R},
-\code{analyses/incidencePrevalence.R}) are generated from the SAP via
-\code{\link{generateStudyCode}}. Requires \code{study = TRUE}. If NULL
-(default), the behaviour is unchanged and these files are left empty.}
 }
 \value{
 Project directory will be created

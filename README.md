@@ -56,22 +56,31 @@ library(OmopStudyBuilder)
 initStudy(here::here("SampleStudy"))
 ```
 
-If you have a statistical analysis plan (SAP) exported by the shinySAP
-application (a `.json` or `.jsonl` file), you can pass it to
-`initStudy()`: the study metadata is taken from the SAP and the analysis
-code in `studyCode/` (codelists, cohorts and incidence/prevalence
-analyses) is generated from it.
+<!-- If you have a statistical analysis plan (SAP) exported by the shinySAP -->
 
-``` r
-initStudy(here::here("SampleStudy"), sap = "path/to/sap.json")
-```
+<!-- application (a `.json` or `.jsonl` file), you can pass it to `initStudy()`: -->
 
-If the SAP changes later, regenerate the analysis files of the existing
-study with `generateStudyCode()`:
+<!-- the study metadata is taken from the SAP and the analysis code in -->
 
-``` r
-generateStudyCode("path/to/sap.json", here::here("SampleStudy", "studyCode"))
-```
+<!-- `studyCode/` (codelists, cohorts and incidence/prevalence analyses) is -->
+
+<!-- generated from it. -->
+
+<!-- ```{r, eval = FALSE} -->
+
+<!-- initStudy(here::here("SampleStudy"), sap = "path/to/sap.json") -->
+
+<!-- ``` -->
+
+<!-- If the SAP changes later, regenerate the analysis files of the existing -->
+
+<!-- study with `generateStudyCode()`: -->
+
+<!-- ```{r, eval = FALSE} -->
+
+<!-- generateStudyCode("path/to/sap.json", here::here("SampleStudy", "studyCode")) -->
+
+<!-- ``` -->
 
 Once the study has been created, you can review the generated code
 (`code` argument) and dependencies (`dependencies` argument):

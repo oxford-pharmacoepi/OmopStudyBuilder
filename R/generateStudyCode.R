@@ -26,7 +26,8 @@
 #'   example the one created by \code{\link{initStudy}}.
 #'
 #' @returns Invisibly, the paths of the files written.
-#' @export
+#'
+#' @noRd
 #'
 #' @examples
 #' library(OmopStudyBuilder)

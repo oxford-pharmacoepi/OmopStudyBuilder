@@ -22,7 +22,7 @@
 #'
 #' @param studyDescription Character string with study description. If NULL (default),
 #'   leaves a placeholder.
-#' 
+#'
 #' @param repository Optional GitHub repository name. If provided, creates a GitHub
 #'   repository and links it to the study. Requires the \code{gh} and \code{gert}
 #'   packages and GitHub authentication (for example via \code{GITHUB_PAT}).
@@ -33,17 +33,18 @@
 #' @param private Logical. If TRUE (default), creates a private GitHub repository.
 #'   Only used when \code{repository} is provided.
 #'
-#' @param sap Optional statistical analysis plan (SAP): a path to a SAP file
-#'   (as exported by the shinySAP application) or the already-parsed SAP as a
-#'   list. The file may be \code{.json} (one SAP object) or
-#'   \code{.jsonl}/\code{.ndjson} (one JSON object per line, where the last
-#'   record is used). If provided, the study metadata (\code{studyTitle},
-#'   \code{studyLeads}, \code{studyDescription}) defaults to the SAP's study
-#'   information and the \code{studyCode/} analysis files
-#'   (\code{codelist/codelistCreation.R}, \code{cohorts/instantiateCohorts.R},
-#'   \code{analyses/incidencePrevalence.R}) are generated from the SAP via
-#'   \code{\link{generateStudyCode}}. Requires \code{study = TRUE}. If NULL
-#'   (default), the behaviour is unchanged and these files are left empty.
+# TO INCLUDE IN THE FUTURE
+# @param sap Optional statistical analysis plan (SAP): a path to a SAP file
+#   (as exported by the shinySAP application) or the already-parsed SAP as a
+#   list. The file may be \code{.json} (one SAP object) or
+#   \code{.jsonl}/\code{.ndjson} (one JSON object per line, where the last
+#   record is used). If provided, the study metadata (\code{studyTitle},
+#   \code{studyLeads}, \code{studyDescription}) defaults to the SAP's study
+#   information and the \code{studyCode/} analysis files
+#   (\code{codelist/codelistCreation.R}, \code{cohorts/instantiateCohorts.R},
+#   \code{analyses/incidencePrevalence.R}) are generated from the SAP via
+#   \code{\link{generateStudyCode}}. Requires \code{study = TRUE}. If NULL
+#   (default), the behaviour is unchanged and these files are left empty.
 #'
 #' @returns Project directory will be created
 #' @export
@@ -85,8 +86,7 @@ initStudy <- function(directory,
                         studyDescription = NULL,
                         repository = NULL,
                         organisation = NULL,
-                        private = TRUE,
-                        sap = NULL) {
+                        private = TRUE) {
   validateRootDirectory(directory)
   omopgenerics::assertLogical(diagnostics, length = 1)
   omopgenerics::assertLogical(study, length = 1)
@@ -96,6 +96,8 @@ initStudy <- function(directory,
   omopgenerics::assertCharacter(repository, length = 1, null = TRUE)
   omopgenerics::assertCharacter(organisation, length = 1, null = TRUE)
   omopgenerics::assertLogical(private, length = 1)
+
+  sap <- NULL
 
   if (!is.null(sap)) {
     if (!isTRUE(study)) {
@@ -201,9 +203,9 @@ initStudy <- function(directory,
     )
     cli::cli_alert_success("{.strong {directoryStudyCode}} prepared for study study code")
 
-    if (!is.null(sap)) {
-      generateStudyCode(sap = sap, directory = directoryStudyCode)
-    }
+    # if (!is.null(sap)) {
+    #   generateStudyCode(sap = sap, directory = directoryStudyCode)
+    # }
 
     directoryStudyShiny <- file.path(directory, "studyShiny")
     copyDirectory(
