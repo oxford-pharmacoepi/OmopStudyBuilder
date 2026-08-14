@@ -87,7 +87,7 @@ list.files(study_root, recursive = TRUE)
 #> [16] "studyCode/codeToRun.R"                       
 #> [17] "studyCode/cohorts/instantiateCohorts.R"      
 #> [18] "studyCode/README.md"                         
-#> [19] "studyCode/Results/README.md"                 
+#> [19] "studyCode/results/README.md"                 
 #> [20] "studyCode/runStudy.R"                        
 #> [21] "studyCode/studyCode.Rproj"                   
 #> [22] "studyShiny/README.md"                        
