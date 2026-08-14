@@ -1,9 +1,10 @@
-
 # Check codeToRun inputs ----
 validateCdmArgument(
   cdm = cdm,
-  requiredTables = c("person", "observation_period", "condition_occurrence",
-                     "drug_exposure", "concept")
+  requiredTables = c(
+    "person", "observation_period", "condition_occurrence",
+    "drug_exposure", "concept"
+  )
 )
 assertNumeric(min_cell_count)
 

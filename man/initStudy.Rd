@@ -69,8 +69,9 @@ list.files(study_root)
 # Create another study with custom metadata
 study_root2 <- file.path(tempdir(), "DiabetesStudy")
 initStudy(study_root2,
-          studyTitle = "Diabetes Prevalence Study",
-          studyLeads = "Dr. Smith, Dr. Jones")
+  studyTitle = "Diabetes Prevalence Study",
+  studyLeads = "Dr. Smith, Dr. Jones"
+)
 
 \dontrun{
 # Create study with GitHub integration (requires GITHUB_PAT)

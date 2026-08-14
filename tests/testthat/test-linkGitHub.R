@@ -190,10 +190,13 @@ test_that("setupGitRemote pushes the actual local branch to a bare remote", {
   repo_dir <- tempfile("test-linkGitHub-local-")
   remote_dir <- tempfile("test-linkGitHub-remote-")
 
-  on.exit({
-    unlink(repo_dir, recursive = TRUE)
-    unlink(remote_dir, recursive = TRUE)
-  }, add = TRUE)
+  on.exit(
+    {
+      unlink(repo_dir, recursive = TRUE)
+      unlink(remote_dir, recursive = TRUE)
+    },
+    add = TRUE
+  )
 
   dir.create(repo_dir, recursive = TRUE)
   dir.create(remote_dir, recursive = TRUE)
@@ -225,10 +228,13 @@ test_that("setupGitRemote uses main branch for fresh repos", {
   repo_dir <- tempfile("test-linkGitHub-local-main-")
   remote_dir <- tempfile("test-linkGitHub-remote-main-")
 
-  on.exit({
-    unlink(repo_dir, recursive = TRUE)
-    unlink(remote_dir, recursive = TRUE)
-  }, add = TRUE)
+  on.exit(
+    {
+      unlink(repo_dir, recursive = TRUE)
+      unlink(remote_dir, recursive = TRUE)
+    },
+    add = TRUE
+  )
 
   dir.create(repo_dir, recursive = TRUE)
   dir.create(remote_dir, recursive = TRUE)
@@ -251,6 +257,36 @@ test_that("setupGitRemote uses main branch for fresh repos", {
 
   remote_branches <- gert::git_branch_list(repo = remote_dir)
   expect_true("main" %in% remote_branches$name)
+})
+
+test_that("createReviewChecklistIssue renders the template and substitutes placeholders", {
+  template_path <- system.file("templates", "CODE_REVIEW_CHECKLIST.md", package = "OmopStudyBuilder")
+  content <- readLines(template_path, warn = FALSE)
+  content <- gsub("{{REPO_NAME}}", "my-test-repo", content, fixed = TRUE)
+  content <- gsub("{{DATE}}", as.character(Sys.Date()), content, fixed = TRUE)
+
+  expect_false(any(grepl("{{", content, fixed = TRUE)))
+  expect_true(any(grepl("my-test-repo", content, fixed = TRUE)))
+  expect_true(any(grepl("- \\[ \\]", content)))
+})
+
+test_that("createReviewChecklistIssue fails gracefully when the GitHub API call errors", {
+  expect_no_error(
+    result <- OmopStudyBuilder:::createReviewChecklistIssue(
+      "nonexistent-owner-xyz-abc-123",
+      "nonexistent-repo-xyz"
+    )
+  )
+  expect_null(result)
+})
+
+test_that("linkGitHub validates checklist parameter", {
+  temp_dir <- tempdir()
+
+  expect_error(
+    linkGitHub(directory = temp_dir, repository = "test", checklist = "yes"),
+    class = "error"
+  )
 })
 
 test_that("linkGitHub validates directory parameter", {
@@ -286,8 +322,10 @@ test_that("linkGitHub validates repository parameter", {
 # ============================================================================
 
 test_that("linkGitHub full workflow (MANUAL TEST - requires GITHUB_PAT)", {
-  skip_if_not(Sys.getenv("RUN_MANUAL_TESTS") == "true", 
-              "Manual test - set RUN_MANUAL_TESTS=true to run (requires GITHUB_PAT)")
+  skip_if_not(
+    Sys.getenv("RUN_MANUAL_TESTS") == "true",
+    "Manual test - set RUN_MANUAL_TESTS=true to run (requires GITHUB_PAT)"
+  )
   skip_if_not(nzchar(Sys.getenv("GITHUB_PAT")), "GITHUB_PAT not set")
   skip_if_not_installed("gh")
 
@@ -305,7 +343,7 @@ test_that("linkGitHub full workflow (MANUAL TEST - requires GITHUB_PAT)", {
   result <- linkGitHub(
     directory = temp_dir,
     repository = test_repo_name,
-    organisation = NULL,  # Creates under personal account
+    organisation = NULL, # Creates under personal account
     private = TRUE
   )
 
@@ -320,8 +358,10 @@ test_that("linkGitHub full workflow (MANUAL TEST - requires GITHUB_PAT)", {
 })
 
 test_that("initStudy with GitHub integration (MANUAL TEST)", {
-  skip_if_not(Sys.getenv("RUN_MANUAL_TESTS") == "true", 
-              "Manual test - set RUN_MANUAL_TESTS=true to run (requires GITHUB_PAT)")
+  skip_if_not(
+    Sys.getenv("RUN_MANUAL_TESTS") == "true",
+    "Manual test - set RUN_MANUAL_TESTS=true to run (requires GITHUB_PAT)"
+  )
   skip_if_not(nzchar(Sys.getenv("GITHUB_PAT")), "GITHUB_PAT not set")
   skip_if_not_installed("gh")
 

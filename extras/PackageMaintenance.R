@@ -1,11 +1,10 @@
-
 # Please work through the below before pushing any changes to github
 
 # 1) run all testthat tests (after reloading with current code) - do all pass?
 devtools::test()
 
 # 2) check code coverage - are all functions covered 100%?
-detach("package:DrugUtilisation", unload=TRUE)
+detach("package:DrugUtilisation", unload = TRUE)
 devtools::test_coverage()
 # for more coverage details uncomment the following
 # covr::report()
@@ -32,9 +31,9 @@ devtools::check_rhub() # All os
 # ignore formatting warning for .datatable.aware
 # doesn´t pick up vars used in glue (So ignore warningn about duration)
 lintr::lint_package(".",
-             linters = lintr::linters_with_defaults(
-              lintr::object_name_linter(styles = "camelCase")
-             )
+  linters = lintr::linters_with_defaults(
+    lintr::object_name_linter(styles = "camelCase")
+  )
 )
 
 # 8) Rebuild readme

@@ -1,5 +1,4 @@
 test_that("directory set up", {
-
   # user can provide a directory that already exists (and is empty)
   temp_dir <- here::here(tempdir(), omopgenerics::uniqueTableName())
   dir.create(path = temp_dir, recursive = TRUE)
@@ -50,7 +49,6 @@ test_that("directory set up", {
 })
 
 test_that("INSTRUCTIONS.md is created with correct content", {
-
   # INSTRUCTIONS.md should be created with both diagnostics and study
   temp_dir_both <- here::here(tempdir(), omopgenerics::uniqueTableName())
   dir.create(path = temp_dir_both, recursive = TRUE)
@@ -60,7 +58,7 @@ test_that("INSTRUCTIONS.md is created with correct content", {
     study       = TRUE
   ))
   expect_true("INSTRUCTIONS.md" %in% list.files(temp_dir_both))
-  
+
   # Check content includes both diagnostics and study instructions
   instructions_both <- readLines(file.path(temp_dir_both, "INSTRUCTIONS.md"))
   instructions_text <- paste(instructions_both, collapse = " ")
@@ -78,7 +76,7 @@ test_that("INSTRUCTIONS.md is created with correct content", {
     study       = FALSE
   ))
   expect_true("INSTRUCTIONS.md" %in% list.files(temp_dir_diag_only))
-  
+
   instructions_diag <- readLines(file.path(temp_dir_diag_only, "INSTRUCTIONS.md"))
   instructions_diag_text <- paste(instructions_diag, collapse = " ")
   expect_true(grepl("Running the Diagnostics Code", instructions_diag_text))
@@ -93,7 +91,7 @@ test_that("INSTRUCTIONS.md is created with correct content", {
     study       = TRUE
   ))
   expect_true("INSTRUCTIONS.md" %in% list.files(temp_dir_study_only))
-  
+
   instructions_study <- readLines(file.path(temp_dir_study_only, "INSTRUCTIONS.md"))
   instructions_study_text <- paste(instructions_study, collapse = " ")
   expect_false(grepl("Running the Diagnostics Code", instructions_study_text))
@@ -104,7 +102,7 @@ test_that("README.md files point to INSTRUCTIONS.md", {
   temp_dir <- here::here(tempdir(), omopgenerics::uniqueTableName())
   dir.create(path = temp_dir, recursive = TRUE)
   initStudy(directory = temp_dir, diagnostics = TRUE, study = TRUE)
-  
+
   # Check that subfolder READMEs reference the central instructions
   study_readme <- readLines(file.path(temp_dir, "studyCode", "README.md"))
   expect_true(any(grepl("\\.\\./INSTRUCTIONS\\.md", study_readme)))
@@ -125,4 +123,3 @@ test_that("README.md folder labels do not include trailing slashes", {
 
   expect_false(grepl("\\*\\*\\[(diagnosticsCode|diagnosticsShiny|studyCode|studyShiny)/\\]", readme_text))
 })
-
