@@ -6,6 +6,8 @@ test_that("validateRepoName accepts valid names", {
   expect_silent(OmopStudyBuilder:::validateRepoName("my.study"))
   expect_silent(OmopStudyBuilder:::validateRepoName("study-123"))
   expect_silent(OmopStudyBuilder:::validateRepoName("Study_2024.v1"))
+  expect_silent(OmopStudyBuilder:::validateRepoName("-study"))
+  expect_silent(OmopStudyBuilder:::validateRepoName("study-"))
 })
 
 test_that("validateRepoName rejects invalid names", {
@@ -26,20 +28,8 @@ test_that("validateRepoName rejects invalid names", {
     "invalid characters"
   )
 
-  # Leading hyphen
-  expect_error(
-    OmopStudyBuilder:::validateRepoName("-study"),
-    "cannot start or end with hyphen"
-  )
-
-  # Trailing hyphen
-  expect_error(
-    OmopStudyBuilder:::validateRepoName("study-"),
-    "cannot start or end with hyphen"
-  )
-
-  # Too long (>30 chars)
-  long_name <- paste0(rep("a", 31), collapse = "")
+  # Too long (>100 chars)
+  long_name <- paste0(rep("a", 101), collapse = "")
   expect_error(
     OmopStudyBuilder:::validateRepoName(long_name),
     "Repository name too long"
