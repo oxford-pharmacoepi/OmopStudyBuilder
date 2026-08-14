@@ -22,7 +22,7 @@
 #'
 #' @param studyDescription Character string with study description. If NULL (default),
 #'   leaves a placeholder.
-#' 
+#'
 #' @param repository Optional GitHub repository name. If provided, creates a GitHub
 #'   repository and links it to the study. Requires the \code{gh} and \code{gert}
 #'   packages and GitHub authentication (for example via \code{GITHUB_PAT}).
@@ -211,7 +211,18 @@ validateRootDirectory <- function(dir) {
   }
 
   if (length(list.files(dir, recursive = TRUE)) > 0) {
-    cli::cli_abort(c("Provided directory {.pkg {dir}} is not empty."))
+    if (rlang::is_interactive()) {
+      cli::cli_inform(c("!" = "Provided directory {.pkg {dir}} is not empty."))
+      answer <- utils::askYesNo("Do you want to delete the content?", default = FALSE)
+      if (isTRUE(answer)) {
+        unlink(dir, recursive = TRUE, force = TRUE)
+        dir.create(dir, showWarnings = FALSE)
+      } else {
+        cli::cli_abort(c(x = "Provided directory {.path {dir}} is not empty. Please delete it manually or provide a different directory."))
+      }
+    } else {
+      cli::cli_abort(c(x = "Provided directory {.path {dir}} is not empty."))
+    }
   }
 
   return(invisible())
