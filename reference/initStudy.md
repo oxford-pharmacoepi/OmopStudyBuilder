@@ -83,11 +83,11 @@ library(OmopStudyBuilder)
 # Create a study called "SampleStudy" in a temporary directory
 study_root <- file.path(tempdir(), "SampleStudy")
 initStudy(study_root)
-#> ✔ /tmp/Rtmp6ghr1E/SampleStudy prepared as root folder for study.
-#> ✔ /tmp/Rtmp6ghr1E/SampleStudy/diagnosticsCode prepared for study diagnostics code
-#> ✔ /tmp/Rtmp6ghr1E/SampleStudy/diagnosticsShiny prepared for diagnostics shiny app
-#> ✔ /tmp/Rtmp6ghr1E/SampleStudy/studyCode prepared for study study code
-#> ✔ /tmp/Rtmp6ghr1E/SampleStudy/studyShiny prepared for study shiny app
+#> ✔ /tmp/RtmpjvHscy/SampleStudy prepared as root folder for study.
+#> ✔ /tmp/RtmpjvHscy/SampleStudy/diagnosticsCode prepared for study diagnostics code
+#> ✔ /tmp/RtmpjvHscy/SampleStudy/diagnosticsShiny prepared for diagnostics shiny app
+#> ✔ /tmp/RtmpjvHscy/SampleStudy/studyCode prepared for study study code
+#> ✔ /tmp/RtmpjvHscy/SampleStudy/studyShiny prepared for study shiny app
 
 # Inspect the top-level contents
 list.files(study_root)
@@ -99,11 +99,11 @@ study_root2 <- file.path(tempdir(), "DiabetesStudy")
 initStudy(study_root2,
           studyTitle = "Diabetes Prevalence Study",
           studyLeads = "Dr. Smith, Dr. Jones")
-#> ✔ /tmp/Rtmp6ghr1E/DiabetesStudy prepared as root folder for study.
-#> ✔ /tmp/Rtmp6ghr1E/DiabetesStudy/diagnosticsCode prepared for study diagnostics code
-#> ✔ /tmp/Rtmp6ghr1E/DiabetesStudy/diagnosticsShiny prepared for diagnostics shiny app
-#> ✔ /tmp/Rtmp6ghr1E/DiabetesStudy/studyCode prepared for study study code
-#> ✔ /tmp/Rtmp6ghr1E/DiabetesStudy/studyShiny prepared for study shiny app
+#> ✔ /tmp/RtmpjvHscy/DiabetesStudy prepared as root folder for study.
+#> ✔ /tmp/RtmpjvHscy/DiabetesStudy/diagnosticsCode prepared for study diagnostics code
+#> ✔ /tmp/RtmpjvHscy/DiabetesStudy/diagnosticsShiny prepared for diagnostics shiny app
+#> ✔ /tmp/RtmpjvHscy/DiabetesStudy/studyCode prepared for study study code
+#> ✔ /tmp/RtmpjvHscy/DiabetesStudy/studyShiny prepared for study shiny app
 
 if (FALSE) { # \dontrun{
 # Create study with GitHub integration (requires GITHUB_PAT)

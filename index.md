@@ -1,4 +1,4 @@
-# OmopStudyBuilder ![OmopStudyBuilder logo](reference/figures/image.jfif)
+# OmopStudyBuilder ![OmopStudyBuilder logo](reference/figures/image.jpg)
 
 The **OmopStudyBuilder** package helps a study prepare for network
 studies using the OMOP Common Data Model (CDM). The package sets up an R
