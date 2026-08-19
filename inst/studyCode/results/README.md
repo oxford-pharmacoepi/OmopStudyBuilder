@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# OmopStudyBuilder <a href="https://github.com/oxford-pharmacoepi/OmopStudyBuilder"><img src="man/figures/image.jfif" align="right" height="138" alt="OmopStudyBuilder website" /></a>
+# OmopStudyBuilder <a href="https://github.com/oxford-pharmacoepi/OmopStudyBuilder"><img src="man/figures/image.jpg" align="right" height="138" alt="OmopStudyBuilder website" /></a>
 
 <!-- badges: start -->
 
