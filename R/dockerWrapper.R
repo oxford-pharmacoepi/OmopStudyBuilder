@@ -323,7 +323,7 @@ dockeriseStudy <- function(image_name = NULL,
     build_args_vec <- c(build_args_vec, "--build-arg", paste0("GITHUB_PAT=", github_token))
   }
   build_args_vec <- c(build_args_vec, normalizePath(path, winslash = "/", mustWork = TRUE))
-  exit_code <- system2("docker", build_args_vec)
+  exit_code <- system2(containerEngine(), build_args_vec)
   
   if (exit_code != 0) {
     stop("Failed to build image: ", image_name, call. = FALSE)
@@ -379,7 +379,7 @@ pushDockerImage <- function(image_name = NULL,
   writeLines(password, stdin_file, useBytes = TRUE)
 
   login_res <- suppressWarnings(system2(
-    "docker",
+    containerEngine(),
     c("login", "--username", username, "--password-stdin"),
     stdin = stdin_file,
     stdout = TRUE,
@@ -393,7 +393,7 @@ pushDockerImage <- function(image_name = NULL,
   dockerExec(c("tag", paste0(image_name, ":latest"), image_ref), "Failed to tag image")
   message("Pushing image (this may take a while): ", image_ref)
   push_res <- processx::run(
-    "docker",
+    containerEngine(),
     c("push", image_ref),
     echo = TRUE,
     error_on_status = FALSE
@@ -407,7 +407,7 @@ pushDockerImage <- function(image_name = NULL,
   }
 
   if (isTRUE(logout)) {
-    suppressWarnings(system2("docker", "logout", stdout = TRUE, stderr = TRUE))
+    suppressWarnings(system2(containerEngine(), "logout", stdout = TRUE, stderr = TRUE))
   }
 
   message("Pushed image: ", image_ref)
@@ -513,7 +513,7 @@ buildDockerLabels <- function(image_name, mode) {
 #' @keywords internal
 verifyImageExists <- function(image_name, check_rstudio = FALSE) {
   inspect_status <- suppressWarnings(try(system2(
-    "docker",
+    containerEngine(),
     c("image", "inspect", image_name),
     stdout = FALSE,
     stderr = FALSE
@@ -526,7 +526,7 @@ verifyImageExists <- function(image_name, check_rstudio = FALSE) {
   }
   if (check_rstudio) {
     rserver_status <- suppressWarnings(try(system2(
-      "docker",
+      containerEngine(),
       c("run", "--rm", "--entrypoint", "/bin/sh", image_name,
         "-c", "command -v rserver >/dev/null 2>&1"),
       stdout = FALSE,
@@ -602,7 +602,7 @@ runRStudio <- function(image_name = NULL, results_path = "./results", env_file =
     if (is.null(reachable_host)) Sys.sleep(0.5)
   }
   if (is.null(reachable_host)) {
-    logs <- try(system2("docker", c("logs", "--tail", "200", container_id), stdout = TRUE, stderr = TRUE), silent = TRUE)
+    logs <- try(system2(containerEngine(), c("logs", "--tail", "200", container_id), stdout = TRUE, stderr = TRUE), silent = TRUE)
     if (inherits(logs, "try-error")) {
       cond <- attr(logs, "condition")
       msg <- if (!is.null(cond) && nzchar(cond$message)) cond$message else as.character(logs)
@@ -665,7 +665,7 @@ runStudy <- function(image_name = NULL, results_path = "./results", env_file = N
           container_name, "\nScript: ", script_path, "\nResults: ", results_path, 
           "\n========================================\n")
   
-  proc <- processx::process$new("docker", args, stdout = "|", stderr = "|", 
+  proc <- processx::process$new(containerEngine(), args, stdout = "|", stderr = "|",
                                 echo_cmd = FALSE, cleanup_tree = TRUE)
   
   while (proc$is_alive()) {
