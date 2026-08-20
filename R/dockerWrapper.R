@@ -1,5 +1,20 @@
 # Docker Wrapper Functions for OMOP Studies
 
+#' Resolve which container engine binary to use
+#'
+#' Defaults to \code{"docker"}. Override via the
+#' \code{OmopStudyBuilder.container_engine} option (e.g. for a single R
+#' session) or the \code{OMOPSTUDYBUILDER_ENGINE} environment variable (e.g.
+#' for a project's \code{.Renviron}), for example to switch to
+#' \href{https://podman.io/}{Podman}. The option takes precedence over the
+#' environment variable.
+#'
+#' @return Character string naming the container engine binary
+#' @keywords internal
+containerEngine <- function() {
+  getOption("OmopStudyBuilder.container_engine", Sys.getenv("OMOPSTUDYBUILDER_ENGINE", "docker"))
+}
+
 #' Execute a Docker command
 #' @param args Character vector of Docker command arguments
 #' @param error_message Custom error message if command fails
