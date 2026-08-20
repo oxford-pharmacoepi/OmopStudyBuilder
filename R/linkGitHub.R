@@ -205,9 +205,8 @@ checkRepoAvailable <- function(owner, repo) {
 #' @return TRUE if valid, throws error otherwise
 #' @keywords internal
 validateRepoName <- function(name) {
-  max_length <- 30
+  max_length <- 100
 
-  # Check length
   if (nchar(name) > max_length) {
     cli::cli_abort(c(
       "Repository name too long: {nchar(name)} characters (max {max_length})",
@@ -215,7 +214,6 @@ validateRepoName <- function(name) {
     ))
   }
 
-  # Check for spaces
   if (grepl("\\s", name)) {
     cli::cli_abort(c(
       "Repository name cannot contain spaces: {.val {name}}",
@@ -223,7 +221,6 @@ validateRepoName <- function(name) {
     ))
   }
 
-  # Check for invalid characters (allow letters, numbers, hyphens, underscores, dots)
   if (grepl("[^a-zA-Z0-9._-]", name)) {
     cli::cli_abort(c(
       "Repository name contains invalid characters: {.val {name}}",
@@ -231,15 +228,7 @@ validateRepoName <- function(name) {
     ))
   }
 
-  # Check leading/trailing hyphens
-  if (grepl("^-|-$", name)) {
-    cli::cli_abort(c(
-      "Repository name cannot start or end with hyphen: {.val {name}}",
-      "i" = "Remove leading/trailing hyphens"
-    ))
-  }
-
-  return(invisible(TRUE))
+  invisible(TRUE)
 }
 
 

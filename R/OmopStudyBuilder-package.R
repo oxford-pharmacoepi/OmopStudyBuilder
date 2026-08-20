@@ -5,6 +5,7 @@
 #' @importFrom jsonlite fromJSON read_json
 #' @importFrom rlang .data
 #' @importFrom rlang .env
+#' @importFrom rlang %||%
 #' @importFrom utils head install.packages
 ## usethis namespace: end
 NULL

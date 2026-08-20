@@ -9,7 +9,8 @@ logMessage("LOG CREATED")
 
 # run ----
 source(here("cohorts", "instantiateCohorts.R"))
-info(logger, "- Running PhenotypeDiagnostics")
+logMessage("Running PhenotypeDiagnostics")
+
 diagnostics <- phenotypeDiagnostics(cdm$study_cohorts,
   survival = FALSE,
   cohortSample = 20000,

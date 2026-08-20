@@ -23,7 +23,7 @@ logMessage("LOG CREATED")
 
 # CDM summary -----
 results[["snapshot"]] <- summariseOmopSnapshot(cdm)
-results[["obs_period"]] <- summariseObservationPeriod(cdm$observation_period)
+results[["obs_period"]] <- summariseObservationPeriod(cdm)
 
 # Instantiate study cohorts ----
 logMessage("Instantiating study cohorts")
