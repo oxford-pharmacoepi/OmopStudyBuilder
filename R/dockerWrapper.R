@@ -21,7 +21,7 @@ containerEngine <- function() {
 #' @return Command output as character vector (returned invisibly to avoid console clutter)
 #' @keywords internal
 dockerExec <- function(args, error_message = "Docker command failed") {
-  result <- suppressWarnings(system2("docker", args, stdout = TRUE, stderr = TRUE))
+  result <- suppressWarnings(system2(containerEngine(), args, stdout = TRUE, stderr = TRUE))
   if (!is.null(attr(result, "status")) && attr(result, "status") != 0) {
     stop(error_message, "\n", paste(result, collapse = "\n"), call. = FALSE)
   }
@@ -33,7 +33,7 @@ dockerExec <- function(args, error_message = "Docker command failed") {
 #' @return Output lines, or empty if the command fails
 #' @keywords internal
 dockerQuery <- function(args) {
-  out <- suppressWarnings(system2("docker", args, stdout = TRUE, stderr = TRUE))
+  out <- suppressWarnings(system2(containerEngine(), args, stdout = TRUE, stderr = TRUE))
   status <- attr(out, "status")
   if (!is.null(status) && !identical(as.integer(status), 0L)) return(character(0))
   out[nzchar(out)]
@@ -91,23 +91,24 @@ stopStudy <- function(container = NULL, image_name = NULL, mode = c("any", "rstu
 #' @return TRUE if Docker is available, throws error otherwise
 #' @keywords internal
 ensureDocker <- function() {
-  docker_bin <- Sys.which("docker")
-  if (!nzchar(docker_bin)) {
+  engine <- containerEngine()
+  engine_bin <- Sys.which(engine)
+  if (!nzchar(engine_bin)) {
     stop(
-      "Docker CLI not found on PATH.\n",
-      "Install Docker Desktop (or ensure 'docker' is on PATH) and try again.",
+      "'", engine, "' CLI not found on PATH.\n",
+      "Install ", engine, " and ensure it is on PATH, then try again.",
       call. = FALSE
     )
   }
 
-  result <- suppressWarnings(system2(docker_bin, "info", stdout = TRUE, stderr = TRUE))
+  result <- suppressWarnings(system2(engine_bin, "info", stdout = TRUE, stderr = TRUE))
   status <- attr(result, "status")
   if (is.null(status)) status <- 0L
 
   if (!identical(as.integer(status), 0L)) {
     stop(
-      "Docker daemon is not running.\n",
-      "Please start Docker Desktop and try again.\n\n",
+      "'", engine, "' is not available or not running.\n",
+      "Please start/check your ", engine, " setup and try again.\n\n",
       paste(result, collapse = "\n"),
       call. = FALSE
     )
