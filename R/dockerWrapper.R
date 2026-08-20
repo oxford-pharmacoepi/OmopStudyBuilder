@@ -1,12 +1,27 @@
 # Docker Wrapper Functions for OMOP Studies
 
+#' Resolve which container engine binary to use
+#'
+#' Defaults to \code{"docker"}. Override via the
+#' \code{OmopStudyBuilder.container_engine} option (e.g. for a single R
+#' session) or the \code{OMOPSTUDYBUILDER_ENGINE} environment variable (e.g.
+#' for a project's \code{.Renviron}), for example to switch to
+#' \href{https://podman.io/}{Podman}. The option takes precedence over the
+#' environment variable.
+#'
+#' @return Character string naming the container engine binary
+#' @keywords internal
+containerEngine <- function() {
+  getOption("OmopStudyBuilder.container_engine", Sys.getenv("OMOPSTUDYBUILDER_ENGINE", "docker"))
+}
+
 #' Execute a Docker command
 #' @param args Character vector of Docker command arguments
 #' @param error_message Custom error message if command fails
 #' @return Command output as character vector (returned invisibly to avoid console clutter)
 #' @keywords internal
 dockerExec <- function(args, error_message = "Docker command failed") {
-  result <- suppressWarnings(system2("docker", args, stdout = TRUE, stderr = TRUE))
+  result <- suppressWarnings(system2(containerEngine(), args, stdout = TRUE, stderr = TRUE))
   if (!is.null(attr(result, "status")) && attr(result, "status") != 0) {
     stop(error_message, "\n", paste(result, collapse = "\n"), call. = FALSE)
   }
@@ -18,7 +33,7 @@ dockerExec <- function(args, error_message = "Docker command failed") {
 #' @return Output lines, or empty if the command fails
 #' @keywords internal
 dockerQuery <- function(args) {
-  out <- suppressWarnings(system2("docker", args, stdout = TRUE, stderr = TRUE))
+  out <- suppressWarnings(system2(containerEngine(), args, stdout = TRUE, stderr = TRUE))
   status <- attr(out, "status")
   if (!is.null(status) && !identical(as.integer(status), 0L)) return(character(0))
   out[nzchar(out)]
@@ -76,23 +91,24 @@ stopStudy <- function(container = NULL, image_name = NULL, mode = c("any", "rstu
 #' @return TRUE if Docker is available, throws error otherwise
 #' @keywords internal
 ensureDocker <- function() {
-  docker_bin <- Sys.which("docker")
-  if (!nzchar(docker_bin)) {
+  engine <- containerEngine()
+  engine_bin <- Sys.which(engine)
+  if (!nzchar(engine_bin)) {
     stop(
-      "Docker CLI not found on PATH.\n",
-      "Install Docker Desktop (or ensure 'docker' is on PATH) and try again.",
+      "'", engine, "' CLI not found on PATH.\n",
+      "Install ", engine, " and ensure it is on PATH, then try again.",
       call. = FALSE
     )
   }
 
-  result <- suppressWarnings(system2(docker_bin, "info", stdout = TRUE, stderr = TRUE))
+  result <- suppressWarnings(system2(engine_bin, "info", stdout = TRUE, stderr = TRUE))
   status <- attr(result, "status")
   if (is.null(status)) status <- 0L
 
   if (!identical(as.integer(status), 0L)) {
     stop(
-      "Docker daemon is not running.\n",
-      "Please start Docker Desktop and try again.\n\n",
+      "'", engine, "' is not available or not running.\n",
+      "Please start/check your ", engine, " setup and try again.\n\n",
       paste(result, collapse = "\n"),
       call. = FALSE
     )
@@ -307,7 +323,7 @@ dockeriseStudy <- function(image_name = NULL,
     build_args_vec <- c(build_args_vec, "--build-arg", paste0("GITHUB_PAT=", github_token))
   }
   build_args_vec <- c(build_args_vec, normalizePath(path, winslash = "/", mustWork = TRUE))
-  exit_code <- system2("docker", build_args_vec)
+  exit_code <- system2(containerEngine(), build_args_vec)
   
   if (exit_code != 0) {
     stop("Failed to build image: ", image_name, call. = FALSE)
@@ -363,7 +379,7 @@ pushDockerImage <- function(image_name = NULL,
   writeLines(password, stdin_file, useBytes = TRUE)
 
   login_res <- suppressWarnings(system2(
-    "docker",
+    containerEngine(),
     c("login", "--username", username, "--password-stdin"),
     stdin = stdin_file,
     stdout = TRUE,
@@ -377,7 +393,7 @@ pushDockerImage <- function(image_name = NULL,
   dockerExec(c("tag", paste0(image_name, ":latest"), image_ref), "Failed to tag image")
   message("Pushing image (this may take a while): ", image_ref)
   push_res <- processx::run(
-    "docker",
+    containerEngine(),
     c("push", image_ref),
     echo = TRUE,
     error_on_status = FALSE
@@ -391,7 +407,7 @@ pushDockerImage <- function(image_name = NULL,
   }
 
   if (isTRUE(logout)) {
-    suppressWarnings(system2("docker", "logout", stdout = TRUE, stderr = TRUE))
+    suppressWarnings(system2(containerEngine(), "logout", stdout = TRUE, stderr = TRUE))
   }
 
   message("Pushed image: ", image_ref)
@@ -497,7 +513,7 @@ buildDockerLabels <- function(image_name, mode) {
 #' @keywords internal
 verifyImageExists <- function(image_name, check_rstudio = FALSE) {
   inspect_status <- suppressWarnings(try(system2(
-    "docker",
+    containerEngine(),
     c("image", "inspect", image_name),
     stdout = FALSE,
     stderr = FALSE
@@ -510,7 +526,7 @@ verifyImageExists <- function(image_name, check_rstudio = FALSE) {
   }
   if (check_rstudio) {
     rserver_status <- suppressWarnings(try(system2(
-      "docker",
+      containerEngine(),
       c("run", "--rm", "--entrypoint", "/bin/sh", image_name,
         "-c", "command -v rserver >/dev/null 2>&1"),
       stdout = FALSE,
@@ -586,7 +602,7 @@ runRStudio <- function(image_name = NULL, results_path = "./results", env_file =
     if (is.null(reachable_host)) Sys.sleep(0.5)
   }
   if (is.null(reachable_host)) {
-    logs <- try(system2("docker", c("logs", "--tail", "200", container_id), stdout = TRUE, stderr = TRUE), silent = TRUE)
+    logs <- try(system2(containerEngine(), c("logs", "--tail", "200", container_id), stdout = TRUE, stderr = TRUE), silent = TRUE)
     if (inherits(logs, "try-error")) {
       cond <- attr(logs, "condition")
       msg <- if (!is.null(cond) && nzchar(cond$message)) cond$message else as.character(logs)
@@ -645,11 +661,17 @@ runStudy <- function(image_name = NULL, results_path = "./results", env_file = N
   args <- c("run", "--rm", "--name", container_name, labels, env_args, mounts, 
             image_name, "Rscript", script_path)
   
-  message("\n========================================\nStarting automated study execution...\nContainer: ", 
-          container_name, "\nScript: ", script_path, "\nResults: ", results_path, 
-          "\n========================================\n")
+  separator <- strrep("=", 40)
+  message(
+    "\n", separator, "\n",
+    "Starting automated study execution...\n",
+    "Container: ", container_name, "\n",
+    "Script: ", script_path, "\n",
+    "Results: ", results_path, "\n",
+    separator, "\n"
+  )
   
-  proc <- processx::process$new("docker", args, stdout = "|", stderr = "|", 
+  proc <- processx::process$new(containerEngine(), args, stdout = "|", stderr = "|",
                                 echo_cmd = FALSE, cleanup_tree = TRUE)
   
   while (proc$is_alive()) {
@@ -671,12 +693,11 @@ runStudy <- function(image_name = NULL, results_path = "./results", env_file = N
   if (length(remaining_err) > 0 && remaining_err != "") cat(remaining_err, file = stderr())
   
   exit_status <- proc$get_exit_status()
-  message("\n========================================")
-  if (exit_status == 0) {
-    message("Study completed successfully!\nResults saved to: ", results_path)
+  status_msg <- if (exit_status == 0) {
+    paste0("Study completed successfully!\nResults saved to: ", results_path)
   } else {
-    message("Study failed with exit code: ", exit_status, "\nCheck logs above for errors")
+    paste0("Study failed with exit code: ", exit_status, "\nCheck logs above for errors")
   }
-  message("========================================\n")
+  message("\n", separator, "\n", status_msg, "\n", separator, "\n")
   return(invisible(exit_status))
 }
