@@ -661,9 +661,15 @@ runStudy <- function(image_name = NULL, results_path = "./results", env_file = N
   args <- c("run", "--rm", "--name", container_name, labels, env_args, mounts, 
             image_name, "Rscript", script_path)
   
-  message("\n========================================\nStarting automated study execution...\nContainer: ", 
-          container_name, "\nScript: ", script_path, "\nResults: ", results_path, 
-          "\n========================================\n")
+  separator <- strrep("=", 40)
+  message(
+    "\n", separator, "\n",
+    "Starting automated study execution...\n",
+    "Container: ", container_name, "\n",
+    "Script: ", script_path, "\n",
+    "Results: ", results_path, "\n",
+    separator, "\n"
+  )
   
   proc <- processx::process$new(containerEngine(), args, stdout = "|", stderr = "|",
                                 echo_cmd = FALSE, cleanup_tree = TRUE)
@@ -687,12 +693,11 @@ runStudy <- function(image_name = NULL, results_path = "./results", env_file = N
   if (length(remaining_err) > 0 && remaining_err != "") cat(remaining_err, file = stderr())
   
   exit_status <- proc$get_exit_status()
-  message("\n========================================")
-  if (exit_status == 0) {
-    message("Study completed successfully!\nResults saved to: ", results_path)
+  status_msg <- if (exit_status == 0) {
+    paste0("Study completed successfully!\nResults saved to: ", results_path)
   } else {
-    message("Study failed with exit code: ", exit_status, "\nCheck logs above for errors")
+    paste0("Study failed with exit code: ", exit_status, "\nCheck logs above for errors")
   }
-  message("========================================\n")
+  message("\n", separator, "\n", status_msg, "\n", separator, "\n")
   return(invisible(exit_status))
 }
