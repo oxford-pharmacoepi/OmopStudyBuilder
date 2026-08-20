@@ -41,6 +41,9 @@
 #'   under your personal account
 #' @param private Logical. If TRUE (default), creates a private repository
 #' @param description Repository description. If NULL, auto-generated from directory name
+#' @param phenotyperSettings Logical. If TRUE (default), and the study directory
+#'   contains a `diagnosticsCode/` folder, opens a GitHub issue listing the
+#'   PhenotypeR diagnostics arguments that should be reviewed for this study
 #'
 #' @return GitHub repository URL (invisibly)
 #' @export
@@ -72,13 +75,15 @@ linkGitHub <- function(directory,
                        repository,
                        organisation = NULL,
                        private = TRUE,
-                       description = NULL) {
+                       description = NULL,
+                       phenotyperSettings = TRUE) {
   # Validate inputs
   omopgenerics::assertCharacter(directory, length = 1)
   omopgenerics::assertCharacter(repository, length = 1, minNumCharacter = 1)
   omopgenerics::assertCharacter(organisation, length = 1, null = TRUE)
   omopgenerics::assertLogical(private, length = 1)
   omopgenerics::assertCharacter(description, length = 1, null = TRUE)
+  omopgenerics::assertLogical(phenotyperSettings, length = 1)
   
   if (!dir.exists(directory)) {
     cli::cli_abort("Directory does not exist: {.path {directory}}")
@@ -135,6 +140,12 @@ linkGitHub <- function(directory,
   }
   
   cli::cli_alert_success("Study linked to GitHub: {.url {repo_url}}")
+
+  # Open PhenotypeR settings issue, only for studies with diagnostics code
+  if (isTRUE(phenotyperSettings) && dir.exists(file.path(directory, "diagnosticsCode"))) {
+    createPhenotyperSettingsIssue(owner, repository)
+  }
+
   return(invisible(repo_url))
 }
 
@@ -267,6 +278,38 @@ createGitHubRepo <- function(repository, organisation, private, description) {
   }
   
   return(repo)
+}
+
+
+#' Open a GitHub issue listing PhenotypeR diagnostics settings to review
+#' @keywords internal
+createPhenotyperSettingsIssue <- function(owner, repository) {
+  template_path <- system.file("templates", "PHENOTYPER_SETTINGS.md", package = "OmopStudyBuilder")
+  settings_content <- readLines(template_path, warn = FALSE)
+  settings_content <- gsub("{{REPO_NAME}}", repository, settings_content, fixed = TRUE)
+  settings_content <- gsub("{{DATE}}", as.character(Sys.Date()), settings_content, fixed = TRUE)
+  body <- paste(settings_content, collapse = "\n")
+
+  issue <- try(
+    gh::gh(
+      "POST /repos/{owner}/{repo}/issues",
+      owner = owner,
+      repo = repository,
+      title = "PhenotypeR diagnostics settings",
+      body = body
+    ),
+    silent = TRUE
+  )
+
+  if (inherits(issue, "try-error")) {
+    cli::cli_alert_warning(
+      "Failed to open PhenotypeR settings issue: {conditionMessage(attr(issue, 'condition'))}"
+    )
+    return(invisible(NULL))
+  }
+
+  cli::cli_alert_success("PhenotypeR settings issue opened: {.url {issue$html_url}}")
+  return(invisible(issue$html_url))
 }
 
 

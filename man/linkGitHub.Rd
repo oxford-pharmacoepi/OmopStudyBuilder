@@ -9,7 +9,8 @@ linkGitHub(
   repository,
   organisation = NULL,
   private = TRUE,
-  description = NULL
+  description = NULL,
+  phenotyperSettings = TRUE
 )
 }
 \arguments{
@@ -23,6 +24,10 @@ under your personal account}
 \item{private}{Logical. If TRUE (default), creates a private repository}
 
 \item{description}{Repository description. If NULL, auto-generated from directory name}
+
+\item{phenotyperSettings}{Logical. If TRUE (default), and the study directory
+contains a `diagnosticsCode/` folder, opens a GitHub issue listing the
+PhenotypeR diagnostics arguments that should be reviewed for this study}
 }
 \value{
 GitHub repository URL (invisibly)

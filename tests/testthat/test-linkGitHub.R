@@ -253,6 +253,49 @@ test_that("setupGitRemote uses main branch for fresh repos", {
   expect_true("main" %in% remote_branches$name)
 })
 
+test_that("createPhenotyperSettingsIssue renders the template and substitutes placeholders", {
+  template_path <- system.file("templates", "PHENOTYPER_SETTINGS.md", package = "OmopStudyBuilder")
+  content <- readLines(template_path, warn = FALSE)
+  content <- gsub("{{REPO_NAME}}", "my-test-repo", content, fixed = TRUE)
+  content <- gsub("{{DATE}}", as.character(Sys.Date()), content, fixed = TRUE)
+
+  expect_false(any(grepl("{{", content, fixed = TRUE)))
+  expect_true(any(grepl("my-test-repo", content, fixed = TRUE)))
+  expect_true(any(grepl("- \\[ \\]", content)))
+})
+
+test_that("createPhenotyperSettingsIssue fails gracefully when the GitHub API call errors", {
+  expect_no_error(
+    result <- OmopStudyBuilder:::createPhenotyperSettingsIssue(
+      "nonexistent-owner-xyz-abc-123",
+      "nonexistent-repo-xyz"
+    )
+  )
+  expect_null(result)
+})
+
+test_that("linkGitHub validates phenotyperSettings parameter", {
+  temp_dir <- tempdir()
+
+  expect_error(
+    linkGitHub(directory = temp_dir, repository = "test", phenotyperSettings = "yes"),
+    class = "error"
+  )
+})
+
+test_that("linkGitHub only triggers the phenotyper settings issue when diagnosticsCode/ exists", {
+  with_diagnostics <- file.path(tempdir(), "test_phenotyper_with_diagnostics")
+  dir.create(file.path(with_diagnostics, "diagnosticsCode"), recursive = TRUE, showWarnings = FALSE)
+  on.exit(unlink(with_diagnostics, recursive = TRUE), add = TRUE)
+
+  without_diagnostics <- file.path(tempdir(), "test_phenotyper_without_diagnostics")
+  dir.create(without_diagnostics, recursive = TRUE, showWarnings = FALSE)
+  on.exit(unlink(without_diagnostics, recursive = TRUE), add = TRUE)
+
+  expect_true(dir.exists(file.path(with_diagnostics, "diagnosticsCode")))
+  expect_false(dir.exists(file.path(without_diagnostics, "diagnosticsCode")))
+})
+
 test_that("linkGitHub validates directory parameter", {
   expect_error(
     linkGitHub(directory = NULL, repository = "test"),
