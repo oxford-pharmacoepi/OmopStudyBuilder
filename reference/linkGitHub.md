@@ -12,7 +12,8 @@ linkGitHub(
   repository,
   organisation = NULL,
   private = TRUE,
-  description = NULL
+  description = NULL,
+  checklist = TRUE
 )
 ```
 
@@ -38,6 +39,11 @@ linkGitHub(
 - description:
 
   Repository description. If NULL, auto-generated from directory name
+
+- checklist:
+
+  Logical. If TRUE (default), opens a GitHub issue on the new repository
+  with a code review checklist
 
 ## Value
 
