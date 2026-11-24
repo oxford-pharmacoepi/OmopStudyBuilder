@@ -9,7 +9,8 @@ linkGitHub(
   repository,
   organisation = NULL,
   private = TRUE,
-  description = NULL
+  description = NULL,
+  checklist = TRUE
 )
 }
 \arguments{
@@ -23,6 +24,9 @@ under your personal account}
 \item{private}{Logical. If TRUE (default), creates a private repository}
 
 \item{description}{Repository description. If NULL, auto-generated from directory name}
+
+\item{checklist}{Logical. If TRUE (default), opens a GitHub issue on the new
+repository with a code review checklist}
 }
 \value{
 GitHub repository URL (invisibly)

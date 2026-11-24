@@ -20,7 +20,9 @@ dockerExec <- function(args, error_message = "Docker command failed") {
 dockerQuery <- function(args) {
   out <- suppressWarnings(system2("docker", args, stdout = TRUE, stderr = TRUE))
   status <- attr(out, "status")
-  if (!is.null(status) && !identical(as.integer(status), 0L)) return(character(0))
+  if (!is.null(status) && !identical(as.integer(status), 0L)) {
+    return(character(0))
+  }
   out[nzchar(out)]
 }
 
@@ -39,33 +41,35 @@ dockerQuery <- function(args) {
 stopStudy <- function(container = NULL, image_name = NULL, mode = c("any", "rstudio", "run"), all = FALSE) {
   ensureDocker()
   mode <- match.arg(mode)
-  
+
   if (!is.null(container) && nzchar(container)) {
     message("Stopping container...")
     dockerExec(c("stop", container), paste0("Failed to stop container: ", container))
     message("Container stopped: ", substr(container, 1, 12))
     return(invisible(TRUE))
   }
-  
+
   if (!isTRUE(all)) {
     image_name <- autoDetectImageName(image_name)
   }
-  
+
   filters <- c("-f", "label=omopstudybuilder=true")
   if (!isTRUE(all)) filters <- c(filters, "-f", paste0("label=omopstudybuilder.image=", image_name))
   if (mode != "any") filters <- c(filters, "-f", paste0("label=omopstudybuilder.mode=", mode))
 
   ids <- dockerQuery(c("ps", "-q", filters))
-  
+
   if (length(ids) == 0 && !isTRUE(all) && mode %in% c("any", "rstudio")) {
     ids <- dockerQuery(c("ps", "-q", "-f", paste0("ancestor=", image_name)))
   }
-  
+
   if (length(ids) == 0) {
     stop("No running OmopStudyBuilder containers found",
-         if (!isTRUE(all)) paste0(" for image: ", image_name) else "", call. = FALSE)
+      if (!isTRUE(all)) paste0(" for image: ", image_name) else "",
+      call. = FALSE
+    )
   }
-  
+
   message("Stopping ", length(ids), " container(s)...")
   for (id in ids) dockerExec(c("stop", id), paste0("Failed to stop: ", id))
   message("Stopped.")
@@ -110,24 +114,24 @@ ensureDocker <- function() {
 #' @param github_token Optional GitHub token for installing GitHub packages during build
 #' @return Image name (invisibly - already printed to console)
 #' @export
-dockeriseStudy <- function(image_name = NULL, 
-                          path = ".", 
-                          useRStudio = FALSE,
-                          r_version = NULL,
-                          snapshot = TRUE,
-                          github_token = NULL) {
+dockeriseStudy <- function(image_name = NULL,
+                           path = ".",
+                           useRStudio = FALSE,
+                           r_version = NULL,
+                           snapshot = TRUE,
+                           github_token = NULL) {
   # Ensure Docker is running
   ensureDocker()
 
   rlang::check_installed("renv", reason = "for dockeriseStudy()")
-  
+
   # Update renv.lock to capture all dependencies
   if (snapshot) {
     message("Updating renv.lock (project dependencies only)...")
     # Check for and repair broken symlinks in renv cache
     message("Checking renv integrity...")
     suppressWarnings(suppressMessages(try(renv::repair(project = path), silent = TRUE)))
-    
+
     # Check for missing packages and auto-install them
     deps <- try(renv::dependencies(root = path), silent = TRUE)
     if (inherits(deps, "try-error")) deps <- NULL
@@ -135,10 +139,10 @@ dockeriseStudy <- function(image_name = NULL,
       required_pkgs <- unique(deps$Package)
       installed_pkgs <- rownames(utils::installed.packages())
       missing_pkgs <- setdiff(required_pkgs, installed_pkgs)
-      
+
       if (length(missing_pkgs) > 0) {
         message("Found ", length(missing_pkgs), " missing package(s): ", paste(missing_pkgs, collapse = ", "))
-        
+
         # Try to install each package, but don't fail if some can't install on host
         # (database drivers like odbc/RPostgres often fail on Mac but work fine in Docker)
         for (pkg in missing_pkgs) {
@@ -153,26 +157,29 @@ dockeriseStudy <- function(image_name = NULL,
         }
       }
     }
-    
+
     # Snapshot all dependencies (non-interactive, force include all dependencies)
     old_interactive <- getOption("renv.config.auto.snapshot")
     options(renv.config.auto.snapshot = FALSE)
     on.exit(options(renv.config.auto.snapshot = old_interactive), add = TRUE)
 
-    snapshot_res <- try({
-      # Force snapshot even if some packages couldn't install on host
-      # Use type = "all" to include all dependencies found in code, regardless of installation status
-      renv::snapshot(project = path, type = "all", prompt = FALSE, force = TRUE)
-      message("renv.lock updated successfully")
-      
-      # Quick status check (don't halt on inconsistencies)
-      status_msg <- try(utils::capture.output(renv::status(project = path)), silent = TRUE)
-      if (inherits(status_msg, "try-error")) status_msg <- character(0)
-      if (length(status_msg) > 0 && any(grepl("inconsistent", status_msg, ignore.case = TRUE))) {
-        message("Note: Some packages couldn't install on your host machine but are in renv.lock for Docker to install.")
-      }
-      TRUE
-    }, silent = TRUE)
+    snapshot_res <- try(
+      {
+        # Force snapshot even if some packages couldn't install on host
+        # Use type = "all" to include all dependencies found in code, regardless of installation status
+        renv::snapshot(project = path, type = "all", prompt = FALSE, force = TRUE)
+        message("renv.lock updated successfully")
+
+        # Quick status check (don't halt on inconsistencies)
+        status_msg <- try(utils::capture.output(renv::status(project = path)), silent = TRUE)
+        if (inherits(status_msg, "try-error")) status_msg <- character(0)
+        if (length(status_msg) > 0 && any(grepl("inconsistent", status_msg, ignore.case = TRUE))) {
+          message("Note: Some packages couldn't install on your host machine but are in renv.lock for Docker to install.")
+        }
+        TRUE
+      },
+      silent = TRUE
+    )
 
     if (inherits(snapshot_res, "try-error")) {
       cond <- attr(snapshot_res, "condition")
@@ -217,7 +224,7 @@ dockeriseStudy <- function(image_name = NULL,
       }
     }
   }
-  
+
   # Auto-detect R version from renv.lock if not provided
   if (is.null(r_version)) {
     r_version <- lock_data$R$Version
@@ -226,13 +233,13 @@ dockeriseStudy <- function(image_name = NULL,
     }
     message("Detected R version from renv.lock: ", r_version)
   }
-  
+
   if (!is.null(image_name) && nzchar(image_name)) {
     if (grepl("[A-Z\\s]", image_name)) {
       stop("Invalid image_name: must be lowercase and contain no spaces.", call. = FALSE)
     }
   }
-  
+
   # Ensure .dockerignore exists (prevents copying large/unnecessary files)
   dockerignore_path <- file.path(path, ".dockerignore")
   if (!file.exists(dockerignore_path)) {
@@ -265,17 +272,17 @@ dockeriseStudy <- function(image_name = NULL,
     ), dockerignore_path)
     message("Generated .dockerignore")
   }
-  
+
   # Auto-detect image name from directory if not provided
   if (is.null(image_name)) {
     image_name <- tolower(basename(normalizePath(path)))
     message("Auto-detected image name: ", image_name)
   }
-  
+
   # Determine base image
   base_type <- if (useRStudio) "rstudio" else "r-ver"
   base_image <- paste0("rocker/", base_type, ":", r_version)
-  
+
   # Generate Dockerfile from template
   template_path <- system.file("docker", "Dockerfile.template", package = "OmopStudyBuilder")
   if (!file.exists(template_path)) {
@@ -290,17 +297,17 @@ dockeriseStudy <- function(image_name = NULL,
     placeholder <- paste0("{{", name, "}}")
     dockerfile_content <- gsub(placeholder, substitutions[[name]], dockerfile_content, fixed = TRUE)
   }
-  
+
   dockerfile_path <- file.path(path, "Dockerfile")
-  
+
   # Write Dockerfile
   writeLines(dockerfile_content, dockerfile_path)
   message("Generated Dockerfile with base: ", base_image)
-  
+
   # Build the image with streaming output
   message("Building Docker image: ", image_name, ":latest")
   message("This may take some minutes on first build...\n")
-  
+
   # Use system2() for safer argument handling
   build_args_vec <- c("build", "--progress=plain", "-t", paste0(image_name, ":latest"))
   if (!is.null(github_token) && nzchar(github_token)) {
@@ -308,13 +315,13 @@ dockeriseStudy <- function(image_name = NULL,
   }
   build_args_vec <- c(build_args_vec, normalizePath(path, winslash = "/", mustWork = TRUE))
   exit_code <- system2("docker", build_args_vec)
-  
+
   if (exit_code != 0) {
     stop("Failed to build image: ", image_name, call. = FALSE)
   }
-  
+
   message("\nSuccessfully built: ", image_name, ":latest")
-  
+
   # Return image name invisibly (already shown in messages)
   return(invisible(image_name))
 }
@@ -329,11 +336,11 @@ dockeriseStudy <- function(image_name = NULL,
 #' @return Pushed image reference (invisibly)
 #' @export
 pushDockerImage <- function(image_name = NULL,
-                           repo,
-                           tag = "latest",
-                           username = NULL,
-                           password = NULL,
-                           logout = TRUE) {
+                            repo,
+                            tag = "latest",
+                            username = NULL,
+                            password = NULL,
+                            logout = TRUE) {
   if (missing(repo) || !nzchar(repo)) {
     stop("repo is required (e.g., 'username/repo' or 'repo').", call. = FALSE)
   }
@@ -341,7 +348,7 @@ pushDockerImage <- function(image_name = NULL,
   ensureDocker()
   rlang::check_installed("getPass", reason = "for pushDockerImage()")
   rlang::check_installed("processx", reason = "for pushDockerImage()")
-  
+
   image_name <- autoDetectImageName(image_name)
   verifyImageExists(image_name)
 
@@ -408,7 +415,7 @@ findAvailablePort <- function(start_port = 8787, max_tries = 10) {
   for (i in 0:(max_tries - 1)) {
     port <- start_port + i
     result <- dockerQuery(c("ps", "-q", "--filter", paste0("publish=", port)))
-    
+
     if (length(result) == 0) {
       in_use_local <- FALSE
       for (host in hosts_to_try) {
@@ -422,7 +429,9 @@ findAvailablePort <- function(start_port = 8787, max_tries = 10) {
           break
         }
       }
-      if (!isTRUE(in_use_local)) return(port)
+      if (!isTRUE(in_use_local)) {
+        return(port)
+      }
     }
   }
   stop("No available ports found between ", start_port, " and ", start_port + max_tries - 1, call. = FALSE)
@@ -452,7 +461,9 @@ generateContainerName <- function(base_name, suffix = NULL, max_tries = 100) {
   container_name <- container_base
   for (i in 0:(max_tries - 1)) {
     check <- dockerQuery(c("ps", "-aq", "-f", paste0("name=^", container_name, "$")))
-    if (length(check) == 0) return(container_name)
+    if (length(check) == 0) {
+      return(container_name)
+    }
     if (i < max_tries - 1) {
       container_name <- paste0(container_base, "-", sprintf("%02d", i + 1))
     }
@@ -505,14 +516,17 @@ verifyImageExists <- function(image_name, check_rstudio = FALSE) {
   if (inherits(inspect_status, "try-error")) inspect_status <- 1L
   if (!isTRUE(inspect_status == 0)) {
     stop("Image '", image_name, "' not found.\nBuild it first with: dockeriseStudy()",
-         if (check_rstudio) "\nFor RStudio mode, build with: dockeriseStudy(useRStudio = TRUE)" else "",
-         call. = FALSE)
+      if (check_rstudio) "\nFor RStudio mode, build with: dockeriseStudy(useRStudio = TRUE)" else "",
+      call. = FALSE
+    )
   }
   if (check_rstudio) {
     rserver_status <- suppressWarnings(try(system2(
       "docker",
-      c("run", "--rm", "--entrypoint", "/bin/sh", image_name,
-        "-c", "command -v rserver >/dev/null 2>&1"),
+      c(
+        "run", "--rm", "--entrypoint", "/bin/sh", image_name,
+        "-c", "command -v rserver >/dev/null 2>&1"
+      ),
       stdout = FALSE,
       stderr = FALSE
     ), silent = TRUE))
@@ -548,29 +562,31 @@ runRStudio <- function(image_name = NULL, results_path = "./results", env_file =
   ensureDocker()
   image_name <- autoDetectImageName(image_name)
   verifyImageExists(image_name, check_rstudio = TRUE)
-  
+
   original_port <- port
   port <- findAvailablePort(start_port = port)
   if (port != original_port) message("Port ", original_port, " in use, using port ", port, " instead")
-  
+
   if (is.null(password)) password <- paste0("study", sample(1000:9999, 1))
   if (!dir.exists(results_path)) dir.create(results_path, recursive = TRUE)
-  
+
   env_args <- processEnvFile(env_file)
   container_name <- generateContainerName(image_name)
   labels <- buildDockerLabels(image_name, "rstudio")
-  
-  args <- c("run", "-d", "--rm", "--name", container_name, "-p", paste0(port, ":8787"),
-            labels, env_args, "-e", paste0("PASSWORD=", password),
-            "-v", paste0(normalizePath(results_path), ":/home/rstudio/study/results"), image_name)
-  
+
+  args <- c(
+    "run", "-d", "--rm", "--name", container_name, "-p", paste0(port, ":8787"),
+    labels, env_args, "-e", paste0("PASSWORD=", password),
+    "-v", paste0(normalizePath(results_path), ":/home/rstudio/study/results"), image_name
+  )
+
   message("Starting RStudio Server...")
   container_id <- dockerExec(args, "Failed to start RStudio Server")[1]
   check <- dockerQuery(c("ps", "-q", "-f", paste0("id=", container_id)))
   if (length(check) == 0) {
     stop("Container exited unexpectedly.\nCheck logs with: docker logs ", container_id, call. = FALSE)
   }
-  
+
   hosts_to_try <- c("127.0.0.1", "localhost", "::1")
   reachable_host <- NULL
   start <- Sys.time()
@@ -593,14 +609,18 @@ runRStudio <- function(image_name = NULL, results_path = "./results", env_file =
       logs <- paste0("(Failed to read logs: ", msg, ")")
     }
     stop("RStudio container started but not listening on port ", port, " after 30s.\n\n",
-         "Last 200 log lines:\n", paste(logs, collapse = "\n"), call. = FALSE)
+      "Last 200 log lines:\n", paste(logs, collapse = "\n"),
+      call. = FALSE
+    )
   }
-  
+
   url_host <- if (grepl(":", reachable_host, fixed = TRUE)) paste0("[", reachable_host, "]") else reachable_host
   url <- paste0("http://", url_host, ":", port)
-  message("\nRStudio Server started successfully!\n\n  URL:      ", url, "\n  Username: rstudio",
-          "\n  Password: ", password, "\n\nResults will be saved to: ", results_path,
-          "\nContainer will auto-remove when stopped.\n\nTo stop: docker stop ", substr(container_id, 1, 12))
+  message(
+    "\nRStudio Server started successfully!\n\n  URL:      ", url, "\n  Username: rstudio",
+    "\n  Password: ", password, "\n\nResults will be saved to: ", results_path,
+    "\nContainer will auto-remove when stopped.\n\nTo stop: docker stop ", substr(container_id, 1, 12)
+  )
 
   browse_res <- try(browseURL(url), silent = TRUE)
   if (inherits(browse_res, "try-error")) {
@@ -608,7 +628,7 @@ runRStudio <- function(image_name = NULL, results_path = "./results", env_file =
   } else {
     message("\nOpening browser...")
   }
-  
+
   return(invisible(container_id))
 }
 
@@ -626,32 +646,38 @@ runStudy <- function(image_name = NULL, results_path = "./results", env_file = N
                      data_path = NULL, script_path = "codeToRun.R") {
   ensureDocker()
   rlang::check_installed("processx", reason = "for runStudy()")
-  
+
   image_name <- autoDetectImageName(image_name)
   verifyImageExists(image_name)
-  
+
   if (!dir.exists(results_path)) dir.create(results_path, recursive = TRUE)
   env_args <- processEnvFile(env_file)
-  
+
   mounts <- c("-v", paste0(normalizePath(results_path), ":/workspace/results"))
   if (!is.null(data_path)) {
     if (!dir.exists(data_path)) stop("Data directory not found: ", data_path, call. = FALSE)
     mounts <- c(mounts, "-v", paste0(normalizePath(data_path), ":/data"))
     message("Mounting data: ", data_path)
   }
-  
+
   container_name <- generateContainerName(image_name, suffix = "-run")
   labels <- buildDockerLabels(image_name, "run")
-  args <- c("run", "--rm", "--name", container_name, labels, env_args, mounts, 
-            image_name, "Rscript", script_path)
-  
-  message("\n========================================\nStarting automated study execution...\nContainer: ", 
-          container_name, "\nScript: ", script_path, "\nResults: ", results_path, 
-          "\n========================================\n")
-  
-  proc <- processx::process$new("docker", args, stdout = "|", stderr = "|", 
-                                echo_cmd = FALSE, cleanup_tree = TRUE)
-  
+  args <- c(
+    "run", "--rm", "--name", container_name, labels, env_args, mounts,
+    image_name, "Rscript", script_path
+  )
+
+  message(
+    "\n========================================\nStarting automated study execution...\nContainer: ",
+    container_name, "\nScript: ", script_path, "\nResults: ", results_path,
+    "\n========================================\n"
+  )
+
+  proc <- processx::process$new("docker", args,
+    stdout = "|", stderr = "|",
+    echo_cmd = FALSE, cleanup_tree = TRUE
+  )
+
   while (proc$is_alive()) {
     if (proc$is_incomplete_output()) {
       output <- proc$read_output(n = 1000)
@@ -664,12 +690,12 @@ runStudy <- function(image_name = NULL, results_path = "./results", env_file = N
     proc$poll_io(100)
     Sys.sleep(0.05)
   }
-  
+
   remaining_out <- proc$read_all_output()
   if (length(remaining_out) > 0 && remaining_out != "") cat(remaining_out)
   remaining_err <- proc$read_all_error()
   if (length(remaining_err) > 0 && remaining_err != "") cat(remaining_err, file = stderr())
-  
+
   exit_status <- proc$get_exit_status()
   message("\n========================================")
   if (exit_status == 0) {

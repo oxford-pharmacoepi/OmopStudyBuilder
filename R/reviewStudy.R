@@ -14,7 +14,6 @@
 #' @export
 #'
 reviewStudy <- function(dir, code = TRUE, dependencies = TRUE, type = "analysis") {
-
   dir <- normalizePath(dir, mustWork = TRUE)
 
   if (isTRUE(dependencies)) {
@@ -23,12 +22,12 @@ reviewStudy <- function(dir, code = TRUE, dependencies = TRUE, type = "analysis"
     rlang::check_installed("dplyr", reason = "for reviewing dependencies")
     rlang::check_installed("purrr", reason = "for reviewing dependencies")
   }
-  
+
   if (isTRUE(code)) {
     rlang::check_installed("stringr", reason = "for reviewing code")
     rlang::check_installed("scales", reason = "for reviewing code")
     rlang::check_installed("purrr", reason = "for reviewing code")
-    
+
     cli::cli_h1("Code Summary")
     summariseRFiles(dir)
     summariseJsonFiles(dir)
@@ -41,7 +40,8 @@ reviewStudy <- function(dir, code = TRUE, dependencies = TRUE, type = "analysis"
 
     if (!file.exists(file.path(dir, "renv.lock"))) {
       cli::cli_warn(c("renv.lock file not found in {dir}",
-                      i = "A renv file should be added to ensure reproducibility"))
+        i = "A renv file should be added to ensure reproducibility"
+      ))
       return(invisible(NULL))
     }
 
