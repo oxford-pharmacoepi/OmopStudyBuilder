@@ -19,7 +19,8 @@ initStudy(
 \arguments{
 \item{directory}{Path to a directory that will be used as the root folder
 for the study. If it does not exist, it will be created. The directory
-must be empty if it already exists.}
+may contain files. Existing files that would be replaced are listed and
+require confirmation before initialization continues.}
 
 \item{diagnostics}{A single TRUE or FALSE value.
 If TRUE (the default), the function creates the `diagnosticsCode/`

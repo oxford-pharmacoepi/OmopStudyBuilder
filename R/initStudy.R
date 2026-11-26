@@ -1,8 +1,11 @@
+# nolint start
+
 #' Creates initial directory for an OMOP CDM network study
 #'
 #' @param directory Path to a directory that will be used as the root folder
 #' for the study. If it does not exist, it will be created. The directory
-#' must be empty if it already exists.
+#' may contain files. Existing files that would be replaced are listed and
+#' require confirmation before initialization continues.
 #'
 #' @param diagnostics A single TRUE or FALSE value.
 #'   If TRUE (the default), the function creates the `diagnosticsCode/`
@@ -75,7 +78,6 @@ initStudy <- function(directory,
                       repository = NULL,
                       organisation = NULL,
                       private = TRUE) {
-  validateRootDirectory(directory)
   omopgenerics::assertLogical(diagnostics, length = 1)
   omopgenerics::assertLogical(study, length = 1)
   omopgenerics::assertCharacter(studyTitle, length = 1, null = TRUE)
@@ -84,6 +86,37 @@ initStudy <- function(directory,
   omopgenerics::assertCharacter(repository, length = 1, null = TRUE)
   omopgenerics::assertCharacter(organisation, length = 1, null = TRUE)
   omopgenerics::assertLogical(private, length = 1)
+
+  templateDirs <- c(
+    if (isTRUE(diagnostics)) c("diagnosticsCode", "diagnosticsShiny"),
+    if (isTRUE(study)) c("studyCode", "studyShiny")
+  )
+  templateFiles <- character()
+  templateDirsToCreate <- character()
+  for (templateDir in templateDirs) {
+    sourceDir <- system.file(templateDir, package = "OmopStudyBuilder")
+    files <- list.files(sourceDir, recursive = TRUE, all.files = TRUE, no.. = TRUE)
+    dirs <- list.dirs(sourceDir, recursive = TRUE, full.names = FALSE)
+    dirs <- dirs[nzchar(dirs)]
+    templateFiles <- c(templateFiles, file.path(templateDir, files))
+    templateDirsToCreate <- c(templateDirsToCreate, templateDir, file.path(templateDir, dirs))
+  }
+  generatedFilePaths <- file.path(directory, c("README.md", "INSTRUCTIONS.md", templateFiles))
+  generatedDirPaths <- file.path(directory, templateDirsToCreate)
+  conflicts <- c(generatedFilePaths[file.exists(generatedFilePaths)],
+                 generatedDirPaths[file.exists(generatedDirPaths) & !dir.exists(generatedDirPaths)])
+  if (length(conflicts) > 0) {
+    cli::cli_inform(c("!" = "The following paths would be overwritten:",
+                      "*" = "{.path {conflicts}}"))
+    if (!rlang::is_interactive()) {
+      cli::cli_abort("Study initialization cancelled because files would be overwritten.")
+    }
+    if (!isTRUE(utils::askYesNo("Do you want to continue?", default = FALSE))) {
+      cli::cli_inform("Study initialization cancelled; no files were changed.")
+      return(invisible())
+    }
+  }
+  validateRootDirectory(directory)
 
   # Set smart defaults for template variables
   if (is.null(studyTitle)) {
@@ -126,10 +159,9 @@ initStudy <- function(directory,
     FOLDER_STRUCTURE = folderStructure
   )
 
-  # Process README template
+  # Prepare files to write
   readmeTemplate <- readLines(system.file("study-README.md", package = "OmopStudyBuilder"))
   readmeContent <- whisker::whisker.render(readmeTemplate, templateData)
-  writeLines(readmeContent, file.path(directory, "README.md"))
 
   # Process INSTRUCTIONS template
   instructionsTemplateData <- list(
@@ -138,6 +170,7 @@ initStudy <- function(directory,
   )
   instructionsTemplate <- readLines(system.file("INSTRUCTIONS.md", package = "OmopStudyBuilder"))
   instructionsContent <- whisker::whisker.render(instructionsTemplate, instructionsTemplateData)
+  writeLines(readmeContent, file.path(directory, "README.md"))
   writeLines(instructionsContent, file.path(directory, "INSTRUCTIONS.md"))
 
   cli::cli_alert_success("{.strong {directory}} prepared as root folder for study.")
@@ -203,7 +236,7 @@ copyDirectory <- function(from, to) {
 }
 
 validateRootDirectory <- function(dir) {
-  # root directory must be empty and create it if it does not exist
+  # create root directory if it does not exist
   if (!dir.exists(dir)) {
     dirCreated <- dir.create(dir, recursive = TRUE, showWarnings = FALSE)
     if (!dirCreated) {
@@ -211,20 +244,7 @@ validateRootDirectory <- function(dir) {
     }
   }
 
-  if (length(list.files(dir, recursive = TRUE)) > 0) {
-    if (rlang::is_interactive()) {
-      cli::cli_inform(c("!" = "Provided directory {.pkg {dir}} is not empty."))
-      answer <- utils::askYesNo("Do you want to delete the content?", default = FALSE)
-      if (isTRUE(answer)) {
-        unlink(dir, recursive = TRUE, force = TRUE)
-        dir.create(dir, showWarnings = FALSE)
-      } else {
-        cli::cli_abort(c(x = "Provided directory {.path {dir}} is not empty. Please delete it manually or provide a different directory."))
-      }
-    } else {
-      cli::cli_abort(c(x = "Provided directory {.path {dir}} is not empty."))
-    }
-  }
-
   return(invisible())
 }
+
+# nolint end

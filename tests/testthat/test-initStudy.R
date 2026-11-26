@@ -13,11 +13,32 @@ test_that("directory set up", {
   expect_true(dir.exists(temp_dir))
   expect_true("README.md" %in% list.files(temp_dir))
 
-  # error if directory exists and contains files
+  # preserve unrelated files in non-empty directories
   temp_dir_non_empty <- here::here(tempdir(), omopgenerics::uniqueTableName())
   dir.create(path = temp_dir_non_empty, recursive = TRUE)
   writeLines("some text", file.path(temp_dir_non_empty, "notes.txt"))
-  expect_error(initStudy(directory = temp_dir_non_empty))
+  expect_no_error(initStudy(directory = temp_dir_non_empty))
+  expect_true(file.exists(file.path(temp_dir_non_empty, "notes.txt")))
+  conflict_readme <- file.path(temp_dir_non_empty, "README.md")
+  writeLines("keep me", conflict_readme)
+  expect_error(initStudy(directory = temp_dir_non_empty), "overwritten")
+  expect_equal(readLines(conflict_readme), "keep me")
+
+  rlang::local_interactive(TRUE)
+  testthat::local_mocked_bindings(
+    askYesNo = function(...) TRUE,
+    .package = "utils"
+  )
+  expect_no_error(initStudy(directory = temp_dir_non_empty))
+  expect_false("keep me" %in% readLines(conflict_readme))
+
+  writeLines("keep me", conflict_readme)
+  testthat::local_mocked_bindings(
+    askYesNo = function(...) FALSE,
+    .package = "utils"
+  )
+  expect_message(initStudy(directory = temp_dir_non_empty), "cancelled; no files were changed")
+  expect_equal(readLines(conflict_readme), "keep me")
 
   # only diagnostics directories
   temp_dir_diag <- here::here(tempdir(), omopgenerics::uniqueTableName())
