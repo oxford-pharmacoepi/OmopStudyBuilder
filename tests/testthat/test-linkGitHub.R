@@ -6,11 +6,18 @@ test_that("validateRepoName accepts valid names", {
   expect_silent(OmopStudyBuilder:::validateRepoName("my.study"))
   expect_silent(OmopStudyBuilder:::validateRepoName("study-123"))
   expect_silent(OmopStudyBuilder:::validateRepoName("Study_2024.v1"))
-  expect_silent(OmopStudyBuilder:::validateRepoName("-study"))
-  expect_silent(OmopStudyBuilder:::validateRepoName("study-"))
 })
 
 test_that("validateRepoName rejects invalid names", {
+  expect_error(
+    OmopStudyBuilder:::validateRepoName("-study"),
+    "cannot start or end with hyphen"
+  )
+  expect_error(
+    OmopStudyBuilder:::validateRepoName("study-"),
+    "cannot start or end with hyphen"
+  )
+
   # Spaces
   expect_error(
     OmopStudyBuilder:::validateRepoName("My Study"),
