@@ -10,7 +10,8 @@ linkGitHub(
   organisation = NULL,
   private = TRUE,
   description = NULL,
-  checklist = TRUE
+  checklist = TRUE,
+  phenotyperSettings = TRUE
 )
 }
 \arguments{
@@ -27,6 +28,10 @@ under your personal account}
 
 \item{checklist}{Logical. If TRUE (default), opens a GitHub issue on the new
 repository with a code review checklist}
+
+\item{phenotyperSettings}{Logical. If TRUE (default), and the study directory
+contains a `diagnosticsCode/` folder, opens a GitHub issue listing the
+PhenotypeR diagnostics arguments that should be reviewed for this study}
 }
 \value{
 GitHub repository URL (invisibly)

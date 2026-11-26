@@ -11,11 +11,16 @@ logMessage("LOG CREATED")
 source(here("cohorts", "instantiateCohorts.R"))
 logMessage("Running PhenotypeDiagnostics")
 
-diagnostics <- phenotypeDiagnostics(cdm$study_cohorts,
-  survival = FALSE,
-  cohortSample = 20000,
-  matchedSample = NULL,
-  populationSample = NULL
+diagnostics <- phenotypeDiagnostics(
+  cdm$study_cohorts,
+  cohortDiagnostics = list(
+    cohortSurvival = FALSE,
+    cohortSample = 20000,
+    matchedSample = NULL
+  ),
+  populationDiagnostics = list(
+    populationSample = NULL
+  )
 )
 
 exportSummarisedResult(diagnostics,

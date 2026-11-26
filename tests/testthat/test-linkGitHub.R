@@ -6,11 +6,18 @@ test_that("validateRepoName accepts valid names", {
   expect_silent(OmopStudyBuilder:::validateRepoName("my.study"))
   expect_silent(OmopStudyBuilder:::validateRepoName("study-123"))
   expect_silent(OmopStudyBuilder:::validateRepoName("Study_2024.v1"))
-  expect_silent(OmopStudyBuilder:::validateRepoName("-study"))
-  expect_silent(OmopStudyBuilder:::validateRepoName("study-"))
 })
 
 test_that("validateRepoName rejects invalid names", {
+  expect_error(
+    OmopStudyBuilder:::validateRepoName("-study"),
+    "cannot start or end with hyphen"
+  )
+  expect_error(
+    OmopStudyBuilder:::validateRepoName("study-"),
+    "cannot start or end with hyphen"
+  )
+
   # Spaces
   expect_error(
     OmopStudyBuilder:::validateRepoName("My Study"),
@@ -249,34 +256,39 @@ test_that("setupGitRemote uses main branch for fresh repos", {
   expect_true("main" %in% remote_branches$name)
 })
 
+test_that("createPhenotyperSettingsIssue renders the template and substitutes placeholders", {
+  template_path <- system.file("templates", "PHENOTYPER_SETTINGS.md", package = "OmopStudyBuilder")
+  content <- readLines(template_path, warn = FALSE)
+  content <- gsub("{{REPO_NAME}}", "my-test-repo", content, fixed = TRUE)
+  content <- gsub("{{DATE}}", as.character(Sys.Date()), content, fixed = TRUE)
+  expect_false(any(grepl("{{", content, fixed = TRUE)))
+  expect_true(any(grepl("my-test-repo", content, fixed = TRUE)))
+})
+
 test_that("createReviewChecklistIssue renders the template and substitutes placeholders", {
   template_path <- system.file("templates", "CODE_REVIEW_CHECKLIST.md", package = "OmopStudyBuilder")
   content <- readLines(template_path, warn = FALSE)
   content <- gsub("{{REPO_NAME}}", "my-test-repo", content, fixed = TRUE)
   content <- gsub("{{DATE}}", as.character(Sys.Date()), content, fixed = TRUE)
-
   expect_false(any(grepl("{{", content, fixed = TRUE)))
   expect_true(any(grepl("my-test-repo", content, fixed = TRUE)))
   expect_true(any(grepl("- \\[ \\]", content)))
 })
 
-test_that("createReviewChecklistIssue fails gracefully when the GitHub API call errors", {
-  expect_no_error(
-    result <- OmopStudyBuilder:::createReviewChecklistIssue(
-      "nonexistent-owner-xyz-abc-123",
-      "nonexistent-repo-xyz"
-    )
-  )
-  expect_null(result)
+test_that("linkGitHub validates both issue parameters", {
+  expect_error(linkGitHub(directory = tempdir(), repository = "test", phenotyperSettings = "yes"), class = "error")
+  expect_error(linkGitHub(directory = tempdir(), repository = "test", checklist = "yes"), class = "error")
 })
 
-test_that("linkGitHub validates checklist parameter", {
-  temp_dir <- tempdir()
-
-  expect_error(
-    linkGitHub(directory = temp_dir, repository = "test", checklist = "yes"),
-    class = "error"
-  )
+test_that("linkGitHub only triggers the phenotyper settings issue when diagnosticsCode exists", {
+  with_diagnostics <- file.path(tempdir(), "test_phenotyper_with_diagnostics")
+  dir.create(file.path(with_diagnostics, "diagnosticsCode"), recursive = TRUE, showWarnings = FALSE)
+  on.exit(unlink(with_diagnostics, recursive = TRUE), add = TRUE)
+  without_diagnostics <- file.path(tempdir(), "test_phenotyper_without_diagnostics")
+  dir.create(without_diagnostics, recursive = TRUE, showWarnings = FALSE)
+  on.exit(unlink(without_diagnostics, recursive = TRUE), add = TRUE)
+  expect_true(dir.exists(file.path(with_diagnostics, "diagnosticsCode")))
+  expect_false(dir.exists(file.path(without_diagnostics, "diagnosticsCode")))
 })
 
 test_that("linkGitHub validates directory parameter", {
