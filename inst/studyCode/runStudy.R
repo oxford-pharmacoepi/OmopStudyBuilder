@@ -1,9 +1,10 @@
-
 # Check codeToRun inputs ----
 validateCdmArgument(
   cdm = cdm,
-  requiredTables = c("person", "observation_period", "condition_occurrence",
-                     "drug_exposure", "concept")
+  requiredTables = c(
+    "person", "observation_period", "condition_occurrence",
+    "drug_exposure", "concept"
+  )
 )
 assertNumeric(min_cell_count)
 
@@ -22,7 +23,7 @@ logMessage("LOG CREATED")
 
 # CDM summary -----
 results[["snapshot"]] <- summariseOmopSnapshot(cdm)
-results[["obs_period"]] <- summariseObservationPeriod(cdm$observation_period)
+results[["obs_period"]] <- summariseObservationPeriod(cdm)
 
 # Instantiate study cohorts ----
 logMessage("Instantiating study cohorts")

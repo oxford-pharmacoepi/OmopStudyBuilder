@@ -5,12 +5,13 @@ library(testthat)
 # -------------------------------------------------------------------------
 
 test_that("ensureDocker detects Docker daemon", {
-  skip_if_not(system2("docker", "info", stdout = FALSE, stderr = FALSE) == 0,
-              "Docker not available")
-  
+  skip_if_not(
+    system2("docker", "info", stdout = FALSE, stderr = FALSE) == 0,
+    "Docker not available"
+  )
+
   expect_true(ensureDocker())
 })
-
 
 
 # -------------------------------------------------------------------------
@@ -27,8 +28,10 @@ test_that("pushDockerImage requires repo", {
 })
 
 test_that("pushDockerImage errors when image is missing", {
-  skip_if_not(system2("docker", "info", stdout = FALSE, stderr = FALSE) == 0,
-              "Docker not available")
+  skip_if_not(
+    system2("docker", "info", stdout = FALSE, stderr = FALSE) == 0,
+    "Docker not available"
+  )
 
   expect_error(
     pushDockerImage(
@@ -42,7 +45,6 @@ test_that("pushDockerImage errors when image is missing", {
     ignore.case = TRUE
   )
 })
-
 
 
 # -------------------------------------------------------------------------
@@ -88,7 +90,6 @@ test_that("stopStudy stops rstudio containers", {
 test_that("stopStudy accepts explicit container name", {
   skip("Integration test - requires running container")
 })
-
 
 
 # -------------------------------------------------------------------------

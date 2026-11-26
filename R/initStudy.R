@@ -49,8 +49,9 @@
 #' # Create another study with custom metadata
 #' study_root2 <- file.path(tempdir(), "DiabetesStudy")
 #' initStudy(study_root2,
-#'           studyTitle = "Diabetes Prevalence Study",
-#'           studyLeads = "Dr. Smith, Dr. Jones")
+#'   studyTitle = "Diabetes Prevalence Study",
+#'   studyLeads = "Dr. Smith, Dr. Jones"
+#' )
 #'
 #' \dontrun{
 #' # Create study with GitHub integration (requires GITHUB_PAT)
@@ -66,14 +67,14 @@
 #' )
 #' }
 initStudy <- function(directory,
-                        diagnostics = TRUE,
-                        study = TRUE,
-                        studyTitle = NULL,
-                        studyLeads = NULL,
-                        studyDescription = NULL,
-                        repository = NULL,
-                        organisation = NULL,
-                        private = TRUE) {
+                      diagnostics = TRUE,
+                      study = TRUE,
+                      studyTitle = NULL,
+                      studyLeads = NULL,
+                      studyDescription = NULL,
+                      repository = NULL,
+                      organisation = NULL,
+                      private = TRUE) {
   validateRootDirectory(directory)
   omopgenerics::assertLogical(diagnostics, length = 1)
   omopgenerics::assertLogical(study, length = 1)
@@ -100,15 +101,15 @@ initStudy <- function(directory,
   if (isTRUE(diagnostics)) {
     folderStructure <- c(
       folderStructure,
-        "- **[diagnosticsCode](diagnosticsCode/)**: Contains diagnostic code needed before running the main study",
-        "- **[diagnosticsShiny](diagnosticsShiny/)**: Shiny app for exploring diagnostic outputs"
+      "- **[diagnosticsCode](diagnosticsCode/)**: Contains diagnostic code needed before running the main study",
+      "- **[diagnosticsShiny](diagnosticsShiny/)**: Shiny app for exploring diagnostic outputs"
     )
   }
   if (isTRUE(study)) {
     folderStructure <- c(
       folderStructure,
-        "- **[studyCode](studyCode/)**: Contains the main study analysis code",
-        "- **[studyShiny](studyShiny/)**: Shiny app for exploring study results"
+      "- **[studyCode](studyCode/)**: Contains the main study analysis code",
+      "- **[studyShiny](studyShiny/)**: Shiny app for exploring study results"
     )
   }
   folderStructure <- paste(folderStructure, collapse = "\n")
